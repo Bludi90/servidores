@@ -1,24 +1,52 @@
-# Comandos personalizados
+# Comandos y scripts (resumen)
 
-_Generado: 2025-11-09 21:51_
+_Generado: 2025-11-09 21:59_
 
 Este documento es un **índice**. Las guías completas viven en **docs/comandos/**.
 
 ## Índice de guías
 
-- [LANSCAN — Guía rápida](comandos/lan-scan.md)
-- [WireGuard — Cheatsheet](comandos/wireguard.md)
-- [Wake-on-LAN — Cheatsheet](comandos/wol.md)
+- [build-index.sh — índice de snapshots](comandos/build-index.md)
+- [commit-and-push.sh — subir cambios con controles](comandos/commit-and-push.md)
+- [housekeeping.sh — limpieza de artefactos](comandos/housekeeping.md)
+- [lan-scan — escaneo rápido de LAN](comandos/lan-scan.md)
+- [snapshot-state.sh — foto del sistema](comandos/snapshot-state.md)
+- [WireGuard (wg) — atajos y estado](comandos/wireguard.md)
+- [wol / wolctl / hib / lan2wol — Wake-on-LAN y energía](comandos/wol.md)
 
-## LANSCAN — Guía rápida
+## build-index.sh — índice de snapshots
 
-    `lan-scan` lista dispositivos de la LAN con **IP, MAC, IFACE, HOSTNAME, VENDOR**.  - `lan-scan` → auto (rápido por defecto). Si la red > /24, clampa a /24. - `lan-scan --fast` → muy rápido (fping/ARP), sin DNS. - `lan-scan --deep` → exhaustivo (nmap -sn), con DNS. - `lan-scan --wide` → no clampa: usa el CIDR completo de la interfaz.  `-i/--iface IFACE` · `-n/--net CIDR` · `--csv` · `--no-dns` · `--no-vendor` · `--refresh` `--timeout 1s` (nmap) · `--fping-timeout 80` (ms) · `--debug` (muestra NET/NET_SCAN/engine)  fping (rapidez), nmap (deep), ieee-data (fabricantes/OUI). Instalación: `sudo apt install -y fping nmap ieee-data`
+    Crea `docs/ESTADO.md` con enlaces a snapshots “completos” (WireGuard, Docker, VMs) y avisa si el más reciente está incompleto.
+
+[→ Abrir guía completa](comandos/build-index.md)
+
+## commit-and-push.sh — subir cambios con controles
+
+    Automatiza snapshot, limpieza, índice, chequeo anti-secretos y **push**. Aborta si encuentra posibles secretos o ficheros grandes. Úsalo tras cambios relevantes de configuración o docs.
+
+[→ Abrir guía completa](comandos/commit-and-push.md)
+
+## housekeeping.sh — limpieza de artefactos
+
+    Compacta `sync.log` y elimina snapshots antiguos conservando los últimos **KEEP** (por defecto 200). Mantiene el repo ligero.
+
+[→ Abrir guía completa](comandos/housekeeping.md)
+
+## lan-scan — escaneo rápido de LAN
+
+    Descubre dispositivos en la red local y muestra **IP, MAC, IFACE, HOSTNAME y VENDOR**. Por defecto es rápido (si la red > /24, limita a /24). Modos: `--fast`, `--deep`, `--wide`. Útil para poblar WOL y diagnosticar conectividad.
 
 [→ Abrir guía completa](comandos/lan-scan.md)
 
-## WireGuard — Cheatsheet
+## snapshot-state.sh — foto del sistema
 
-        WireGuard — CHEATSHEET (comandos personalizados)          Objetivo: operaciones habituales sin exponer claves.     Convención: IP/32 = IP interna WG del peer. Nombres ↔ IP/32 en scripts/wg-peers.byip          Subcomandos:       list-peers         → Lista peers con NOMBRE, IP/32, HS(min), RX/TX, estado (🟢/🟡/⚫)       add-peer <NOMBRE>  → Alta de peer nuevo (IP/32, claves, conf cliente, QR opcional)       del-peer <NOMBRE>  → Baja de peer (elimina su IP/32)       repair             → Repara wg0 (unidad, permisos, rutas)   _Disponible: Sí (`/usr/bin/wg-list-peers`)_     wireguard list-peers     Binario real: wg-list-peers (usable como 'wg list-peers')          Uso:       wg list-peers [-h] [IFACE]     # ayuda con -h       wg list-peers                   # ejecuta listado       wg-peer-list [IFACE]            # alias (si existe)          Descripción:       Lista peers con NOMBRE, IP/32, minutos desde último HS, RX/TX y estado:        - 🟢 HS ≤ 10 min, 🟡 10–60 min, ⚫ > 60 min o sin HS.   _Disponible: Sí (`/usr/local/sbin/wg-add-peer`)_     wireguard add-peer     Uso:       wg-add-peer <NOMBRE> [--ip 10.8.0.X/32] [--qr] [--out ./client.conf]          Descripción:       Da de alta un peer:        1) busca IP/32 libre (o usa --ip),        2) genera claves del cliente,        3) añade el peer a wg0 y recarga,        4) guarda el .conf del cliente (y QR si --qr).          Archivos implicados:       scripts/wg-peers.byip         # mapeo IP/32 ↔ NOMBRE       /etc/wireguard/wg0.conf       # configuración del servidor (aplicación con wg-quick)   _Disponible: Sí (`/usr/local/sbin/wg-del-peer`)_     wireguard del-peer     Uso:       wg-del-peer <NOMBRE>          Descripción:       Da de baja un peer, quita su IP/32 y lo elimina del wg0.       Mantiene copia de seguridad del bloque eliminado.   _Disponible: Sí (`/usr/local/sbin/wg-repair`)_     wireguard repair     Binario real: wg-repair          Uso:       wg-repair           # solo diagnóstico       wg-repair --fix     # intenta levantar wg0 (wg-quick down/up, systemctl enable/start)          Descripción:       Revisa servicio wg-quick@wg0, ip_forward, socket UDP 51820 y estado de wg.       Si hay sudo sin contraseña, puede relanzar el servicio (sin tocar claves). 
+    Genera `state/<host>/<fecha>-state.md` con hardware, red, servicios (SSH, UFW, Docker, WG), discos y logs clave (restic) con anonimización de IP/puertos.
+
+[→ Abrir guía completa](comandos/snapshot-state.md)
+
+## WireGuard (wg) — atajos y estado
+
+    Conjunto de atajos para trabajar con WireGuard sin exponer claves: listado legible de peers, utilidades de alta/baja y reparación básica del servicio.  Subcomandos: - list-peers - add-peer - del-peer - repair
 
 Subcomandos:
 
@@ -29,16 +57,20 @@ Subcomandos:
 
 [→ Abrir guía completa](comandos/wireguard.md)
 
-## Wake-on-LAN — Cheatsheet
+## wol / wolctl / hib / lan2wol — Wake-on-LAN y energía
 
-        WOL (Wake-on-LAN)     - Fichero de hosts: /etc/wolctl/hosts.tsv (TSV con cabecera)       Campos: NAME  IF_LAN  MAC  IP  WINUSER  RUSTDESK_PORT  NOTES       - NAME: se recomienda minúsculas (case-insensitive).       - IF_LAN: interfaz LAN (p.ej. enp10s0). Si está vacío o "-" se autodetecta por IP.     - Envío: combina L2 (etherwake broadcast) + UDP (wakeonlan, por defecto puerto 9).     - Requisitos: etherwake, wakeonlan, tcpdump (para 'check').     - Consejos:       * BIOS: WOL/PME activo; ErP/DeepSleep desactivado; "Power on by PCI-E" activo.       * Windows: desactivar Inicio rápido; permitir reactivar por adaptador; "Wake on magic packet".       * Mejor hibernación S4 (no apagado S5).   _Disponible: Sí (`/usr/local/bin/wolctl`)_      wolctl — gestor Wake-on-LAN con /etc/wolctl/hosts.tsv          USO       wolctl list       wolctl show <name>       wolctl wake <name> [name2 ...] [--iface IFACE] [--broadcast|--unicast] [--port 7|9]       wolctl wake --all       wolctl check <name>       wolctl add <name> <mac> <ip> [IFACE|-]       wolctl set <name> iface|ip|mac|user|port|notes <valor>       wolctl rename <old> <new>       wolctl rm <name>       wolctl -h | --help | -help          EJEMPLOS       wolctl list       wolctl show pc-main1       wolctl wake pc-main1       wolctl wake --all       wolctl add pc-lenovo aa:bb:cc:11:22:33 192.168.1.50 enp10s0       wolctl check pc-main1   _Disponible: Sí (`/usr/local/bin/wol`)_      wol — atajo de "wolctl wake"     USO       wol <name ...>        # igual que 'wolctl wake <name ...>'       wol -h | --help       # muestra la ayuda de wolctl 
+    Gestión de equipos vía “magic packet”: **despertar (wol/wolctl)**, **hibernar (hib)** y **altas rápidas (lan2wol)** con base de datos en `/etc/wolctl/hosts.tsv`. Operativa recomendada dentro de la **VPN**.
 
 [→ Abrir guía completa](comandos/wol.md)
 
 ## Resumen rápido
 
-| Comando | Para qué sirve | Guía |
-|---|---|---|
-| `lan-scan` | `lan-scan` lista dispositivos de la LAN con **IP, MAC, IFACE, HOSTNAME, VENDOR**.  - `lan-scan` → auto (rápido por defecto). Si la red > /24, clampa a /24. - `lan-scan --fast` → muy rápido (fping/ARP), sin DNS. - `lan-scan --deep` → exhaustivo (nmap -sn), con DNS. - `lan-scan --wide` → no clampa: usa el CIDR completo de la interfaz.  `-i/--iface IFACE` · `-n/--net CIDR` · `--csv` · `--no-dns` · `--no-vendor` · `--refresh` `--timeout 1s` (nmap) · `--fping-timeout 80` (ms) · `--debug` (muestra NET/NET_SCAN/engine)  fping (rapidez), nmap (deep), ieee-data (fabricantes/OUI). Instalación: `sudo apt install -y fping nmap ieee-data` | [Abrir](comandos/lan-scan.md) |
-| `wg` |     WireGuard — CHEATSHEET (comandos personalizados)          Objetivo: operaciones habituales sin exponer claves.     Convención: IP/32 = IP interna WG del peer. Nombres ↔ IP/32 en scripts/wg-peers.byip          Subcomandos:       list-peers         → Lista peers con NOMBRE, IP/32, HS(min), RX/TX, estado (🟢/🟡/⚫)       add-peer <NOMBRE>  → Alta de peer nuevo (IP/32, claves, conf cliente, QR opcional)       del-peer <NOMBRE>  → Baja de peer (elimina su IP/32)       repair             → Repara wg0 (unidad, permisos, rutas)   _Disponible: Sí (`/usr/bin/wg-list-peers`)_     wireguard list-peers     Binario real: wg-list-peers (usable como 'wg list-peers')          Uso:       wg list-peers [-h] [IFACE]     # ayuda con -h       wg list-peers                   # ejecuta listado       wg-peer-list [IFACE]            # alias (si existe)          Descripción:       Lista peers con NOMBRE, IP/32, minutos desde último HS, RX/TX y estado:        - 🟢 HS ≤ 10 min, 🟡 10–60 min, ⚫ > 60 min o sin HS.   _Disponible: Sí (`/usr/local/sbin/wg-add-peer`)_     wireguard add-peer     Uso:       wg-add-peer <NOMBRE> [--ip 10.8.0.X/32] [--qr] [--out ./client.conf]          Descripción:       Da de alta un peer:        1) busca IP/32 libre (o usa --ip),        2) genera claves del cliente,        3) añade el peer a wg0 y recarga,        4) guarda el .conf del cliente (y QR si --qr).          Archivos implicados:       scripts/wg-peers.byip         # mapeo IP/32 ↔ NOMBRE       /etc/wireguard/wg0.conf       # configuración del servidor (aplicación con wg-quick)   _Disponible: Sí (`/usr/local/sbin/wg-del-peer`)_     wireguard del-peer     Uso:       wg-del-peer <NOMBRE>          Descripción:       Da de baja un peer, quita su IP/32 y lo elimina del wg0.       Mantiene copia de seguridad del bloque eliminado.   _Disponible: Sí (`/usr/local/sbin/wg-repair`)_     wireguard repair     Binario real: wg-repair          Uso:       wg-repair           # solo diagnóstico       wg-repair --fix     # intenta levantar wg0 (wg-quick down/up, systemctl enable/start)          Descripción:       Revisa servicio wg-quick@wg0, ip_forward, socket UDP 51820 y estado de wg.       Si hay sudo sin contraseña, puede relanzar el servicio (sin tocar claves).  | [Abrir](comandos/wireguard.md) |
-| `wol` |     WOL (Wake-on-LAN)     - Fichero de hosts: /etc/wolctl/hosts.tsv (TSV con cabecera)       Campos: NAME  IF_LAN  MAC  IP  WINUSER  RUSTDESK_PORT  NOTES       - NAME: se recomienda minúsculas (case-insensitive).       - IF_LAN: interfaz LAN (p.ej. enp10s0). Si está vacío o "-" se autodetecta por IP.     - Envío: combina L2 (etherwake broadcast) + UDP (wakeonlan, por defecto puerto 9).     - Requisitos: etherwake, wakeonlan, tcpdump (para 'check').     - Consejos:       * BIOS: WOL/PME activo; ErP/DeepSleep desactivado; "Power on by PCI-E" activo.       * Windows: desactivar Inicio rápido; permitir reactivar por adaptador; "Wake on magic packet".       * Mejor hibernación S4 (no apagado S5).   _Disponible: Sí (`/usr/local/bin/wolctl`)_      wolctl — gestor Wake-on-LAN con /etc/wolctl/hosts.tsv          USO       wolctl list       wolctl show <name>       wolctl wake <name> [name2 ...] [--iface IFACE] [--broadcast\|--unicast] [--port 7\|9]       wolctl wake --all       wolctl check <name>       wolctl add <name> <mac> <ip> [IFACE\|-]       wolctl set <name> iface\|ip\|mac\|user\|port\|notes <valor>       wolctl rename <old> <new>       wolctl rm <name>       wolctl -h \| --help \| -help          EJEMPLOS       wolctl list       wolctl show pc-main1       wolctl wake pc-main1       wolctl wake --all       wolctl add pc-lenovo aa:bb:cc:11:22:33 192.168.1.50 enp10s0       wolctl check pc-main1   _Disponible: Sí (`/usr/local/bin/wol`)_      wol — atajo de "wolctl wake"     USO       wol <name ...>        # igual que 'wolctl wake <name ...>'       wol -h \| --help       # muestra la ayuda de wolctl  | [Abrir](comandos/wol.md) |
+| Comando/Script | Para qué sirve | Guía | Activo |
+|---|---|---|:--:|
+| `build-index` | Crea `docs/ESTADO.md` con enlaces a snapshots “completos” (WireGuard, Docker, VMs) y avisa si el más reciente está incompleto. | [Abrir](comandos/build-index.md) | Sí |
+| `commit-and-push` | Automatiza snapshot, limpieza, índice, chequeo anti-secretos y **push**. Aborta si encuentra posibles secretos o ficheros grandes. Úsalo tras cambios relevantes de configuración o docs. | [Abrir](comandos/commit-and-push.md) | Sí |
+| `housekeeping` | Compacta `sync.log` y elimina snapshots antiguos conservando los últimos **KEEP** (por defecto 200). Mantiene el repo ligero. | [Abrir](comandos/housekeeping.md) | Sí |
+| `lan-scan` | Descubre dispositivos en la red local y muestra **IP, MAC, IFACE, HOSTNAME y VENDOR**. Por defecto es rápido (si la red > /24, limita a /24). Modos: `--fast`, `--deep`, `--wide`. Útil para poblar WOL y diagnosticar conectividad. | [Abrir](comandos/lan-scan.md) | Sí |
+| `snapshot-state` | Genera `state/<host>/<fecha>-state.md` con hardware, red, servicios (SSH, UFW, Docker, WG), discos y logs clave (restic) con anonimización de IP/puertos. | [Abrir](comandos/snapshot-state.md) | Sí |
+| `wg` | Conjunto de atajos para trabajar con WireGuard sin exponer claves: listado legible de peers, utilidades de alta/baja y reparación básica del servicio.  Subcomandos: - list-peers - add-peer - del-peer - repair | [Abrir](comandos/wireguard.md) | Sí |
+| `wol` | Gestión de equipos vía “magic packet”: **despertar (wol/wolctl)**, **hibernar (hib)** y **altas rápidas (lan2wol)** con base de datos en `/etc/wolctl/hosts.tsv`. Operativa recomendada dentro de la **VPN**. | [Abrir](comandos/wol.md) | Sí |
