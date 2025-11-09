@@ -1,0 +1,21 @@
+wolctl — gestor Wake-on-LAN con /etc/wolctl/hosts.tsv
+
+USO
+  wolctl list
+  wolctl show <name>
+  wolctl wake <name> [name2 ...] [--iface IFACE] [--broadcast|--unicast] [--port 7|9]
+  wolctl wake --all
+  wolctl check <name>
+  wolctl add <name> <mac> <ip> [IFACE|-]
+  wolctl set <name> iface|ip|mac|user|port|notes <valor>
+  wolctl rename <old> <new>
+  wolctl rm <name>
+  wolctl -h | --help | -help
+
+EJEMPLOS
+  wolctl list
+  wolctl show pc-main1
+  wolctl wake pc-main1
+  wolctl wake --all
+  wolctl add pc-lenovo aa:bb:cc:11:22:33 192.168.1.50 enp10s0
+  wolctl check pc-main1

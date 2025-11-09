@@ -1,0 +1,11 @@
+WOL (Wake-on-LAN)
+- Fichero de hosts: /etc/wolctl/hosts.tsv (TSV con cabecera)
+  Campos: NAME  IF_LAN  MAC  IP  WINUSER  RUSTDESK_PORT  NOTES
+  - NAME: se recomienda minúsculas (case-insensitive).
+  - IF_LAN: interfaz LAN (p.ej. enp10s0). Si está vacío o "-" se autodetecta por IP.
+- Envío: combina L2 (etherwake broadcast) + UDP (wakeonlan, por defecto puerto 9).
+- Requisitos: etherwake, wakeonlan, tcpdump (para 'check').
+- Consejos:
+  * BIOS: WOL/PME activo; ErP/DeepSleep desactivado; "Power on by PCI-E" activo.
+  * Windows: desactivar Inicio rápido; permitir reactivar por adaptador; "Wake on magic packet".
+  * Mejor hibernación S4 (no apagado S5).

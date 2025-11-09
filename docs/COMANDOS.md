@@ -1,8 +1,9 @@
 # Comandos personalizados
 
-_Generado: 2025-11-09 19:07_
+_Generado: 2025-11-09 19:27_
 
 - **Cheatsheet WireGuard:** [WIREGUARD.md](WIREGUARD.md)
+- **Cheatsheet WOL:** [WOL.md](WOL.md)
 
 ## build-index.sh
 
@@ -58,8 +59,19 @@ _Generado: 2025-11-09 19:07_
     - Los nombres se leen de scripts/wg-peers.byip (formato: "10.8.0.11/32 pc-jandro").
     - No imprime claves. Endpoints se enmascaran en los snapshots.
 
+## wolctl
+
+    wolctl — gestor WOL (list/show/wake/check/add/set/rename/rm). Hosts en /etc/wolctl/hosts.tsv
+
+## wol
+
+    wol — atajo de "wolctl wake". Ej: 'wol pc-main1'
+
 ## Resumen rápido
 
 | Comando | Para qué sirve |
 |---|---|
 | `wg-list-peers` | Lista peers con nombre, IP/32, HS(min), RX/TX |
+"| \`wolctl\` | Gestión WOL (list/show/wake/check/add/set/rename/rm) |"
+"| \`wol\` | Atajo de \`wolctl wake\` |"
+"| \`lan-scan\` | Descubre IP/MAC/Vendor en la LAN |"

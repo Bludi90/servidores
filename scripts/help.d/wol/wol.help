@@ -1,0 +1,4 @@
+wol — atajo de "wolctl wake"
+USO
+  wol <name ...>        # igual que 'wolctl wake <name ...>'
+  wol -h | --help       # muestra la ayuda de wolctl
