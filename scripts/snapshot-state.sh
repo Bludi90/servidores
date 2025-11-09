@@ -194,6 +194,39 @@ mkdir -p "$OUT_DIR"
     echo "Log no legible por el usuario actual."
   fi
   echo '```'
+  echo "## Docker"
+  echo '```'
+  if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+    echo "Contenedores en ejecución:"; docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}' || true
+    echo
+    if docker compose version >/dev/null 2>&1; then
+      echo "Docker Compose (v2) — stacks:"; docker compose ls || true
+    elif command -v docker-compose >/dev/null 2>&1; then
+      echo "Docker Compose (v1) — proyectos:"; docker-compose ls 2>/dev/null || docker-compose ps || true
+    fi
+    echo; echo "Volúmenes:"; docker volume ls || true
+    echo; echo "Imágenes (top 10 por tamaño):"; docker images --format '{{.Repository}}:{{.Tag}}\t{{.Size}}' | head -n 10 || true
+  else
+    echo "Docker no accesible o no instalado."
+  fi
+  echo '```'
+  echo
+
+  echo "## VMs (libvirt)"
+  echo '```'
+  if command -v virsh >/dev/null 2>&1; then virsh list --all || true; else echo "libvirt/virsh no disponible."; fi
+  echo '```'
+  echo
+
+  echo "## Backups (restic)"
+  echo '```'
+  LOG="/var/log/backup_restic.log"
+  if [ -r "$LOG" ]; then
+    echo "Últimas 50 líneas del log (IPs/puertos depurados):"; tail -n 50 "$LOG" | mask_all
+  else
+    echo "Log no legible por el usuario actual."
+  fi
+  echo '```'
 } > "$OUT"
 
 echo "Escrito: $OUT"

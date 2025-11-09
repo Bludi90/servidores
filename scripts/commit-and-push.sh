@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+export PATH="$PATH:/usr/local/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/alejandro/bin"
 set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
