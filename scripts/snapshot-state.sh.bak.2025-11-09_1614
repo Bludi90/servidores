@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# PATH amplio para encontrar wg/ufw y herramientas propias
-export PATH="$PATH:/usr/local/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/alejandro/bin"
+# Asegura utilidades aunque no seas root
+export PATH="$PATH:/usr/sbin:/sbin"
 
 SERVER="$(hostname -s || echo server)"
 STAMP="$(date +%F_%H%M)"
@@ -11,16 +11,6 @@ OUT="${OUT_DIR}/${STAMP}-state.md"
 mask_ipv4()  { sed -E 's/\b([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\.[0-9]{1,3}\b/\1.x/g'; }
 mask_ports() { sed -E 's/:([0-9]{2,5})([^0-9]|$)/:xxxx\2/g'; }
 mask_all()   { mask_ipv4 | mask_ports; }
-
-# Localiza wg-list-peers aunque no esté en PATH
-find_wg_list_peers() {
-  for c in wg-list-peers /usr/local/bin/wg-list-peers /usr/sbin/wg-list-peers \
-           /home/alejandro/servidores/scripts/wg-list-peers /home/alejandro/bin/wg-list-peers; do
-    [ -x "$c" ] && { echo "$c"; return; }
-    command -v "$c" >/dev/null 2>&1 && { command -v "$c"; return; }
-  done
-  return 1
-}
 
 mkdir -p "$OUT_DIR"
 
@@ -87,22 +77,18 @@ mkdir -p "$OUT_DIR"
   echo '```'
   echo
 
-  echo "## WireGuard (sin claves)"
+  echo "## WireGuard"
   echo '```'
-  # Solo info sin claves: interfaz, IP y puerto de escucha
-  ip -br addr show wg0 2>/dev/null | mask_all || echo "wg0 no configurada."
-  printf "Interfaces: "; (sudo -n wg show interfaces 2>/dev/null || wg show interfaces 2>/dev/null || echo "no disponibles")
-  printf "Listen-port (wg0): "; (sudo -n wg show wg0 listen-port 2>/dev/null || echo "desconocido") | mask_ports
+  ( sudo -n wg show 2>/dev/null || wg show 2>/dev/null || echo "WireGuard instalado pero sin permisos o sin interfaz." ) | mask_all
   echo '```'
   echo
-  echo "**Peers (nombres) — usando wg-list-peers (sin claves)**"
+  echo "**Peers (nombres) — wg-list-peers**"
   echo '```'
-  if WGPEERS="$(find_wg_list_peers)"; then
-    # Ejecuta tu comando y oculta columnas de clave/endpoint. Esperado: NOMBRE IP PUBKEY(16) ENDPOINT HS_ago RX TX
-    (sudo -n "$WGPEERS" 2>/dev/null || "$WGPEERS" 2>/dev/null) \
-      | awk 'NR==1{print "NOMBRE\tIP\tHS_ago\tRX\tTX"; next} {print $1"\t"$2"\t"$5"\t"$6"\t"$7}'
+  if command -v wg-list-peers >/dev/null 2>&1; then
+    # usa tu comando y enmascara endpoint/puertos para mantener la política de privacidad
+    (sudo -n wg-list-peers 2>/dev/null || wg-list-peers 2>/dev/null) | mask_all
   else
-    echo "wg-list-peers no encontrado."
+    echo "wg-list-peers no disponible en PATH."
   fi
   echo '```'
   echo
