@@ -41,3 +41,5 @@ private/
 Thumbs.db
 *.swp
 *~
+scripts/*.bak*
+*.bak
