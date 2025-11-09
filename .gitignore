@@ -1,0 +1,43 @@
+# --- NUNCA subir secretos ---
+# Claves / cifrados
+id_* 
+*.key
+*.pem
+*.p12
+*.pfx
+*.kdbx
+*.gpg
+*.age
+*.asc
+*.enc
+
+# Passwords / tokens / vaults / env
+*.token
+*.secret*
+*password*
+*.pass
+*.vault
+*.secrets
+.env
+.env.*
+
+# Configs reales (permitimos solo ejemplos)
+*.ovpn
+wg*.conf
+*wireguard*.conf
+ssh_config
+known_hosts
+authorized_keys
+*.conf
+!*.conf.sample
+!*.conf.example
+
+# Logs crudos (exportaremos resúmenes sanitizados a state/)
+raw_logs/
+private/
+
+# Ruido del sistema / editores
+.DS_Store
+Thumbs.db
+*.swp
+*~
