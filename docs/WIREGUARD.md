@@ -1,6 +1,6 @@
 # WireGuard — Cheatsheet
 
-_Generado: 2025-11-09 19:44_
+_Generado: 2025-11-09 20:07_
 
     WireGuard — CHEATSHEET (comandos personalizados)
     
@@ -15,7 +15,7 @@ _Generado: 2025-11-09 19:44_
 
 ## list-peers
 
-_Disponible: Sí (`/usr/local/sbin/wg-list-peers`)_
+_Disponible: Sí (`/usr/bin/wg-list-peers`)_
     wireguard list-peers
     Binario real: wg-list-peers (usable como 'wg list-peers')
     
