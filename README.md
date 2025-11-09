@@ -1,5 +1,5 @@
 # Servidores — Documentación (solo-Docs)
-Repositorio privado para **documentación y estado** de los servidores activos (sin secretos).
+Repositorio privado para **documentación y estado** de los servidores activos.
 
 ## Contenido
 - `docs/`: guías, decisiones, comandos personalizados.
