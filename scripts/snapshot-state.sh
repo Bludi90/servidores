@@ -20,10 +20,49 @@ find_wg_list_peers() {
   return 1
 }
 
+# --- helpers hardware (sin root) ---
+board() { for f in vendor name version; do p="/sys/class/dmi/id/board_$f"; [ -r "$p" ] && cat "$p" || echo "?"; done; }
+bios()  { for f in bios_vendor bios_version bios_date; do p="/sys/class/dmi/id/$f"; [ -r "$p" ] && cat "$p" || echo "?"; done; }
+
 mkdir -p "$OUT_DIR"
 
 {
   echo "# Estado de ${SERVER} — ${STAMP}"
+  echo
+
+  echo "## Hardware"
+  # Placa/Bios
+  BV=$(board | sed -n '1p'); BN=$(board | sed -n '2p'); BVER=$(board | sed -n '3p')
+  BIOSV=$(bios | sed -n '2p'); BIOSD=$(bios | sed -n '3p'); BIOSVEN=$(bios | sed -n '1p')
+  CPU_MODEL="$(lscpu | awk -F: '/Model name/ {sub(/^ /,"",$2); print $2}')"
+  S=$(lscpu | awk -F: '/Socket\(s\)/{gsub(/ /,"",$2);print $2}')
+  C=$(lscpu | awk -F: '/Core\(s\) per socket/{gsub(/ /,"",$2);print $2}')
+  T=$(lscpu | awk -F: '/Thread\(s\) per core/{gsub(/ /,"",$2);print $2}')
+  TOT=$(lscpu | awk -F: '/^CPU\(s\)/{gsub(/ /,"",$2);print $2}')
+  MEMT="$(awk '/MemTotal/{printf "%.1f GiB",$2/1048576}' /proc/meminfo)"
+  SWAPT="$(awk '/SwapTotal/{printf "%.1f GiB",$2/1048576}' /proc/meminfo)"
+  echo
+  echo "| Componente | Detalle |"
+  echo "|---|---|"
+  echo "| Placa base | ${BV} ${BN} (rev ${BVER}) |"
+  echo "| BIOS | ${BIOSVEN} ${BIOSV} (${BIOSD}) |"
+  echo "| CPU | ${CPU_MODEL} — topología ${S}×${C}×${T} (${TOT} hilos) |"
+  echo "| RAM/Swap | ${MEMT} / ${SWAPT} |"
+  echo
+  echo "**GPU(s):**"
+  echo '```'
+  (lspci -nn | grep -Ei 'vga|3d|display' || echo "No detectado") 
+  echo '```'
+  echo
+  echo "**Interfaz(es) de red:**"
+  echo '```'
+  (lspci -nn | grep -Ei 'ethernet' || echo "No detectado")
+  echo '```'
+  echo
+  echo "**Discos (modelo/tamaño):**"
+  echo '```'
+  lsblk -d -o NAME,MODEL,SERIAL,SIZE,ROTA,TYPE | sed 's/\s\+/ /g'
+  echo '```'
   echo
 
   echo "## Sistema"
@@ -94,17 +133,14 @@ mkdir -p "$OUT_DIR"
   echo
   echo "**Peers (nombres)**"
   if WGPEERS="$(find_wg_list_peers)"; then
-    # Cabecera de tabla Markdown
     echo
     echo "| Estado | Nombre | IP | HS (min) | RX | TX |"
     echo "|:--:|---|---|---:|---:|---:|"
-    # Ejecuta tu comando; se espera cabecera tipo: NOMBRE IP PUBKEY(16) ENDPOINT HS_ago RX TX
     (sudo -n "$WGPEERS" 2>/dev/null || "$WGPEERS" 2>/dev/null) \
       | awk '
-        NR==1 {next} # salta cabecera
+        NR==1 {next}
         {
           name=$1; ip=$2; hs=$5; rx=$6; tx=$7;
-          # icono de estado según minutos desde HS
           stat="⚫";
           if (hs ~ /^[0-9]+m$/) {
             m=hs; sub(/m/,"",m);
@@ -112,7 +148,6 @@ mkdir -p "$OUT_DIR"
             else if (m+0 <= 60) stat="🟡";
             else stat="⚫";
           }
-          # bytes -> MiB si es número
           rxm=rx; txm=tx;
           if (rx ~ /^[0-9]+$/) { rxm=sprintf("%.1f MiB", rx/1048576); }
           if (tx ~ /^[0-9]+$/) { txm=sprintf("%.1f MiB", tx/1048576); }
