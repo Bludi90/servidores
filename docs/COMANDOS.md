@@ -1,6 +1,6 @@
 # Comandos personalizados
 
-_Generado: 2025-11-09 19:33_
+_Generado: 2025-11-09 19:40_
 
 - **Cheatsheet WireGuard:** [WIREGUARD.md](WIREGUARD.md)
 
@@ -31,6 +31,22 @@ _Generado: 2025-11-09 19:33_
     housekeeping.sh
     Conserva por defecto los últimos 200 snapshots por host y recorta sync.log.
     Cambiar con: KEEP=336 ./scripts/housekeeping.sh
+
+## lan-scan
+
+    lan-scan — descubre IP/MAC/Vendor en la LAN (ARP/Nmap)
+    USO
+      lan-scan                    # autodetecta interfaz/red
+      lan-scan -i enp10s0         # fuerza interfaz
+      lan-scan -n 192.168.1.0/24  # fuerza red
+      lan-scan --engine arp-scan  # usa arp-scan (recomendado en LAN)
+      lan-scan --engine nmap      # usa Nmap (ARP discovery)
+      lan-scan --refresh          # ping sweep para poblar ARP si hace falta
+      lan-scan --debug            # muestra decisiones (iface/red/engine)
+    Ejemplos
+      lan-scan --debug
+      lan-scan -i enp10s0 --engine arp-scan --debug
+      lan-scan -i enp10s0 -n 192.168.1.0/24 --engine nmap
 
 ## snapshot-state.sh
 
