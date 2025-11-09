@@ -1,6 +1,6 @@
 # WireGuard — Cheatsheet
 
-_Generado: 2025-11-09 18:56_
+_Generado: 2025-11-09 19:04_
 
     WireGuard — CHEATSHEET (comandos personalizados)
     
@@ -64,10 +64,13 @@ _Disponible: Sí (`/usr/local/sbin/wg-del-peer`)_
 _Disponible: Sí (`/usr/local/sbin/wg-repair`)_
 
     wireguard repair
+    Binario real: wg-repair
+    
     Uso:
-      wg-repair
+      wg-repair           # solo diagnóstico
+      wg-repair --fix     # intenta levantar wg0 (wg-quick down/up, systemctl enable/start)
     
     Descripción:
-      Revisa y repara wg0 (permisos, unidad systemd, rutas binarios, levanta interfaz).
-      Útil si hay fallos tras cambios o actualizaciones.
+      Revisa servicio wg-quick@wg0, ip_forward, socket UDP 51820 y estado de wg.
+      Si hay sudo sin contraseña, puede relanzar el servicio (sin tocar claves).
 

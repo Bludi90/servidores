@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 H="$ROOT/scripts/help.d"
 
-list_topics(){ ls "$H" 2>/dev/null | sed -n 's/^wireguard$/wireguard/p'; }
+list_topics(){ [ -d "$H/wireguard" ] && echo wireguard || true; }
 list_cmds(){ ls "$H"/*.help 2>/dev/null | xargs -I{} basename {} .help | sort; }
 list_subcmds(){ ls "$H/$1"/*.help 2>/dev/null | xargs -I{} basename {} .help | sort; }
 
@@ -25,25 +25,28 @@ usage(){
 
 [ $# -lt 1 ] && { usage; exit 0; }
 
-if [ -d "$H/$1" ]; then
-  TOPIC="$1"; shift || true
-  if [ $# -eq 0 ]; then
-    [ -r "$H/$TOPIC/_index.help" ] && cat "$H/$TOPIC/_index.help" && echo
-    echo "Subcomandos disponibles:"
-    for s in $(list_subcmds "$TOPIC"); do
+if [ "$1" = "wireguard" ]; then
+  TOPIC="wireguard"; shift || true
+  # Muestra índice aunque falte _index.help
+  [ -r "$H/$TOPIC/_index.help" ] && cat "$H/$TOPIC/_index.help" && echo || echo "WireGuard — cheatsheet"
+  echo "Subcomandos disponibles:"
+  subs="$(list_subcmds "$TOPIC")"
+  if [ -n "$subs" ]; then
+    for s in $subs; do
       avail="$(avail_wireguard "$s")"; printf "  - %s  [Disponible: %s]\n" "$s" "${avail:-?}"
     done
-    exit 0
   else
-    SUB="$1"; FILE="$H/$TOPIC/${SUB}.help"
-    [ -r "$FILE" ] || { echo "No hay ayuda para '$TOPIC $SUB'"; exit 1; }
-    avail="$(avail_wireguard "$SUB")"
-    [ -n "$avail" ] && echo "[Disponible: $avail]" && echo
-    cat "$FILE"
-    exit 0
+    echo "  (sin subcomandos documentados)"
   fi
-else
-  CMD="$1"; FILE="$H/${CMD}.help"
-  [ -r "$FILE" ] && { cat "$FILE"; exit 0; }
-  echo "No hay ayuda para '$CMD'."; echo; usage; exit 1
+  # ¿pidieron un subcomando?
+  if [ $# -ge 1 ]; then
+    SUB="$1"; FILE="$H/$TOPIC/${SUB}.help"
+    echo; [ -r "$FILE" ] && { [ -n "$(avail_wireguard "$SUB")" ] && echo "[Disponible: $(avail_wireguard "$SUB")]" && echo; cat "$FILE"; } \
+                        || echo "No hay ayuda para 'wireguard $SUB'"
+  fi
+  exit 0
 fi
+
+CMD="$1"; FILE="$H/${CMD}.help"
+[ -r "$FILE" ] && { cat "$FILE"; exit 0; }
+echo "No hay ayuda para '$CMD'."; echo; usage; exit 1

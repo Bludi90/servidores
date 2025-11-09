@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export PATH="$PATH:/usr/sbin:/sbin"
+IF="${1:-wg0}"
+FIX=0; [ "${1:-}" = "--fix" ] && { IF="wg0"; FIX=1; }
+[ "${2:-}" = "--fix" ] && FIX=1
+
+need_sudo(){ echo "Necesitas sudo sin contraseña para wg/ufw. Sugerencia:
+  sudo bash -lc 'cat >/etc/sudoers.d/10-wg-ufw <<E<<
+alejandro ALL=(root) NOPASSWD: /usr/bin/wg, /usr/sbin/ufw, /usr/bin/wg-quick, /bin/systemctl
+E
+visudo -c'"
+}
+
+echo "## Servicio"
+(systemctl status "wg-quick@${IF}" --no-pager || true) | sed -n '1,20p'
+echo
+
+echo "## ip_forward"
+sysctl -n net.ipv4.ip_forward || true
+echo
+
+echo "## Sockets"
+ss -ulpn | awk '/51820/ || NR==1' || true
+echo
+
+echo "## wg show (antes)"
+if ! sudo -n wg show 2>/dev/null; then
+  echo "wg show requiere privilegios. "; need_sudo; echo
+fi
+
+if [ "$FIX" -eq 1 ]; then
+  echo "## Reinicio suave de ${IF}"
+  if sudo -n wg-quick down "$IF" 2>/dev/null; then echo "[down] ok"; else echo "[down] (continuo)"; fi
+  if sudo -n wg-quick up "$IF" 2>/dev/null;   then echo "[up] ok"; else echo "[up] fallo"; fi
+  # Si existe systemd, márcalo enabled y arrancado
+  sudo -n systemctl enable "wg-quick@${IF}" >/dev/null 2>&1 || true
+  sudo -n systemctl start  "wg-quick@${IF}" >/dev/null 2>&1 || true
+  echo
+fi
+
+echo "## wg show (después)"
+sudo -n wg show 2>/dev/null || echo "(sin permisos o sin interfaz)"
