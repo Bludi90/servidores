@@ -1,0 +1,10 @@
+wg-list-peers  [IFACE]
+Muestra peers de WireGuard con NOMBRE, IP/32, minutos desde último HS, RX/TX.
+
+Uso:
+  wg-list-peers            # asume wg0
+  wg-list-peers wg0        # interfaz explícita
+
+Notas:
+- Los nombres se leen de scripts/wg-peers.byip (formato: "10.8.0.11/32 pc-jandro").
+- No imprime claves. Endpoints se enmascaran en los snapshots.

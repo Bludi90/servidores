@@ -1,0 +1,13 @@
+commit-and-push.sh
+Genera snapshot, housekeeping, reconstruye índices y sube al repo.
+
+Flujo:
+  1) snapshot-state.sh
+  2) housekeeping.sh (limpia viejos snapshots y compacta sync.log)
+  3) build-index.sh (docs/ESTADO.md)
+  4) gen-commands-doc.sh (docs/COMANDOS.md)
+  5) chequeo anti-secretos / tamaño
+  6) commit & push
+
+Logs:
+  state/<HOST>/sync.log (depurado)

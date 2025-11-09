@@ -1,0 +1,3 @@
+build-index.sh
+Genera docs/ESTADO.md con enlaces al último snapshot COMPLETO de cada host.
+Considera “completo” si tiene WireGuard, Docker y VMs.

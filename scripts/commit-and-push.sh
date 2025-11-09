@@ -24,6 +24,7 @@ log "snapshot: generado"
 # 2) Actualizar índice
 if [ -x ./scripts/build-index.sh ]; then
   ./scripts/build-index.sh && log "index: actualizado"
+[ -x ./scripts/gen-commands-doc.sh ] && ./scripts/gen-commands-doc.sh && log "cmds: actualizado"
 fi
 
 # 3) Chequeo anti-secretos (excluye nuestros scripts y cualquier *.bak)

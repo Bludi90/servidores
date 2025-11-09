@@ -1,0 +1,10 @@
+snapshot-state.sh
+Crea state/<HOST>/<fecha>-state.md con:
+- Hardware (placa/BIOS/CPU/RAM/GPU/NICs/discos)
+- Sistema, redes depuradas, almacenamiento e inodos
+- Servicios (ssh, ufw, docker, wg-quick@wg0) y fallos
+- UFW (reglas)
+- WireGuard (sin claves) + tabla de peers con iconos (🟢/🟡/⚫)
+- Docker, VMs (libvirt), Backups (restic)
+
+Salida legible en GitHub (bloques de código y tablas).

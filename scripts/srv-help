@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+H="$ROOT/scripts/help.d"
+list_cmds(){ ls "$H"/*.help 2>/dev/null | xargs -I{} basename {} .help | sort; }
+usage(){
+  echo "Uso: srv-help <comando>"
+  echo "Comandos con ayuda:"
+  list_cmds | pr -2 -t
+}
+[ $# -ge 1 ] || { usage; exit 0; }
+CMD="$1"; FILE="$H/${CMD}.help"
+[ -r "$FILE" ] && cat "$FILE" || { echo "No hay ayuda para '$CMD'."; echo; usage; exit 1; }

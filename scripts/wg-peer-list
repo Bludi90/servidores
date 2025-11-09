@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -e
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+  "$(git rev-parse --show-toplevel)"/scripts/srv-help wg-list-peers; exit 0
+fi
+"$(git rev-parse --show-toplevel)"/scripts/wg-list-peers "$@" \
+  || { "$(git rev-parse --show-toplevel)"/scripts/srv-help wg-list-peers; exit 2; }

@@ -1,0 +1,3 @@
+housekeeping.sh
+Conserva por defecto los últimos 200 snapshots por host y recorta sync.log.
+Cambiar con: KEEP=336 ./scripts/housekeeping.sh
