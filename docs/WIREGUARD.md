@@ -1,6 +1,6 @@
 # WireGuard — Cheatsheet
 
-_Generado: 2025-11-09 20:07_
+_Generado: 2025-11-09 20:56_
 
     WireGuard — CHEATSHEET (comandos personalizados)
     
