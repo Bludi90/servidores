@@ -18,6 +18,7 @@ log(){ printf "[%s] %s\n" "$(NOW)" "$1" | mask_all | tee -a "$LOG_FILE" >/dev/nu
 # 1) Snapshot
 ./scripts/snapshot-state.sh >/dev/null || true
 log "snapshot: generado"
+./scripts/housekeeping.sh >/dev/null 2>&1 && log "housekeeping: OK"
 
 # 2) Actualizar índice
 if [ -x ./scripts/build-index.sh ]; then
