@@ -1,6 +1,6 @@
 # Comandos personalizados
 
-_Generado: 2025-11-09 21:49_
+_Generado: 2025-11-09 21:51_
 
 Este documento es un **índice**. Las guías completas viven en **docs/comandos/**.
 
