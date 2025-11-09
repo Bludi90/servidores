@@ -1,8 +1,8 @@
 # Comandos personalizados
 
-_Generado: 2025-11-09 18:48_
+_Generado: 2025-11-09 18:56_
 
-- **Cheatsheet WireGuard:** [docs/WIREGUARD.md](WIREGUARD.md)
+- **Cheatsheet WireGuard:** [WIREGUARD.md](WIREGUARD.md)
 
 ## build-index.sh
 
@@ -62,8 +62,4 @@ _Generado: 2025-11-09 18:48_
 
 | Comando | Para qué sirve |
 |---|---|
-| `build-index.sh` | Genera docs/ESTADO.md con enlaces al último snapshot COMPLETO de cada host. |
-| `commit-and-push.sh` | Genera snapshot, housekeeping, reconstruye índices y sube al repo. |
-| `housekeeping.sh` | Conserva por defecto los últimos 200 snapshots por host y recorta sync.log. |
-| `snapshot-state.sh` | Crea state/<HOST>/<fecha>-state.md con: |
-| `wg-list-peers` | Muestra peers de WireGuard con NOMBRE, IP/32, minutos desde último HS, RX/TX. |
+| `wg-list-peers` | Lista peers con nombre, IP/32, HS(min), RX/TX |

@@ -1,7 +1,9 @@
 wireguard list-peers
+Binario real esperado: wg-list-peers
+
 Uso:
   wg-list-peers [IFACE]
-  wg-peer-list  [IFACE]      # alias compatible
+  wg-peer-list  [IFACE]      # alias (si existe)
 
 Descripción:
   Lista peers con NOMBRE, IP/32, minutos desde último HS, RX/TX y estado:

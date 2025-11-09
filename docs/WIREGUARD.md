@@ -1,24 +1,36 @@
 # WireGuard — Cheatsheet
 
-_Generado: 2025-11-09 18:48_
+_Generado: 2025-11-09 18:56_
 
     WireGuard — CHEATSHEET (comandos personalizados)
     
     Objetivo: operaciones habituales sin exponer claves.
-    Convención: IP/32 = IP interna wg del peer. Los nombres se mapean en scripts/wg-peers.byip
+    Convención: IP/32 = IP interna WG del peer. Nombres ↔ IP/32 en scripts/wg-peers.byip
     
     Subcomandos:
       list-peers         → Lista peers con NOMBRE, IP/32, HS(min), RX/TX, estado (🟢/🟡/⚫)
-      add-peer <NOMBRE>  → Alta de peer nuevo (asigna IP/32 libre, genera conf, opcional QR)
-      del-peer <NOMBRE>  → Baja de peer (desactiva y elimina su IP/32 del wg0)
-      repair             → Repara wg0: permisos, unidad, rutas, re-levanta interfaz
+      add-peer <NOMBRE>  → Alta de peer nuevo (IP/32, claves, conf cliente, QR opcional)
+      del-peer <NOMBRE>  → Baja de peer (elimina su IP/32)
+      repair             → Repara wg0 (unidad, permisos, rutas)
+
+## list-peers
+
+_Disponible: Sí (`/usr/local/sbin/wg-list-peers`)_
+
+    wireguard list-peers
+    Binario real esperado: wg-list-peers
     
-    Notas:
-    - Los nombres ↔ IP/32 viven en scripts/wg-peers.byip
-    - “HS(min)” = minutos desde último handshake
-    - Nada de claves privadas en pantallas ni en snapshots
+    Uso:
+      wg-list-peers [IFACE]
+      wg-peer-list  [IFACE]      # alias (si existe)
+    
+    Descripción:
+      Lista peers con NOMBRE, IP/32, minutos desde último HS, RX/TX y estado:
+       - 🟢 HS ≤ 10 min, 🟡 10–60 min, ⚫ > 60 min o sin HS.
 
 ## add-peer
+
+_Disponible: Sí (`/usr/local/sbin/wg-add-peer`)_
 
     wireguard add-peer
     Uso:
@@ -37,6 +49,8 @@ _Generado: 2025-11-09 18:48_
 
 ## del-peer
 
+_Disponible: Sí (`/usr/local/sbin/wg-del-peer`)_
+
     wireguard del-peer
     Uso:
       wg-del-peer <NOMBRE>
@@ -45,18 +59,9 @@ _Generado: 2025-11-09 18:48_
       Da de baja un peer, quita su IP/32 y lo elimina del wg0.
       Mantiene copia de seguridad del bloque eliminado.
 
-## list-peers
-
-    wireguard list-peers
-    Uso:
-      wg-list-peers [IFACE]
-      wg-peer-list  [IFACE]      # alias compatible
-    
-    Descripción:
-      Lista peers con NOMBRE, IP/32, minutos desde último HS, RX/TX y estado:
-       - 🟢 HS ≤ 10 min, 🟡 10–60 min, ⚫ > 60 min o sin HS.
-
 ## repair
+
+_Disponible: Sí (`/usr/local/sbin/wg-repair`)_
 
     wireguard repair
     Uso:

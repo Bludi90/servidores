@@ -7,6 +7,16 @@ list_topics(){ ls "$H" 2>/dev/null | sed -n 's/^wireguard$/wireguard/p'; }
 list_cmds(){ ls "$H"/*.help 2>/dev/null | xargs -I{} basename {} .help | sort; }
 list_subcmds(){ ls "$H/$1"/*.help 2>/dev/null | xargs -I{} basename {} .help | sort; }
 
+avail_wireguard(){
+  case "${1:-}" in
+    list-peers) command -v wg-list-peers >/dev/null 2>&1 && echo "Sí ($(command -v wg-list-peers))" || echo "No";;
+    add-peer)   command -v wg-add-peer   >/dev/null 2>&1 && echo "Sí ($(command -v wg-add-peer))"   || echo "No";;
+    del-peer)   command -v wg-del-peer   >/dev/null 2>&1 && echo "Sí ($(command -v wg-del-peer))"   || echo "No";;
+    repair)     command -v wg-repair     >/dev/null 2>&1 && echo "Sí ($(command -v wg-repair))"     || echo "No";;
+    *) echo ""; ;;
+  esac
+}
+
 usage(){
   echo "Uso: srv-help <comando> | srv-help <tema> [subcomando]"
   echo "Temas disponibles:"; list_topics | pr -2 -t || true
@@ -18,14 +28,19 @@ usage(){
 if [ -d "$H/$1" ]; then
   TOPIC="$1"; shift || true
   if [ $# -eq 0 ]; then
-    # índice del tema + listado de subcomandos
     [ -r "$H/$TOPIC/_index.help" ] && cat "$H/$TOPIC/_index.help" && echo
-    echo "Subcomandos disponibles:"; list_subcmds "$TOPIC" | pr -2 -t || true; exit 0
+    echo "Subcomandos disponibles:"
+    for s in $(list_subcmds "$TOPIC"); do
+      avail="$(avail_wireguard "$s")"; printf "  - %s  [Disponible: %s]\n" "$s" "${avail:-?}"
+    done
+    exit 0
   else
-    SUB="$1"
-    FILE="$H/$TOPIC/${SUB}.help"
-    [ -r "$FILE" ] && { cat "$FILE"; exit 0; }
-    echo "No hay ayuda para '$TOPIC $SUB'"; exit 1
+    SUB="$1"; FILE="$H/$TOPIC/${SUB}.help"
+    [ -r "$FILE" ] || { echo "No hay ayuda para '$TOPIC $SUB'"; exit 1; }
+    avail="$(avail_wireguard "$SUB")"
+    [ -n "$avail" ] && echo "[Disponible: $avail]" && echo
+    cat "$FILE"
+    exit 0
   fi
 else
   CMD="$1"; FILE="$H/${CMD}.help"
