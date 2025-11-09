@@ -1,9 +1,8 @@
 # Comandos personalizados
 
-_Generado: 2025-11-09 19:27_
+_Generado: 2025-11-09 19:29_
 
 - **Cheatsheet WireGuard:** [WIREGUARD.md](WIREGUARD.md)
-- **Cheatsheet WOL:** [WOL.md](WOL.md)
 
 ## build-index.sh
 
@@ -72,6 +71,3 @@ _Generado: 2025-11-09 19:27_
 | Comando | Para qué sirve |
 |---|---|
 | `wg-list-peers` | Lista peers con nombre, IP/32, HS(min), RX/TX |
-"| \`wolctl\` | Gestión WOL (list/show/wake/check/add/set/rename/rm) |"
-"| \`wol\` | Atajo de \`wolctl wake\` |"
-"| \`lan-scan\` | Descubre IP/MAC/Vendor en la LAN |"

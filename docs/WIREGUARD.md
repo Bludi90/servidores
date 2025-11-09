@@ -1,6 +1,6 @@
 # WireGuard — Cheatsheet
 
-_Generado: 2025-11-09 19:27_
+_Generado: 2025-11-09 19:29_
 
     WireGuard — CHEATSHEET (comandos personalizados)
     
@@ -16,13 +16,13 @@ _Generado: 2025-11-09 19:27_
 ## list-peers
 
 _Disponible: Sí (`/usr/local/sbin/wg-list-peers`)_
-
     wireguard list-peers
-    Binario real esperado: wg-list-peers
+    Binario real: wg-list-peers (usable como 'wg list-peers')
     
     Uso:
-      wg-list-peers [IFACE]
-      wg-peer-list  [IFACE]      # alias (si existe)
+      wg list-peers [-h] [IFACE]     # ayuda con -h
+      wg list-peers                   # ejecuta listado
+      wg-peer-list [IFACE]            # alias (si existe)
     
     Descripción:
       Lista peers con NOMBRE, IP/32, minutos desde último HS, RX/TX y estado:
@@ -31,7 +31,6 @@ _Disponible: Sí (`/usr/local/sbin/wg-list-peers`)_
 ## add-peer
 
 _Disponible: Sí (`/usr/local/sbin/wg-add-peer`)_
-
     wireguard add-peer
     Uso:
       wg-add-peer <NOMBRE> [--ip 10.8.0.X/32] [--qr] [--out ./client.conf]
@@ -50,7 +49,6 @@ _Disponible: Sí (`/usr/local/sbin/wg-add-peer`)_
 ## del-peer
 
 _Disponible: Sí (`/usr/local/sbin/wg-del-peer`)_
-
     wireguard del-peer
     Uso:
       wg-del-peer <NOMBRE>
@@ -62,7 +60,6 @@ _Disponible: Sí (`/usr/local/sbin/wg-del-peer`)_
 ## repair
 
 _Disponible: Sí (`/usr/local/sbin/wg-repair`)_
-
     wireguard repair
     Binario real: wg-repair
     
