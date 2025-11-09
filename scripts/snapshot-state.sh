@@ -53,7 +53,7 @@ mkdir -p "$OUT_DIR"
   echo
   echo "## WireGuard"
   if command -v wg >/dev/null 2>&1; then
-    wg show | mask_all || true
+    wg show 2>/dev/null | mask_all || true
   else
     echo "WireGuard no instalado."
   fi
