@@ -1,6 +1,6 @@
 # Comandos personalizados
 
-_Generado: 2025-11-09 21:37_
+_Generado: 2025-11-09 21:41_
 
 - **Cheatsheet WireGuard:** [WIREGUARD.md](WIREGUARD.md)
 

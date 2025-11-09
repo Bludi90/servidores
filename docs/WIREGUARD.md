@@ -1,6 +1,6 @@
 # WireGuard — Cheatsheet
 
-_Generado: 2025-11-09 21:37_
+_Generado: 2025-11-09 21:41_
 
     WireGuard — CHEATSHEET (comandos personalizados)
     
@@ -30,7 +30,7 @@ _Disponible: Sí (`/usr/bin/wg-list-peers`)_
 
 ## add-peer
 
-_Disponible: No en este host_
+_Disponible: Sí (`/usr/local/sbin/wg-add-peer`)_
     wireguard add-peer
     Uso:
       wg-add-peer <NOMBRE> [--ip 10.8.0.X/32] [--qr] [--out ./client.conf]
@@ -48,7 +48,7 @@ _Disponible: No en este host_
 
 ## del-peer
 
-_Disponible: No en este host_
+_Disponible: Sí (`/usr/local/sbin/wg-del-peer`)_
     wireguard del-peer
     Uso:
       wg-del-peer <NOMBRE>
@@ -59,7 +59,7 @@ _Disponible: No en este host_
 
 ## repair
 
-_Disponible: No en este host_
+_Disponible: Sí (`/usr/local/sbin/wg-repair`)_
     wireguard repair
     Binario real: wg-repair
     
