@@ -3,7 +3,7 @@ Repositorio privado para **documentación y estado** de los servidores activos.
 
 ## Contenido
 - `docs/`: guías, decisiones, comandos personalizados.
-- `state/`: “fotografías” horarias del estado (discos, docker, VMs, backups) **sanitizadas**.
+- `state/`: “fotografías” horarias del estado (discos, docker, VMs, backups).
 - `scripts/`: automatización (recopilar estado, commit & push).
 
 ## Política de seguridad
