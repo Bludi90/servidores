@@ -27,6 +27,7 @@ mkdir -p "$ROOT/docs"
 {
   echo "# Comandos personalizados"; echo; echo "_Generado: $(stamp)_"; echo
   echo "- **Cheatsheet WireGuard:** [WIREGUARD.md](WIREGUARD.md)"; echo
+  echo "- **Guía LAN Scan:** [LANSCAN.md](LANSCAN.md)"; echo
   for f in $(ls "$H"/*.help 2>/dev/null | sort); do
     name="$(basename "$f" .help)"; echo "## $name"; echo; sed 's/^/    /' "$f"; echo
   done

@@ -1,8 +1,10 @@
 # Comandos personalizados
 
-_Generado: 2025-11-09 21:07_
+_Generado: 2025-11-09 21:25_
 
 - **Cheatsheet WireGuard:** [WIREGUARD.md](WIREGUARD.md)
+
+- **Guía LAN Scan:** [LANSCAN.md](LANSCAN.md)
 
 ## build-index.sh
 
