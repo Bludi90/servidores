@@ -1,6 +1,8 @@
 # Comandos personalizados
 
-_Generado: 2025-11-09 18:39_
+_Generado: 2025-11-09 18:48_
+
+- **Cheatsheet WireGuard:** [docs/WIREGUARD.md](WIREGUARD.md)
 
 ## build-index.sh
 

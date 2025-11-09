@@ -1,0 +1,15 @@
+WireGuard — CHEATSHEET (comandos personalizados)
+
+Objetivo: operaciones habituales sin exponer claves.
+Convención: IP/32 = IP interna wg del peer. Los nombres se mapean en scripts/wg-peers.byip
+
+Subcomandos:
+  list-peers         → Lista peers con NOMBRE, IP/32, HS(min), RX/TX, estado (🟢/🟡/⚫)
+  add-peer <NOMBRE>  → Alta de peer nuevo (asigna IP/32 libre, genera conf, opcional QR)
+  del-peer <NOMBRE>  → Baja de peer (desactiva y elimina su IP/32 del wg0)
+  repair             → Repara wg0: permisos, unidad, rutas, re-levanta interfaz
+
+Notas:
+- Los nombres ↔ IP/32 viven en scripts/wg-peers.byip
+- “HS(min)” = minutos desde último handshake
+- Nada de claves privadas en pantallas ni en snapshots

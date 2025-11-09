@@ -2,12 +2,33 @@
 set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 H="$ROOT/scripts/help.d"
+
+list_topics(){ ls "$H" 2>/dev/null | sed -n 's/^wireguard$/wireguard/p'; }
 list_cmds(){ ls "$H"/*.help 2>/dev/null | xargs -I{} basename {} .help | sort; }
+list_subcmds(){ ls "$H/$1"/*.help 2>/dev/null | xargs -I{} basename {} .help | sort; }
+
 usage(){
-  echo "Uso: srv-help <comando>"
-  echo "Comandos con ayuda:"
-  list_cmds | pr -2 -t
+  echo "Uso: srv-help <comando> | srv-help <tema> [subcomando]"
+  echo "Temas disponibles:"; list_topics | pr -2 -t || true
+  echo; echo "Comandos con ayuda:"; list_cmds | pr -2 -t || true
 }
-[ $# -ge 1 ] || { usage; exit 0; }
-CMD="$1"; FILE="$H/${CMD}.help"
-[ -r "$FILE" ] && cat "$FILE" || { echo "No hay ayuda para '$CMD'."; echo; usage; exit 1; }
+
+[ $# -lt 1 ] && { usage; exit 0; }
+
+if [ -d "$H/$1" ]; then
+  TOPIC="$1"; shift || true
+  if [ $# -eq 0 ]; then
+    # índice del tema + listado de subcomandos
+    [ -r "$H/$TOPIC/_index.help" ] && cat "$H/$TOPIC/_index.help" && echo
+    echo "Subcomandos disponibles:"; list_subcmds "$TOPIC" | pr -2 -t || true; exit 0
+  else
+    SUB="$1"
+    FILE="$H/$TOPIC/${SUB}.help"
+    [ -r "$FILE" ] && { cat "$FILE"; exit 0; }
+    echo "No hay ayuda para '$TOPIC $SUB'"; exit 1
+  fi
+else
+  CMD="$1"; FILE="$H/${CMD}.help"
+  [ -r "$FILE" ] && { cat "$FILE"; exit 0; }
+  echo "No hay ayuda para '$CMD'."; echo; usage; exit 1
+fi

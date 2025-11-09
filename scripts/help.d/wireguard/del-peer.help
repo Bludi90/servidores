@@ -1,0 +1,7 @@
+wireguard del-peer
+Uso:
+  wg-del-peer <NOMBRE>
+
+Descripción:
+  Da de baja un peer, quita su IP/32 y lo elimina del wg0.
+  Mantiene copia de seguridad del bloque eliminado.

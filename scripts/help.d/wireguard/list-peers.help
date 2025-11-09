@@ -1,0 +1,8 @@
+wireguard list-peers
+Uso:
+  wg-list-peers [IFACE]
+  wg-peer-list  [IFACE]      # alias compatible
+
+Descripción:
+  Lista peers con NOMBRE, IP/32, minutos desde último HS, RX/TX y estado:
+   - 🟢 HS ≤ 10 min, 🟡 10–60 min, ⚫ > 60 min o sin HS.

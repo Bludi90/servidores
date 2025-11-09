@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -e
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+  echo "Uso: wg-help [subcomando]"; echo "Ej.: wg-help list-peers | wg-help add-peer"; exit 0
+fi
+"$ROOT/scripts/srv-help" wireguard "${1:-}" || true

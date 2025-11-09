@@ -1,0 +1,7 @@
+wireguard repair
+Uso:
+  wg-repair
+
+Descripción:
+  Revisa y repara wg0 (permisos, unidad systemd, rutas binarios, levanta interfaz).
+  Útil si hay fallos tras cambios o actualizaciones.
