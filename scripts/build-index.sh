@@ -6,22 +6,32 @@ echo "" >> "$OUT"
 echo "_Generado: $(date +%F\ %H:%M)_" >> "$OUT"
 echo "" >> "$OUT"
 
-# Recorre hosts ordenados
+is_complete() {
+  f="$1"
+  grep -q '^## WireGuard' "$f" && grep -q '^## Docker' "$f" && grep -q '^## VMs' "$f"
+}
+
 for d in $(ls -d state/* 2>/dev/null | sort); do
   [ -d "$d" ] || continue
   host="$(basename "$d")"
   latest="$(ls -t "$d"/*-state.md 2>/dev/null | head -1 || true)"
-  total="$(ls "$d"/*-state.md 2>/dev/null | wc -l || echo 0)"
+  complete="$(ls -t "$d"/*-state.md 2>/dev/null | while read f; do is_complete "$f" && { echo "$f"; break; }; done)"
 
-  # Enlaces correctos desde docs/: anteponer "../"
-  if [ -n "${latest:-}" ]; then
-    mtime="$(date -r "$latest" "+%F %H:%M" 2>/dev/null || echo "(fecha)")"
-    echo "- **${host}**: ${total} snapshots. Último: [${mtime}](../${latest}) — [sync.log](../${d}/sync.log)" >> "$OUT"
+  if [ -n "${complete:-}" ]; then
+    m1="$(date -r "$complete" '+%F %H:%M' 2>/dev/null || echo '(fecha)')"
+    echo "- **${host}**: Último completo: [${m1}](../${complete}) — [sync.log](../${d}/sync.log)" >> "$OUT"
+    if [ -n "${latest:-}" ] && [ "$latest" != "$complete" ]; then
+      m2="$(date -r "$latest" '+%F %H:%M' 2>/dev/null || echo '(fecha)')"
+      echo "  - Nota: el más reciente es [${m2}](../${latest}), pero está **incompleto**." >> "$OUT"
+    fi
+  elif [ -n "${latest:-}" ]; then
+    m3="$(date -r "$latest" '+%F %H:%M' 2>/dev/null || echo '(fecha)')"
+    echo "- **${host}**: [${m3}](../${latest}) — [sync.log](../${d}/sync.log) _(incompleto)_" >> "$OUT"
   else
     echo "- **${host}**: (sin snapshots) — [sync.log](../${d}/sync.log)" >> "$OUT"
   fi
 done
 
 echo "" >> "$OUT"
-echo "### Nota" >> "$OUT"
-echo "- El contenido técnico de cada snapshot está en bloques \`\`\` para que sea legible en GitHub." >> "$OUT"
+echo "### Criterio de 'completo'" >> "$OUT"
+echo "- El snapshot contiene secciones: WireGuard, Docker y VMs." >> "$OUT"
