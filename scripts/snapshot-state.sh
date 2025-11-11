@@ -102,22 +102,48 @@ mkdir -p "$OUT_DIR"
   echo '```'
   echo
 
-  echo "## Discos y puntos de montaje"
+  echo "## Puntos de montaje (tabla)"
+  echo
+  echo "| FS | Tipo | Tamaño | Usado | Libre | Uso | Punto |"
+  echo "|---|---|---:|---:|---:|---:|---|"
+  df -h --output=source,fstype,size,used,avail,pcent,target --sync \
+    | awk 'NR>1 && $1 ~ "^/dev/" {printf("| %s | %s | %s | %s | %s | %s | %s |\n",$1,$2,$3,$4,$5,$6,$7)}'
+  echo
+  echo "## Árbol de dispositivos"
   echo '```'
-  if lsblk -o NAME,SIZE,TYPE,MOUNTPOINTS >/dev/null 2>&1; then
-    lsblk -o NAME,SIZE,TYPE,MOUNTPOINTS | sed 's/\s\+/ /g'
-  else
-    lsblk -o NAME,SIZE,TYPE,MOUNTPOINT | sed 's/\s\+/ /g'
-  fi
+  lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINTS -e7 | sed "s/\\s\\+/ /g"
+  echo '```'
+  echo
+
+  echo "## Árbol de dispositivos (lsblk)"
+  echo '```'
+  lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINTS -e7 | sed 's/\s\+/ /g'
   echo '```'
   echo
 
   echo "## Servicios (clave y fallos)"
   echo '```'
-  for s in ssh ufw docker wg-quick@wg0; do
-    st="$(systemctl is-active "$s" 2>/dev/null || true)"; [ -n "$st" ] || st="desconocido"
-    echo "$s: $st"
-  done
+  echo "ssh: $(systemctl is-active ssh 2>/dev/null || echo desconocido)"
+  echo "ufw: $(systemctl is-active ufw 2>/dev/null || echo desconocido)"
+
+  # Docker: no digas "active" si la CLI no está o docker info falla
+  if command -v docker >/dev/null 2>&1; then
+    if systemctl is-active --quiet docker && docker info >/dev/null 2>&1; then
+      echo "docker: active"
+    elif systemctl is-active --quiet docker; then
+      echo "docker: servicio activo (pero 'docker info' falló)"
+    else
+      echo "docker: instalado (servicio inactivo)"
+    fi
+  else
+    if systemctl list-unit-files | grep -q '^docker\.service'; then
+      echo "docker: servicio instalado, CLI no presente"
+    else
+      echo "docker: no instalado"
+    fi
+  fi
+
+  echo "wg-quick@wg0: $(systemctl is-active wg-quick@wg0 2>/dev/null || echo desconocido)"
   echo; echo "Unidades con fallo:"; systemctl --failed || true
   echo '```'
   echo
@@ -154,47 +180,67 @@ mkdir -p "$OUT_DIR"
       "$WGPEERS" 2>/dev/null || true
     )"
 
-    echo "$PEERS_RAW" | awk '
-      function tosec(hs,   sum,rest,n,u,s) {
-        gsub(/ /,"",hs)
-        if (hs=="now" || hs=="0s" || hs=="0m") return 0
-        if (hs=="-" || hs=="" || hs=="n/a") return 999999
-        sum=0; rest=hs
-        while (match(rest,/([0-9]+)([smhd])/,a)) {
-          n=a[1]; u=a[2]
-          s=(u=="s"?n:(u=="m"?n*60:(u=="h"?n*3600:n*86400)))
-          sum+=s
-          rest=substr(rest,RSTART+RLENGTH)
+    if [ -z "$PEERS_RAW" ]; then
+      echo "| — | — | — | — | — | — |"
+      echo
+      echo "_Nota: wg-list-peers no devolvió datos (¿falta NOPASSWD en sudoers?)._"
+    else
+      printf "%s\n" "$PEERS_RAW" | awk '
+        # mawk-safe: sin match(..., ..., array). Parseamos tokens tipo 1h30m, 15s, etc.
+        function tosec(hs,   sum,rest,token,n,u) {
+          gsub(/ /,"",hs)
+          if (hs=="now" || hs=="0s" || hs=="0m") return 0
+          if (hs=="-" || hs=="" || hs=="n/a") return 999999
+          sum=0; rest=hs
+          while (match(rest, /[0-9]+[smhd]/)) {
+            token=substr(rest, RSTART, RLENGTH)
+            n=token; gsub(/[smhd]/,"",n)
+            u=substr(token, length(token), 1)
+            if (u=="s")      sum += n+0
+            else if (u=="m") sum += (n+0)*60
+            else if (u=="h") sum += (n+0)*3600
+            else if (u=="d") sum += (n+0)*86400
+            rest=substr(rest, RSTART+RLENGTH)
+          }
+          if (sum==0 && rest ~ /^[0-9]+m$/) return (rest+0)*60
+          return sum ? sum : 999999
         }
-        if (sum==0 && rest ~ /^[0-9]+m$/) return (rest+0)*60
-        return sum ? sum : 999999
-      }
-      BEGIN{ rows=0; namec=1; ipc=2; hsc=5; rxc=6; txc=7 }
-      NR==1 {
-        # Autodetectar columnas si hay cabecera
-        for (i=1;i<=NF;i++) {
-          if ($i ~ /^NOMBRE/) namec=i
-          else if ($i=="IP") ipc=i
-          else if ($i ~ /^HS/) hsc=i
-          else if ($i=="RX") rxc=i
-          else if ($i=="TX") txc=i
+        BEGIN{ rows=0; namec=1; ipc=2; hsc=5; rxc=6; txc=7 }
+        NR==1 {
+          # Autodetecta columnas: admite NOMBRE | IP | ... | HS o HS_ago | RX | TX
+          for (i=1;i<=NF;i++) {
+            fi=$i; gsub(/[^A-Za-z_]/,"",fi)
+            if (fi ~ /^NOMBRE$/) namec=i
+            else if (fi=="IP") ipc=i
+            else if (fi ~ /^HS/) hsc=i
+            else if (fi=="RX") rxc=i
+            else if (fi=="TX") txc=i
+          }
+          next
         }
-        next
-      }
-      {
-        name=$namec; ip=$ipc; hs=$(hsc); rx=$(rxc); tx=$(txc)
-        secs=tosec(hs)
-        stat=(secs<=600?"🟢":(secs<=3600?"🟡":"⚫"))
-        rxm=rx; txm=tx
-        if (rx ~ /^[0-9]+$/) rxm=sprintf("%.1f MiB", rx/1048576)
-        if (tx ~ /^[0-9]+$/) txm=sprintf("%.1f MiB", tx/1048576)
-        hsm=(secs<999999 ? sprintf("%.0fm", secs/60.0) : hs)
-        printf("| %s | %s | %s | %s | %s | %s |\n", stat, name, ip, hsm, rxm, txm)
-        rows++
-      }
-      END{ if (rows==0) print("| — | — | — | — | — | — |") }
-    '
-    echo
+        NF<3 { next }
+        {
+          name=$namec; ip=$ipc; hs=$(hsc); rx=$(rxc); tx=$(txc)
+          secs=tosec(hs)
+          stat=(secs<=600?"🟢":(secs<=3600?"🟡":"⚫"))
+          rxm=rx; txm=tx
+          if (rx ~ /^[0-9]+$/) rxm=sprintf("%.1f MiB", rx/1048576)
+          if (tx ~ /^[0-9]+$/) txm=sprintf("%.1f MiB", tx/1048576)
+          hsm=(secs<999999 ? sprintf("%.0fm", secs/60.0) : hs)
+          printf("| %s | %s | %s | %s | %s | %s |\n", stat, name, ip, hsm, rxm, txm)
+          rows++
+        }
+        END{ if (rows==0) print("| — | — | — | — | — | — |") }
+      '
+      echo
+      echo "<details><summary>Salida wg-list-peers</summary>"
+      echo
+      echo '```'
+      printf "%s\n" "$PEERS_RAW" | mask_all
+      echo '```'
+      echo
+      echo "</details>"
+    fi
   else
     echo
     echo "_wg-list-peers no encontrado en PATH._"
