@@ -2,11 +2,12 @@
 set -euo pipefail
 umask 022
 export LC_ALL=C
-export PATH="$PATH:/usr/local/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/alejandro/bin"
+export PATH="$PATH:/usr/local/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/alejandro/bin:/home/alejandro/servidores/scripts"
 
 SERVER="$(hostname -s || echo server)"
 STAMP="$(date +%F_%H%M)"
-OUT_DIR="state/${SERVER}"
+REPO_DIR="/home/alejandro/servidores"
+OUT_DIR="${REPO_DIR}/state/${SERVER}"
 OUT="${OUT_DIR}/${STAMP}-state.md"
 
 mask_ipv4()  { sed -E 's/\b([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\.[0-9]{1,3}\b/\1.x/g'; }
@@ -42,7 +43,7 @@ mkdir -p "$OUT_DIR"
   S=$(lscpu | awk -F: '/Socket\(s\)/{gsub(/ /,"",$2);print $2}')
   C=$(lscpu | awk -F: '/Core\(s\) per socket/{gsub(/ /,"",$2);print $2}')
   T=$(lscpu | awk -F: '/Thread\(s\) per core/{gsub(/ /,"",$2);print $2}')
-  TOT=$(lscpu | awk -F: '/^CPU\(s\)/{gsub(/ /,"",$2);print $2}')
+  TOT="$(nproc)"
   MEMT="$(awk '/MemTotal/{printf "%.1f GiB",$2/1048576}' /proc/meminfo)"
   SWAPT="$(awk '/SwapTotal/{printf "%.1f GiB",$2/1048576}' /proc/meminfo)"
   echo
@@ -147,7 +148,13 @@ mkdir -p "$OUT_DIR"
     echo
     echo "| Estado | Nombre | IP | HS (min) | RX | TX |"
     echo "|:--:|---|---|---:|---:|---:|"
-    (sudo -n "$WGPEERS" 2>/dev/null || "$WGPEERS" 2>/dev/null) | awk '
+
+    PEERS_RAW="$(
+      sudo -n "$WGPEERS" 2>/dev/null ||
+      "$WGPEERS" 2>/dev/null || true
+    )"
+
+    echo "$PEERS_RAW" | awk '
       function tosec(hs,   sum,rest,n,u,s) {
         gsub(/ /,"",hs)
         if (hs=="now" || hs=="0s" || hs=="0m") return 0
@@ -162,8 +169,9 @@ mkdir -p "$OUT_DIR"
         if (sum==0 && rest ~ /^[0-9]+m$/) return (rest+0)*60
         return sum ? sum : 999999
       }
-      BEGIN{ namec=1; ipc=2; hsc=5; rxc=6; txc=7 }
+      BEGIN{ rows=0; namec=1; ipc=2; hsc=5; rxc=6; txc=7 }
       NR==1 {
+        # Autodetectar columnas si hay cabecera
         for (i=1;i<=NF;i++) {
           if ($i ~ /^NOMBRE/) namec=i
           else if ($i=="IP") ipc=i
@@ -182,7 +190,10 @@ mkdir -p "$OUT_DIR"
         if (tx ~ /^[0-9]+$/) txm=sprintf("%.1f MiB", tx/1048576)
         hsm=(secs<999999 ? sprintf("%.0fm", secs/60.0) : hs)
         printf("| %s | %s | %s | %s | %s | %s |\n", stat, name, ip, hsm, rxm, txm)
-      }'
+        rows++
+      }
+      END{ if (rows==0) print("| — | — | — | — | — | — |") }
+    '
     echo
   else
     echo
@@ -211,7 +222,7 @@ mkdir -p "$OUT_DIR"
 
   echo "## VMs (libvirt)"
   echo '```'
-  if command -v virsh >/dev/null 2%; then virsh list --all || true; else echo "libvirt/virsh no disponible."; fi
+  if command -v virsh >/dev/null 2>&1; then virsh list --all || true; else echo "libvirt/virsh no disponible."; fi
   echo '```'
   echo
 
