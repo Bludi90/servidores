@@ -90,35 +90,66 @@ mkdir -p "$OUT_DIR"
   echo '```'
   echo
 
-  echo "## Almacenamiento"
-  echo '```'
-  df -hT --sync | awk 'NR==1 || $1 ~ "^/dev/"'
-  echo '```'
+  echo "## Almacenamiento (consolidado)"
   echo
+  TMP_DF="$(mktemp)"; TMP_LS="$(mktemp)"; trap 'rm -f "$TMP_DF" "$TMP_LS"' EXIT
+  df -h --output=source,size,used,avail,pcent,target --sync | tail -n +2 > "$TMP_DF"
 
-  echo "## Inodos"
-  echo '```'
-  df -i | awk 'NR==1 || $1 ~ "^/dev/"'
-  echo '```'
-  echo
+  # Detectar si lsblk soporta MODEL/SERIAL; si no, quitar esas columnas
+  if lsblk -p -P -o NAME,TYPE,FSTYPE,SIZE,ROTA,MODEL,SERIAL,MOUNTPOINTS -e7 >/dev/null 2>&1; then
+    HAS_MODEL=1
+    lsblk -p -P -o NAME,TYPE,FSTYPE,SIZE,ROTA,MODEL,SERIAL,MOUNTPOINTS -e7 > "$TMP_LS"
+  else
+    HAS_MODEL=0
+    lsblk -p -P -o NAME,TYPE,FSTYPE,SIZE,ROTA,MOUNTPOINTS -e7 > "$TMP_LS"
+  fi
 
-  echo "## Puntos de montaje (tabla)"
-  echo
-  echo "| FS | Tipo | Tamaño | Usado | Libre | Uso | Punto |"
-  echo "|---|---|---:|---:|---:|---:|---|"
-  df -h --output=source,fstype,size,used,avail,pcent,target --sync \
-    | awk 'NR>1 && $1 ~ "^/dev/" {printf("| %s | %s | %s | %s | %s | %s | %s |\n",$1,$2,$3,$4,$5,$6,$7)}'
-  echo
-  echo "## Árbol de dispositivos"
-  echo '```'
-  lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINTS -e7 | sed "s/\\s\\+/ /g"
-  echo '```'
-  echo
+  awk -v DF="$TMP_DF" -v HAS_MODEL="$HAS_MODEL" '
+    BEGIN{
+      FS=" "; OFS="|"
+      # Cargar df (tamaños por filesystem montado)
+      while ((getline < DF) > 0) {
+        if ($1 ~ "^/dev/") {
+          src=$1; size=$2; used=$3; avail=$4; pcent=$5; target=$6
+          gsub(/[[:space:]]+/, " ", target)
+          d_used[src]=used; d_avail[src]=avail; d_pcent[src]=pcent; d_target[src]=target
+        }
+      }
+      close(DF)
 
-  echo "## Árbol de dispositivos (lsblk)"
-  echo '```'
-  lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINTS -e7 | sed 's/\s\+/ /g'
-  echo '```'
+      if (HAS_MODEL==1) {
+        print "| Dispositivo | Tipo | FS | Tamaño | Rot | Modelo | Montaje | Usado | Libre | Uso |"
+        print "|---|---|---|---:|:--:|---|---|---:|---:|---:|"
+      } else {
+        print "| Dispositivo | Tipo | FS | Tamaño | Rot | Montaje | Usado | Libre | Uso |"
+        print "|---|---|---|---:|:--:|---|---:|---:|---:|"
+      }
+    }
+    {
+      # Parsear NAME="..." TYPE="..." ... de lsblk -P
+      delete a
+      for (i=1;i<=NF;i++) { split($i,kv,"="); k=kv[1]; v=kv[2]; gsub(/^"|"$/,"",v); a[k]=v }
+
+      name=a["NAME"]; type=a["TYPE"]; fs=a["FSTYPE"]; size=a["SIZE"]; rota=a["ROTA"];
+      model=(a["MODEL"]==""?"—":a["MODEL"]); mp=a["MOUNTPOINTS"];
+
+      used=d_used[name]; avail=d_avail[name]; p=d_pcent[name]; tgt=d_target[name]
+      mount=(mp!=""?mp:(tgt!=""?tgt:"—"))
+
+      # Saltar dispositivos irrelevantes
+      if (type=="rom" || name=="") next
+
+      if (HAS_MODEL==1) {
+        printf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
+               name, type, (fs==""?"—":fs), size, (rota==""?"?":rota),
+               model, mount, (used==""?"—":used), (avail==""?"—":avail), (p==""?"—":p) )
+      } else {
+        printf("| %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
+               name, type, (fs==""?"—":fs), size, (rota==""?"?":rota),
+               mount, (used==""?"—":used), (avail==""?"—":avail), (p==""?"—":p) )
+      }
+    }
+  ' "$TMP_LS"
   echo
 
   echo "## Servicios (clave y fallos)"
@@ -186,7 +217,6 @@ mkdir -p "$OUT_DIR"
       echo "_Nota: wg-list-peers no devolvió datos (¿falta NOPASSWD en sudoers?)._"
     else
       printf "%s\n" "$PEERS_RAW" | awk '
-        # mawk-safe: sin match(..., ..., array). Parseamos tokens tipo 1h30m, 15s, etc.
         function tosec(hs,   sum,rest,token,n,u) {
           gsub(/ /,"",hs)
           if (hs=="now" || hs=="0s" || hs=="0m") return 0
@@ -205,9 +235,12 @@ mkdir -p "$OUT_DIR"
           if (sum==0 && rest ~ /^[0-9]+m$/) return (rest+0)*60
           return sum ? sum : 999999
         }
-        BEGIN{ rows=0; namec=1; ipc=2; hsc=5; rxc=6; txc=7 }
-        NR==1 {
-          # Autodetecta columnas: admite NOMBRE | IP | ... | HS o HS_ago | RX | TX
+        BEGIN{ rows=0; namec=1; ipc=2; hsc=6; rxc=7; txc=8 }  # HS_ago suele ser col 6 en tu salida
+        NR==1 { next }                    # cabecera
+        $1 ~ /^-+$/ { next }              # línea de guiones
+        NF<3 { next }                     # líneas vacías/raras
+        {
+          # Autodetección suave por si cambia el orden
           for (i=1;i<=NF;i++) {
             fi=$i; gsub(/[^A-Za-z_]/,"",fi)
             if (fi ~ /^NOMBRE$/) namec=i
@@ -216,10 +249,6 @@ mkdir -p "$OUT_DIR"
             else if (fi=="RX") rxc=i
             else if (fi=="TX") txc=i
           }
-          next
-        }
-        NF<3 { next }
-        {
           name=$namec; ip=$ipc; hs=$(hsc); rx=$(rxc); tx=$(txc)
           secs=tosec(hs)
           stat=(secs<=600?"🟢":(secs<=3600?"🟡":"⚫"))
