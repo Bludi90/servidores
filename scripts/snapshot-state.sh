@@ -36,6 +36,22 @@ mkdir -p "$OUT_DIR"
   echo "# Estado de ${SERVER} — ${STAMP}"
   echo
 
+  echo "## Índice"
+  echo
+  echo "- [Hardware](#hardware)"
+  echo "- [Sistema](#sistema)"
+  echo "- [CPU y RAM](#cpu-y-ram)"
+  echo "- [Redes (IPv4 depuradas)](#redes-ipv4-depuradas)"
+  echo "- [Almacenamiento](#almacenamiento-consolidado)"
+  echo "- [Servicios](#servicios-clave-y-fallos)"
+  echo "- [UFW](#ufw)"
+  echo "- [WireGuard (sin claves)](#wireguard-sin-claves)"
+  echo "- [Peers WireGuard](#peers-nombres)"
+  echo "- [Docker](#docker)"
+  echo "- [VMs (libvirt)](#vms-libvirt)"
+  echo "- [Backups (restic)](#backups-restic)"
+  echo
+
   echo "## Hardware"
   BV=$(board | sed -n '1p'); BN=$(board | sed -n '2p'); BVER=$(board | sed -n '3p')
   BIOSVEN=$(bios | sed -n '1p'); BIOSV=$(bios | sed -n '2p'); BIOSD=$(bios | sed -n '3p')
