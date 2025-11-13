@@ -207,14 +207,30 @@ mkdir -p "$OUT_DIR"
   echo '```'
   echo
 
-  echo "## WireGuard (sin claves)"
-  echo '```'
-  ip -br addr show wg0 2>/dev/null | mask_all || echo "wg0 no configurada."
-  printf "Interfaces: "; (sudo -n wg show interfaces 2>/dev/null || wg show interfaces 2>/dev/null || echo "no disponibles")
-  printf "Listen-port (wg0): "; (sudo -n wg show wg0 listen-port 2>/dev/null || echo "desconocido") | mask_ports
-  echo
-  echo '```'
-  echo
+# --- WireGuard -------------------------------------------------------------
+{
+  echo ""
+  echo "## WireGuard"
+  echo ""
+
+  # Necesitamos el comando personalizado wg-list-peers
+  if ! command -v wg-list-peers >/dev/null 2>&1; then
+    echo "_Comando wg-list-peers no encontrado (no se generará información de WireGuard)._" 
+  else
+    # Ejecutar wg-list-peers vía sudo -n para que no bloquee el script
+    if OUTPUT="$(sudo -n wg-list-peers 2>/dev/null)"; then
+      if [ -z "$OUTPUT" ]; then
+        echo "_wg-list-peers no devuelve datos (quizá no hay interfaz activa o no hay peers registrados)._"
+      else
+        echo '```'
+        printf '%s\n' "$OUTPUT"
+        echo '```'
+      fi
+    else
+      echo "_No se ha podido ejecutar wg-list-peers (probablemente falta permiso sudo sin contraseña o falta acceso a la interfaz)._"
+    fi
+  fi
+} >> "$OUT"
 
   echo "**Peers (nombres)**"
   if WGPEERS="$(find_wg_list_peers)"; then
