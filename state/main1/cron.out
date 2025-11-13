@@ -28,3 +28,9 @@ To github.com:Bludi90/servidores.git
 grep: state/main1/current-state.md: Demasiados niveles de enlaces simbólicos
 OK: generado /home/alejandro/servidores/docs/COMANDOS.md
 Chequeando posibles secretos...
+[main b0305d3] chore(state): foto + índice actualizados main1 @ 2025-11-13_21:07
+ 5 files changed, 182 insertions(+), 3 deletions(-)
+ create mode 100644 state/main1/2025-11-13_2107-state.md
+To github.com:Bludi90/servidores.git
+   8bbc5a3..b0305d3  main -> main
+✅ Subido a GitHub.
