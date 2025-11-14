@@ -37,3 +37,7 @@ To github.com:Bludi90/servidores.git
 tee: state/main1/sync.log: Permiso denegado
 tee: state/main1/sync.log: Permiso denegado
 tee: state/main1/sync.log: Permiso denegado
+grep: state/main1/current-state.md: Demasiados niveles de enlaces simbólicos
+OK: generado /home/alejandro/servidores/docs/COMANDOS.md
+Chequeando posibles secretos...
+./scripts/commit-and-push.sh: línea 35: /tmp/servidores-secret-hits: Permiso denegado
