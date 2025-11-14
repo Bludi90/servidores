@@ -73,3 +73,45 @@ tank  7.25T   202M  7.25T     0%    ONLINE
 
 ==== Fin del resumen ZFS ====
 
+
+==== Temperaturas actuales de discos (smartctl) ====
+jue 13 nov 2025 23:05:49 CET
+
+Dispositivo: /dev/sda
+  Temperature_Celsius       -> 24 °C
+  (Líneas con 'Temperature' en SMART):
+194 Temperature_Celsius     0x0022   123   113   000    Old_age   Always       -       24
+
+Dispositivo: /dev/sdb
+  Temperature_Celsius       -> 27 °C
+  (Líneas con 'Temperature' en SMART):
+194 Temperature_Celsius     0x0022   120   112   000    Old_age   Always       -       27
+
+Dispositivo: /dev/sdc
+  Temperature_Celsius       -> 23 °C
+  (Líneas con 'Temperature' en SMART):
+194 Temperature_Celsius     0x0022   124   113   000    Old_age   Always       -       23
+
+Dispositivo: /dev/sdd
+  Temperature_Celsius       -> 23 °C
+  (Líneas con 'Temperature' en SMART):
+194 Temperature_Celsius     0x0022   124   116   000    Old_age   Always       -       23
+
+Dispositivo: /dev/nvme0n1
+  (Líneas con 'Temperature' en SMART):
+Temperature:                        36 Celsius
+Warning  Comp. Temperature Time:    0
+Critical Comp. Temperature Time:    0
+Temperature Sensor 1:               36 Celsius
+
+==== Fin del resumen de temperaturas ====
+
+==== Estado ZFS (zpool status -x) ====
+all pools are healthy
+
+==== ZFS: uso y estado de pools ====
+NAME   SIZE  ALLOC   FREE    CAP    HEALTH
+tank  7.25T   202M  7.25T     0%    ONLINE
+
+==== Fin del resumen ZFS ====
+
