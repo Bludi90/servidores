@@ -2,5 +2,5 @@ lo               UNKNOWN        127.0.0.1/8
 enp10s0          UP             192.168.1.116/24 
 docker0          DOWN           172.17.0.1/16 
 wg0              UNKNOWN        10.8.0.1/24 
-br-3e502a89fcd1  UP             172.18.0.1/16 
+br-3e502a89fcd1  DOWN           172.18.0.1/16 
 br-a1e855002e26  UP             172.19.0.1/16 
