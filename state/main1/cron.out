@@ -227,3 +227,6 @@ Chequeando posibles secretos...
 To github.com:Bludi90/servidores.git
    785028c..3c60f2d  main -> main
 ✅ Subido a GitHub.
+OK: generado /home/alejandro/servidores/docs/COMANDOS.md
+Chequeando posibles secretos...
+./scripts/commit-and-push.sh: línea 35: /tmp/servidores-secret-hits: Permiso denegado
