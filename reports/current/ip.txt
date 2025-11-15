@@ -1,6 +1,6 @@
 lo               UNKNOWN        127.0.0.1/8 
 enp10s0          UP             192.168.1.116/24 
-docker0          DOWN           172.17.0.1/16 
+docker0          UP             172.17.0.1/16 
 wg0              UNKNOWN        10.8.0.1/24 
 br-3c934a3a09ea  UP             172.20.0.1/16 
 br-0db258d81e53  UP             172.21.0.1/16 
