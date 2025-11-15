@@ -8,7 +8,7 @@ echo "" >> "$OUT"
 
 is_complete() {
   f="$1"
-  grep -q '^## WireGuard' "$f" && grep -q '^## Docker' "$f" && grep -q '^## VMs' "$f"
+  grep -q '^## WireGuard' "$f" && grep -q '^## Docker' "$f"
 }
 
 for d in $(ls -d state/* 2>/dev/null | sort); do
@@ -34,4 +34,4 @@ done
 
 echo "" >> "$OUT"
 echo "### Criterio de 'completo'" >> "$OUT"
-echo "- El snapshot contiene secciones: WireGuard, Docker y VMs." >> "$OUT"
+echo "- El snapshot contiene secciones: WireGuard y Docker." >> "$OUT"
