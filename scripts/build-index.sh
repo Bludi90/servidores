@@ -8,7 +8,11 @@ echo "" >> "$OUT"
 
 is_complete() {
   f="$1"
-  grep -q '^##.* WireGuard' "$f" && grep -q '^## .*Docker' "$f"
+  # Consideramos 'completo' si:
+  # - En el snapshot aparece algo de WireGuard (tabla de peers, servicio, etc.)
+  # - Y existe la sección Docker
+  grep -q 'WireGuard' "$f" && \
+  grep -q '^## Docker' "$f"
 }
 
 for d in $(ls -d state/* 2>/dev/null | sort); do
