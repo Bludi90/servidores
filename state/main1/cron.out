@@ -217,3 +217,7 @@ Chequeando posibles secretos...
 To github.com:Bludi90/servidores.git
    dd71d5f..39da0e1  main -> main
 ✅ Subido a GitHub.
+grep: state/main1/current-state.md: Demasiados niveles de enlaces simbólicos
+OK: generado /home/alejandro/servidores/docs/COMANDOS.md
+Chequeando posibles secretos...
+./scripts/commit-and-push.sh: línea 35: /tmp/servidores-secret-hits: Permiso denegado
