@@ -376,3 +376,13 @@ tee: state/main1/sync.log: Permiso denegado
 OK: generado /home/alejandro/servidores/docs/COMANDOS.md
 Chequeando posibles secretos...
 ./scripts/commit-and-push.sh: línea 35: /tmp/servidores-secret-hits: Permiso denegado
+[main df796d5] chore(state): foto + índice actualizados main1 @ 2025-11-16_18:07
+ 6 files changed, 206 insertions(+), 125 deletions(-)
+ delete mode 100644 state/main1/2025-11-09_1818-state.md
+ create mode 100644 state/main1/2025-11-16_1807-state.md
+To github.com:Bludi90/servidores.git
+   945c99f..df796d5  main -> main
+✅ Subido a GitHub.
+OK: generado /home/alejandro/servidores/docs/COMANDOS.md
+Chequeando posibles secretos...
+./scripts/commit-and-push.sh: línea 35: /tmp/servidores-secret-hits: Permiso denegado
