@@ -1,1 +1,0 @@
-● telemetry-publish-daily.service loaded failed failed Publica telemetría diaria (commit único)
