@@ -342,3 +342,13 @@ To github.com:Bludi90/servidores.git
 OK: generado /home/alejandro/servidores/docs/COMANDOS.md
 Chequeando posibles secretos...
 ./scripts/commit-and-push.sh: línea 35: /tmp/servidores-secret-hits: Permiso denegado
+[main 80cc9c3] chore(state): foto + índice actualizados main1 @ 2025-11-16_02:07
+ 6 files changed, 215 insertions(+), 51 deletions(-)
+ delete mode 100644 state/main1/2025-11-09_1503-state.md
+ create mode 100644 state/main1/2025-11-16_0207-state.md
+To github.com:Bludi90/servidores.git
+   baac5ab..80cc9c3  main -> main
+✅ Subido a GitHub.
+OK: generado /home/alejandro/servidores/docs/COMANDOS.md
+Chequeando posibles secretos...
+./scripts/commit-and-push.sh: línea 35: /tmp/servidores-secret-hits: Permiso denegado
