@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-link_path="comandos/${base}"
 CMD_DIR="docs/comandos"
 OUT="docs/COMANDOS.md"
 
@@ -27,6 +26,8 @@ fi
     base="$(basename "$f")"
     title="$(grep -m1 '^# ' "$f" | sed 's/^# //')"
     [ -z "$title" ] && title="$base"
+    # Como COMANDOS.md vive en docs/, los enlaces deben ser relativos a docs/
+    link_path="comandos/${base}"
     echo "- [${title}](${link_path})"
   done
 
@@ -38,6 +39,7 @@ fi
     base="$(basename "$f")"
     title="$(grep -m1 '^# ' "$f" | sed 's/^# //')"
     [ -z "$title" ] && title="$base"
+    link_path="comandos/${base}"
 
     echo "## ${title}"
     echo
