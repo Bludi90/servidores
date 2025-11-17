@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+link_path="comandos/${base}"
 CMD_DIR="docs/comandos"
 OUT="docs/COMANDOS.md"
 
@@ -26,7 +27,7 @@ fi
     base="$(basename "$f")"
     title="$(grep -m1 '^# ' "$f" | sed 's/^# //')"
     [ -z "$title" ] && title="$base"
-    echo "- [${title}](${CMD_DIR}/${base})"
+    echo "- [${title}](${link_path})"
   done
 
   echo
@@ -49,7 +50,7 @@ fi
     ' "$f"
 
     echo
-    echo "[→ Abrir guía completa](${CMD_DIR}/${base})"
+    echo "[→ Abrir guía completa](${link_path})"
     echo
   done
 } > "$OUT"
