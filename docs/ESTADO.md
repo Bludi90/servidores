@@ -1,8 +1,8 @@
 # Estado de servidores (índice)
 
-_Generado: 2025-11-17 18:07_
+_Generado: 2025-11-17 19:07_
 
-- **main1**: Último completo: [2025-11-17 18:07](../state/main1/2025-11-17_1807-state.md) — [sync.log](../state/main1/sync.log)
+- **main1**: Último completo: [2025-11-17 19:07](../state/main1/2025-11-17_1907-state.md) — [sync.log](../state/main1/sync.log)
 
 ### Criterio de 'completo'
 - El snapshot contiene secciones: WireGuard y Docker.
