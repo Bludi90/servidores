@@ -44,10 +44,11 @@ fi
     echo "## ${title}"
     echo
 
-    # Resumen: líneas entre el primer encabezado y la primera línea en blanco
+    # Resumen: desde después del título hasta antes de la primera sección ## o una regla ---
     awk '
       /^# / {in_header=1; next}
-      in_header && NF==0 {exit}
+      in_header && /^## / {exit}
+      in_header && /^---$/ {exit}
       in_header {print}
     ' "$f"
 
