@@ -55,7 +55,7 @@ _Disponible: Sí (`/usr/local/bin/wolctl`)_
       wolctl add pc-lenovo aa:bb:cc:11:22:33 192.168.1.50 enp10s0
       wolctl check pc-main1
 
-## ```wol
+## wol (atajo)
 
 _Disponible: Sí (`/usr/local/bin/wol`)_
 
