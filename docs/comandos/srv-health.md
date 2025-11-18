@@ -12,7 +12,7 @@ Uso típico:
 srv-health        # vista completa, con logs
 srv-health --short  # vista reducida, solo estado esencial
 ```
-<!-- RESUMEN -->
+<!-- /RESUMEN -->
 
 ---
 
