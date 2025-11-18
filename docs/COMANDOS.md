@@ -1,25 +1,30 @@
 # Comandos y scripts (resumen)
 
-_Generado: 2025-11-18 03:50_
+_Generado: 2025-11-18 04:04_
 
 Este documento es un **índice** para consulta rápida. Las guías completas están enlazadas.
 
 ## Índice
 
-- [LANSCAN — Guía rápida](comandos/lan-scan.md)
-- [srv-health — Chequeo rápido del servidor](comandos/srv-health.md)
+- [LAN-Scan — Guía rápida](comandos/lan-scan.md)
+- [Server-Health — Chequeo rápido del servidor - Cheatsheet](comandos/srv-health.md)
 - [WireGuard — Cheatsheet](comandos/wireguard.md)
 - [Wake-on-LAN — Cheatsheet](comandos/wol.md)
 
-## LANSCAN — Guía rápida
+## LAN-Scan — Guía rápida
 
+`lan-scan` escanea la red local y muestra una tabla con IP, MAC, interfaz
+(IFACE), hostname y fabricante (VENDOR), usando ARP/fping/nmap según el modo.
 
-`lan-scan` lista dispositivos de la LAN con **IP, MAC, IFACE, HOSTNAME, VENDOR**.
+Uso típico:
 
+- `lan-scan` → escaneo rápido equilibrado (clampa a /24 si la red es más grande).
+- `lan-scan --fast` → muy rápido (fping/ARP, sin DNS).
+- `lan-scan --deep` → exhaustivo (nmap -sn, con DNS).
 
 [→ Abrir guía completa](comandos/lan-scan.md)
 
-## srv-health — Chequeo rápido del servidor
+## Server-Health — Chequeo rápido del servidor - Cheatsheet
 
 `srv-health` hace un chequeo rápido del servidor y muestra en unas pocas líneas
 el estado de ZFS (pool `tank`), servicios críticos (WireGuard, Docker, cron,

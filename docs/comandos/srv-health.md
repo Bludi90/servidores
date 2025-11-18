@@ -1,4 +1,4 @@
-# srv-health — Chequeo rápido del servidor
+# Server-Health — Chequeo rápido del servidor - Cheatsheet
 
 <!-- RESUMEN -->
 `srv-health` hace un chequeo rápido del servidor y muestra en unas pocas líneas
