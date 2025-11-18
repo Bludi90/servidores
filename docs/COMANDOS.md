@@ -1,6 +1,6 @@
 # Comandos y scripts (resumen)
 
-_Generado: 2025-11-18 01:59_
+_Generado: 2025-11-18 02:07_
 
 Este documento es un **índice** para consulta rápida. Las guías completas están enlazadas.
 
@@ -47,8 +47,8 @@ Uso típico abreviado:
 ```bash
 wol nombre-host
 ```
-donde nombre-host es el NAME definido en el fichero de hosts (por ejemplo,
-un PC de sobremesa o un portátil concreto).
+Donde "nombre-host" es el NAME definido en el fichero de hosts (por ejemplo,
+un pc-sobremesa o un pt-lenovo).
 
 [→ Abrir guía completa](comandos/wol.md)
 

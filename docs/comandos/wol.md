@@ -13,8 +13,8 @@ Uso típico abreviado:
 ```bash
 wol nombre-host
 ```
-donde nombre-host es el NAME definido en el fichero de hosts (por ejemplo,
-un PC de sobremesa o un portátil concreto).
+Donde "nombre-host" es el NAME definido en el fichero de hosts (por ejemplo,
+un pc-sobremesa o un pt-lenovo).
 <!-- /RESUMEN -->
 
     WOL (Wake-on-LAN)
