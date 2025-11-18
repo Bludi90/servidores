@@ -44,13 +44,22 @@ fi
     echo "## ${title}"
     echo
 
-    # Resumen: desde después del título hasta antes de la primera sección ## o una regla ---
-    awk '
-      /^# / {in_header=1; next}
-      in_header && /^## / {exit}
-      in_header && /^---$/ {exit}
-      in_header {print}
-    ' "$f"
+    if grep -q '<!-- RESUMEN -->' "$f"; then
+      # Usar bloque de resumen explícito si existe
+      awk '
+        /<!-- RESUMEN -->/ {flag=1; next}
+        /<!-- \/RESUMEN -->/ {flag=0; exit}
+        flag {print}
+      ' "$f"
+    else
+      # Fallback: desde después del título hasta antes de la primera sección ## o una regla ---
+      awk '
+        /^# / {in_header=1; next}
+        in_header && /^## / {exit}
+        in_header && /^---$/ {exit}
+        in_header {print}
+      ' "$f"
+    fi
 
     echo
     echo "[→ Abrir guía completa](${link_path})"
