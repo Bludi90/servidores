@@ -11,6 +11,7 @@ Uso típico:
 ```bash
 srv-health        # vista completa, con logs
 srv-health --short  # vista reducida, solo estado esencial
+```
 <!-- RESUMEN -->
 
 ---
