@@ -1,6 +1,6 @@
 # Comandos y scripts (resumen)
 
-_Generado: 2025-11-18 06:07_
+_Generado: 2025-11-18 07:07_
 
 Este documento es un **índice** para consulta rápida. Las guías completas están enlazadas.
 
