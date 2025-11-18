@@ -1,6 +1,6 @@
 # Comandos y scripts (resumen)
 
-_Generado: 2025-11-18 01:46_
+_Generado: 2025-11-18 01:47_
 
 Este documento es un **índice** para consulta rápida. Las guías completas están enlazadas.
 
@@ -39,21 +39,9 @@ _Generado: 2025-11-09 21:41_
 
 ## Wake-on-LAN — Cheatsheet
 
-
-_Generado: 2025-11-09 19:27_
-
-    WOL (Wake-on-LAN)
-    - Fichero de hosts: /etc/wolctl/hosts.tsv (TSV con cabecera)
-      Campos: NAME  IF_LAN  MAC  IP  WINUSER  RUSTDESK_PORT  NOTES
-      - NAME: se recomienda minúsculas (case-insensitive).
-      - IF_LAN: interfaz LAN (p.ej. enp10s0). Si está vacío o "-" se autodetecta por IP.
-    - Envío: combina L2 (etherwake broadcast) + UDP (wakeonlan, por defecto puerto 9).
-    - Requisitos: etherwake, wakeonlan, tcpdump (para 'check').
-    - Consejos:
-      * BIOS: WOL/PME activo; ErP/DeepSleep desactivado; "Power on by PCI-E" activo.
-      * Windows: desactivar Inicio rápido; permitir reactivar por adaptador; "Wake on magic packet".
-      * Mejor hibernación S4 (no apagado S5).
-
+Wake-on-LAN (WOL) te permite encender equipos a distancia usando paquetes mágicos
+dirigidos a su MAC. En mi entorno lo gestiono con `wolctl` y un fichero de hosts
+centralizado en `/etc/wolctl/hosts.tsv`.
 
 [→ Abrir guía completa](comandos/wol.md)
 
