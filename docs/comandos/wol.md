@@ -6,8 +6,15 @@ _Generado: 2025-11-09 19:27_
 
 <!-- RESUMEN -->
 Wake-on-LAN (WOL) te permite encender equipos a distancia usando paquetes mágicos
-dirigidos a su MAC. En mi entorno lo gestiono con `wolctl` y un fichero de hosts
+dirigidos a su MAC. En este entorno se gestiona con `wolctl` y un fichero de hosts
 centralizado en `/etc/wolctl/hosts.tsv`.
+
+Uso típico abreviado:
+```bash
+wol nombre-host
+```
+donde nombre-host es el NAME definido en el fichero de hosts (por ejemplo,
+un PC de sobremesa o un portátil concreto).
 <!-- /RESUMEN -->
 
     WOL (Wake-on-LAN)
@@ -48,7 +55,7 @@ _Disponible: Sí (`/usr/local/bin/wolctl`)_
       wolctl add pc-lenovo aa:bb:cc:11:22:33 192.168.1.50 enp10s0
       wolctl check pc-main1
 
-## wol
+## ```wol
 
 _Disponible: Sí (`/usr/local/bin/wol`)_
 

@@ -1,6 +1,6 @@
 # Comandos y scripts (resumen)
 
-_Generado: 2025-11-18 01:47_
+_Generado: 2025-11-18 01:59_
 
 Este documento es un **índice** para consulta rápida. Las guías completas están enlazadas.
 
@@ -40,8 +40,15 @@ _Generado: 2025-11-09 21:41_
 ## Wake-on-LAN — Cheatsheet
 
 Wake-on-LAN (WOL) te permite encender equipos a distancia usando paquetes mágicos
-dirigidos a su MAC. En mi entorno lo gestiono con `wolctl` y un fichero de hosts
+dirigidos a su MAC. En este entorno se gestiona con `wolctl` y un fichero de hosts
 centralizado en `/etc/wolctl/hosts.tsv`.
+
+Uso típico abreviado:
+```bash
+wol nombre-host
+```
+donde nombre-host es el NAME definido en el fichero de hosts (por ejemplo,
+un PC de sobremesa o un portátil concreto).
 
 [→ Abrir guía completa](comandos/wol.md)
 
