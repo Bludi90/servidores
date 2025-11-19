@@ -1060,3 +1060,12 @@
 [2025-11-19_09:xxxx:09] housekeeping: OK
 [2025-11-19_09:xxxx:09] index: actualizado
 [2025-11-19_09:xxxx:09] cmds: actualizado
+[2025-11-19_09:xxxx:11] push: OK
+[2025-11-19 21:09:19] === Inicio commit-and-push ===
+[2025-11-19 21:09:19] Cambios detectados:
+ M reports/current/df.txt
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zpool_list.txt
+ M scripts/commit-and-push.sh
+ M state/main1/sync.log
