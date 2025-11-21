@@ -1400,3 +1400,14 @@
 [2025-11-21 05:00:01] === Inicio commit-and-push ===
 [2025-11-21 05:00:01] Cambios detectados:
  M state/main1/sync.log
+[main e0b6909] auto: snapshot main1 2025-11-21 05:00
+ 1 file changed, 8 insertions(+)
+[2025-11-21 05:00:01] Commit creado: auto: snapshot main1 2025-11-21 05:00
+[2025-11-21 05:00:02] git push OK.
+[2025-11-21 05:00:02] === Fin commit-and-push ===
+[2025-11-21 06:00:01] === Inicio commit-and-push ===
+[2025-11-21 06:00:01] Cambios detectados:
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zpool_list.txt
+ M state/main1/sync.log
