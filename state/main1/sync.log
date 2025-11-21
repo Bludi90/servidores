@@ -1477,3 +1477,13 @@
 [2025-11-21 13:00:02] Cambios detectados:
  M reports/current/zfs_list.txt
  M state/main1/sync.log
+[main 6196974] auto: snapshot main1 2025-11-21 13:00
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+[2025-11-21 13:00:02] Commit creado: auto: snapshot main1 2025-11-21 13:00
+[2025-11-21 13:00:03] git push OK.
+[2025-11-21 13:00:03] === Fin commit-and-push ===
+[2025-11-21 14:00:01] === Inicio commit-and-push ===
+[2025-11-21 14:00:01] Cambios detectados:
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M state/main1/sync.log
