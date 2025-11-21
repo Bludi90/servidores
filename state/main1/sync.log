@@ -1545,3 +1545,15 @@
  M reports/current/zfs_list.txt
  M state/main1/sync.log
 ?? scripts/gen-estado-doc.sh
+[main 5f02954] auto: snapshot main1 2025-11-21 20:00
+ 5 files changed, 77 insertions(+), 4 deletions(-)
+ create mode 100755 scripts/gen-estado-doc.sh
+[2025-11-21 20:00:02] Commit creado: auto: snapshot main1 2025-11-21 20:00
+[2025-11-21 20:00:03] git push OK.
+[2025-11-21 20:00:03] === Fin commit-and-push ===
+[2025-11-21 21:00:01] === Inicio commit-and-push ===
+[2025-11-21 21:00:01] Cambios detectados:
+ M reports/current/df.txt
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M state/main1/sync.log
