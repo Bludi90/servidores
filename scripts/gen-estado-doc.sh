@@ -12,11 +12,11 @@ sync_log_abs="${state_dir}/sync.log"
 
 best_state=""
 
-# 1) Preferimos archivos tipo state-*.md (los snapshots “de verdad”)
-if compgen -G "${state_dir}/state-*.md" > /dev/null; then
-  best_state="$(ls -1t "${state_dir}"/state-*.md | head -n1)"
+# 1) Buscar SOLO archivos de estado tipo 2025-11-11_1607-state.md
+if compgen -G "${state_dir}"/*-state.md > /dev/null; then
+  best_state="$(ls -1t "${state_dir}"/*-state.md | head -n1)"
 else
-  # 2) Si no hay state-*.md, buscamos el último .md ignorando current-state.md
+  # 2) Fallback: si algún día no hay *-state.md, usamos el último .md que no sea current-state.md
   latest_non_current="$(
     ls -1t "${state_dir}"/*.md 2>/dev/null \
       | grep -v '/current-state\.md$' \
@@ -28,7 +28,7 @@ else
   fi
 fi
 
-# Fecha "bonita" (si no hay snapshot, usamos fecha actual)
+# Fecha "bonita": la del snapshot si existe, si no, ahora
 if [[ -n "$best_state" && -f "$best_state" ]]; then
   nice_ts="$(date -r "$best_state" "+%Y-%m-%d %H:%M")"
 else
@@ -39,7 +39,7 @@ fi
 if [[ -n "$best_state" && -f "$best_state" ]]; then
   snap_rel="$(realpath --relative-to="$docs_dir" "$best_state")"
 else
-  snap_rel="../state/main1/"  # fallback genérico
+  snap_rel="../state/main1/"   # fallback genérico
 fi
 
 if [[ -f "$sync_log_abs" ]]; then
@@ -56,7 +56,6 @@ _Generado: ${nice_ts}_
 - **main1**: Último snapshot: [${nice_ts}](${snap_rel}) — [sync.log](${sync_rel})
 
 ### Cómo leer este estado
-- El snapshot incluye secciones de hardware, ZFS, WireGuard y Docker.
-- Si algo crítico falla, se verá marcado en el snapshot, no en este índice.
-- Usa siempre el último snapshot enlazado para ver el detalle.
+- El snapshot enlazado incluye el estado completo del servidor (hardware, servicios, ZFS, WireGuard, etc.).
+- Si algo crítico falla, se ve marcado en ese snapshot, no en este índice.
 EOF
