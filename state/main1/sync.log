@@ -1756,3 +1756,13 @@
  M scripts/commit-and-push.sh
  M scripts/gen-estado-doc.sh
  M state/main1/sync.log
+[main 38dd4b8] auto: snapshot main1 2025-11-22 17:34
+ 6 files changed, 56 insertions(+), 45 deletions(-)
+[2025-11-22 17:34:07] Commit creado: auto: snapshot main1 2025-11-22 17:34
+[2025-11-22 17:34:09] git push OK.
+[2025-11-22 17:34:09] === Fin commit-and-push ===
+[2025-11-22 17:42:28] === Inicio commit-and-push ===
+[2025-11-22 17:42:28] Cambios detectados:
+ M docs/ESTADO.md
+ M state/main1/sync.log
+?? state/main1/2025-11-22_smart.md
