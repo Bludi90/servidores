@@ -3,3 +3,7 @@
 22/11/2025 18:59:06 CET — == Servidor ==
 22/11/2025 19:03:28 CET — Estado general: OK (OK=9, WARN=0, FAIL=0)
 22/11/2025 19:07:09 CET — Estado general: OK (OK=9, WARN=0, FAIL=0) — ZFS tank: mirror, 0% usado de 7.25T
+📅 22/11/2025 19:10:17 CET
+🟢 Estado general: OK (OK=9, WARN=0, FAIL=0)
+💾 ZFS tank (mirror): 0% usado de 7.25T (salud ONLINE)
+
