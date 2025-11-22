@@ -1,0 +1,2 @@
+# Snapshot + commit/push cada hora (en punto)
+0 * * * * flock -n /home/alejandro/.cache/servidores/cron.lock bash -lc 'cd /home/alejandro/servidores && ./scripts/commit-and-push.sh'
