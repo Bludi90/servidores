@@ -1790,3 +1790,27 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M docs/ESTADO.md
  M state/main1/2025-11-22_smart.md
  M state/main1/sync.log
+[main 8bb4b59] auto: snapshot main1 2025-11-22 17:44
+ Committer: root <root@main1.llobregat.com>
+Tu nombre y correo fueron configurados automáticamente basados
+en tu usuario y nombre de host. Por favor verifica que sean correctos.
+Tú puedes suprimir este mensaje configurándolos de forma explícita. Ejecuta el
+siguiente comando y sigue las instrucciones de tu editor
+ para modificar tu archivo de configuración:
+
+    git config --global --edit
+
+Tras hacer esto, puedes arreglar la identidad usada para este commit con:
+
+    git commit --amend --reset-author
+
+ 3 files changed, 27 insertions(+), 3 deletions(-)
+[2025-11-22 17:44:35] Commit creado: auto: snapshot main1 2025-11-22 17:44
+[2025-11-22 17:44:37] git push OK.
+[2025-11-22 17:44:37] === Fin commit-and-push ===
+[2025-11-22 17:46:43] === Inicio commit-and-push ===
+[2025-11-22 17:46:43] Cambios detectados:
+ M docs/ESTADO.md
+ M scripts/commit-and-push.sh
+ M scripts/gen-estado-doc.sh
+ M state/main1/sync.log

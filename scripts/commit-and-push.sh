@@ -12,6 +12,11 @@ chown alejandro:alejandro "$LOG" || true
 
 cd "$REPO"
 
+# Regenerar docs/ESTADO.md con el último snapshot
+if [[ -x scripts/gen-estado-doc.sh ]]; then
+  scripts/gen-estado-doc.sh || echo "[WARN] No se pudo regenerar ESTADO.md" >&2
+fi
+
 ts() { date '+%Y-%m-%d %H:%M:%S'; }
 
 echo "[$(ts)] === Inicio commit-and-push ===" | tee -a "$LOG"
