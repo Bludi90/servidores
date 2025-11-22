@@ -1831,3 +1831,40 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M scripts/gen-estado-doc.sh
  M state/main1/2025-11-22_smart.md
  M state/main1/sync.log
+[main 6aec680] auto: snapshot main1 2025-11-22 18:27
+ Committer: root <root@main1.llobregat.com>
+Tu nombre y correo fueron configurados automáticamente basados
+en tu usuario y nombre de host. Por favor verifica que sean correctos.
+Tú puedes suprimir este mensaje configurándolos de forma explícita. Ejecuta el
+siguiente comando y sigue las instrucciones de tu editor
+ para modificar tu archivo de configuración:
+
+    git config --global --edit
+
+Tras hacer esto, puedes arreglar la identidad usada para este commit con:
+
+    git commit --amend --reset-author
+
+ 6 files changed, 37 insertions(+), 22 deletions(-)
+[2025-11-22 18:27:28] Commit creado: auto: snapshot main1 2025-11-22 18:27
+[2025-11-22 18:27:30] git push OK.
+[2025-11-22 18:27:30] === Fin commit-and-push ===
+[2025-11-22 18:31:51] === Inicio commit-and-push ===
+[2025-11-22 18:57:47] === Inicio commit-and-push ===
+[2025-11-22 19:00:01] === Inicio commit-and-push ===
+[2025-11-22 19:09:06] === Inicio commit-and-push ===
+[2025-11-22 19:09:06] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M scripts/build-index.sh
+ M scripts/commit-and-push.sh
+ M scripts/snapshot-state.sh
+ M state/main1/2025-11-22_smart.md
+ T state/main1/current-state.md
+ M state/main1/sync.log
+?? state/main1/2025-11-22_1844-state.md
+?? state/main1/2025-11-22_1850-state.md
+?? state/main1/2025-11-22_1857-state.md
+?? state/main1/2025-11-22_1909-state.md
+?? state/main1/srv-health-weekly.log

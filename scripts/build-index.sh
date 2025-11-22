@@ -1,41 +1,49 @@
 #!/usr/bin/env bash
 set -euo pipefail
-OUT="docs/ESTADO.md"
-echo "# Estado de servidores (índice)" > "$OUT"
-echo "" >> "$OUT"
-echo "_Generado: $(date +%F\ %H:%M)_" >> "$OUT"
-echo "" >> "$OUT"
+umask 022
+export LC_ALL=C
 
-is_complete() {
-  f="$1"
-  # Consideramos 'completo' si:
-  # - En el snapshot aparece algo de WireGuard (tabla de peers, servicio, etc.)
-  # - Y existe la sección Docker
-  grep -q 'WireGuard' "$f" && \
-  grep -q '^## Docker' "$f"
-}
+# Raíz del repo = carpeta padre de scripts/
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-for d in $(ls -d state/* 2>/dev/null | sort); do
-  [ -d "$d" ] || continue
-  host="$(basename "$d")"
-  latest="$(ls -t "$d"/*-state.md 2>/dev/null | head -1 || true)"
-  complete="$(ls -t "$d"/*-state.md 2>/dev/null | while read f; do is_complete "$f" && { echo "$f"; break; }; done)"
+SERVER="$(hostname -s || echo main1)"
 
-  if [ -n "${complete:-}" ]; then
-    m1="$(date -r "$complete" '+%F %H:%M' 2>/dev/null || echo '(fecha)')"
-    echo "- **${host}**: Último completo: [${m1}](../${complete}) — [sync.log](../${d}/sync.log)" >> "$OUT"
-    if [ -n "${latest:-}" ] && [ "$latest" != "$complete" ]; then
-      m2="$(date -r "$latest" '+%F %H:%M' 2>/dev/null || echo '(fecha)')"
-      echo "  - Nota: el más reciente es [${m2}](../${latest}), pero está **incompleto**." >> "$OUT"
-    fi
-  elif [ -n "${latest:-}" ]; then
-    m3="$(date -r "$latest" '+%F %H:%M' 2>/dev/null || echo '(fecha)')"
-    echo "- **${host}**: [${m3}](../${latest}) — [sync.log](../${d}/sync.log) _(incompleto)_" >> "$OUT"
-  else
-    echo "- **${host}**: (sin snapshots) — [sync.log](../${d}/sync.log)" >> "$OUT"
-  fi
-done
+docs_dir="${repo_root}/docs"
+estado_file="${docs_dir}/ESTADO.md"
 
-echo "" >> "$OUT"
-echo "### Criterio de 'completo'" >> "$OUT"
-echo "- El snapshot contiene secciones: WireGuard y Docker." >> "$OUT"
+state_dir="${repo_root}/state/${SERVER}"
+current_abs="${state_dir}/current-state.md"
+sync_log_abs="${state_dir}/sync.log"
+
+mkdir -p "${docs_dir}"
+
+# Fecha "bonita" basada en current-state.md (si existe y no está vacío)
+if [[ -s "${current_abs}" ]]; then
+  nice_ts="$(date -r "${current_abs}" "+%Y-%m-%d %H:%M")"
+else
+  nice_ts="desconocido"
+fi
+
+# Paths relativos desde docs/ hacia current-state y sync.log
+if [[ -f "${current_abs}" ]]; then
+  current_rel="$(realpath --relative-to="${docs_dir}" "${current_abs}")"
+else
+  current_rel="../state/${SERVER}/current-state.md"
+fi
+
+if [[ -f "${sync_log_abs}" ]]; then
+  sync_rel="$(realpath --relative-to="${docs_dir}" "${sync_log_abs}")"
+else
+  sync_rel="../state/${SERVER}/sync.log"
+fi
+
+cat > "${estado_file}" <<EOF
+# Estado de servidores (índice)
+
+_Generado: ${nice_ts}_
+
+- **${SERVER}**: Último completo: [${nice_ts}](${current_rel}) — [sync.log](${sync_rel})
+
+### Criterio de 'completo'
+- El snapshot contiene secciones: WireGuard y Docker.
+EOF
