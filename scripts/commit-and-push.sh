@@ -23,6 +23,11 @@ if git diff --quiet && git diff --cached --quiet; then
   exit 0
 fi
 
+# Actualizar docs/Estado.md con el´último state antes de commitear
+if [[ -x scripts/gen-estado-doc.sh ]]; then
+  scripts/gen-estado-doc.sh
+fi
+
 echo "[$(ts)] Cambios detectados:" | tee -a "$LOG"
 git status --short | tee -a "$LOG" || true
 
