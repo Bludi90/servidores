@@ -1884,3 +1884,14 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M scripts/commit-and-push.sh
  M state/main1/srv-health-weekly.log
  M state/main1/sync.log
+[main 7f34eb6] auto: snapshot main1 2025-11-22 19:12
+ 3 files changed, 20 insertions(+), 5 deletions(-)
+[2025-11-22 19:12:09] Commit creado: auto: snapshot main1 2025-11-22 19:12
+[2025-11-22 19:12:10] git push OK.
+[2025-11-22 19:12:10] === Fin commit-and-push ===
+[2025-11-22 19:12:21] === Inicio commit-and-push ===
+[2025-11-22 19:12:21] Cambios detectados:
+ M docs/ESTADO.md
+ M state/main1/current-state.md
+ M state/main1/sync.log
+?? state/main1/2025-11-22_1912-state.md
