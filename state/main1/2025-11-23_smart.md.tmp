@@ -1,0 +1,12 @@
+# Informe SMART - main1
+
+_Fecha: 2025-11-23 11:59:01_
+
+Discos analizados:  /dev/sda
+/dev/sdb
+/dev/sdc
+/dev/sdd
+
+## /dev/sda
+
+    /usr/local/bin/smart-weekly-report: línea 86: smartctl: orden no encontrada
