@@ -1,0 +1,193 @@
+#!/usr/bin/env bash
+# lan-scan v4.8 — rápido por defecto (clamp /24), --fast, --deep, --wide, VENDOR fiable
+set -Eeo pipefail
+
+usage(){ cat <<'HLP'
+USO
+  lan-scan                      # rápido equilibrado (si tu red >/24, se clampa a /24)
+  lan-scan --fast               # MUY rápido (fping/ARP, sin DNS)
+  lan-scan --deep               # exhaustivo (nmap -sn, con DNS)
+  lan-scan --wide               # NO clampa: escanea el CIDR completo de la interfaz
+  lan-scan -i enp10s0           # fuerza interfaz
+  lan-scan -n 192.168.1.0/24    # fuerza red (CIDR)
+  lan-scan --engine auto|arp|fping|nmap
+  lan-scan --csv | --no-dns | --no-vendor | --refresh | --timeout 2s | --fping-timeout 150 | --debug
+HLP
+}
+
+have(){ command -v "$1" >/dev/null 2>&1; }
+
+auto_iface(){
+  local dev
+  dev="$(ip route get 1.1.1.1 2>/dev/null | awk '/dev/ {print $5; exit}')" || true
+  [[ -n "$dev" && "$dev" != "lo" ]] && { echo "$dev"; return; }
+  ip -o -4 addr show scope global \
+   | awk '$2 !~ /^(wg|tun|docker|veth|lo)/ && $2 ~ /(enp|eno|eth|br|bond|wl)/ {print $2; exit}'
+}
+cidr_for_iface(){ ip -o -4 addr show dev "$1" | awk '{print $4; exit}'; }
+
+# ---- Clamp /24 si la red es > /24 (a menos que --wide) ----
+clamp_net(){
+  local cidr="$1" wide="$2"
+  local ip pfx a b c d
+  ip="${cidr%/*}"; pfx="${cidr#*/}"
+  if [[ -z "$pfx" ]]; then echo "$cidr"; return; fi
+  if (( wide==1 )) || (( pfx >= 24 )); then
+    echo "$cidr"; return
+  fi
+  IFS=. read -r a b c d <<<"$ip"
+  echo "$a.$b.$c.0/24"
+}
+
+# ------- Vendor por OUI (con pequeña caché) -------
+declare -A OUI_CACHE
+vendor_for_mac(){
+  local mac="$1"; [ -n "$mac" ] || { echo ""; return; }
+  local upper pfx_plain pfx_dash
+  upper="$(printf "%s\n" "$mac" | tr '[:lower:]' '[:upper:]')"
+  pfx_plain="$(printf "%s\n" "$upper" | cut -d: -f1-3 | tr -d :)"
+  [[ -n "${OUI_CACHE[$pfx_plain]:-}" ]] && { echo "${OUI_CACHE[$pfx_plain]}"; return; }
+
+  local file="" line=""
+  if   [ -f /usr/share/ieee-data/oui.txt ]; then
+    line="$(grep -m1 -E "^$(echo "$pfx_plain" | sed 's/../&-/g; s/-$//')[[:space:]]" /usr/share/ieee-data/oui.txt 2>/dev/null \
+            | sed -E 's/^[^[:space:]]+[[:space:]]+\(hex\)[[:space:]]+//')"
+  elif [ -f /usr/share/arp-scan/ieee-oui.txt ]; then
+    line="$(awk -F'\t' -v P="$pfx_plain" 'toupper($1)==P{print $2; exit}' /usr/share/arp-scan/ieee-oui.txt 2>/dev/null)"
+  elif [ -f /usr/share/misc/oui.txt ]; then
+    line="$(grep -m1 -E "^$(echo "$pfx_plain" | sed 's/../&-/g; s/-$//')[[:space:]]" /usr/share/misc/oui.txt 2>/dev/null \
+            | sed -E 's/^[^[:space:]]+[[:space:]]+\(hex\)[[:space:]]+//')"
+  fi
+  OUI_CACHE["$pfx_plain"]="${line:-}"
+  echo "${line:-}"
+}
+
+resolve_name(){ [ "$RESOLVE" -eq 1 ] || { echo ""; return; }; getent hosts "$1" 2>/dev/null | awk '{print $2; exit}'; }
+warm_arp_one(){ ping -n -c1 -W1 "$1" >/dev/null 2>&1 || true; have arping && arping -I "$IFACE" -c1 -w1 "$1" >/dev/null 2>&1 || true; }
+mac_for_ip(){ ip -4 neigh show "$1" 2>/dev/null | awk "/lladdr/ {print \$5; exit}"; }
+
+print_header(){
+  if [ "$CSV" -eq 1 ]; then echo "ip,mac,iface,hostname,vendor"
+  else
+    printf "%-15s  %-17s  %-9s  %-28s  %s\n" "IP" "MAC" "IFACE" "HOSTNAME" "VENDOR"
+    printf "%-15s  %-17s  %-9s  %-28s  %s\n" "---------------" "-----------------" "---------" "----------------------------" "------------------------------"
+  fi
+}
+print_row(){
+  if [ "$CSV" -eq 1 ]; then printf "%s,%s,%s,%s,%s\n" "$1" "$2" "$3" "$4" "$5"
+  else printf "%-15s  %-17s  %-9s  %-28s  %s\n" "$1" "${2:---}" "$3" "${4:---}" "${5:-}"
+  fi
+}
+
+discover_with_nmap(){ have nmap || return 1
+  nmap -n -sn -PR -e "$IFACE" "$NET_SCAN" --max-retries 1 --host-timeout "$TIMEOUT" -T4 -oG - 2>/dev/null \
+    | awk "/^Host: /{print \$2}"
+}
+discover_with_fping(){ have fping || return 1
+  # -r0 sin reintentos; -t <ms> corto para velocidad
+  fping -a -q -g "$NET_SCAN" -r 0 -t "$FPING_MS" 2>/dev/null || true
+}
+discover_with_arp(){ ip -4 neigh show dev "$IFACE" | awk "{print \$1}"; }
+
+# ---------------- Main ----------------
+IFACE=""; NET=""; ENGINE="auto"; CSV=0; RESOLVE=1; DEBUG=0; REFRESH=0; TIMEOUT="2s"; MODE="normal"; WIDE=0; FPING_MS=150; VENDOR_ON=1
+while (( $# )); do
+  case "$1" in
+    --fast) MODE="fast";  RESOLVE=0; ENGINE="fping"; VENDOR_ON=1; shift;;
+    --deep) MODE="deep";  RESOLVE=1; ENGINE="nmap";  TIMEOUT="3s"; shift;;
+    --wide) WIDE=1; shift;;
+    -i|--iface) IFACE="${2:-}"; shift 2;;
+    -n|--net)   NET="${2:-}"; shift 2;;
+    --engine)   ENGINE="${2:-}"; shift 2;;
+    --csv)      CSV=1; shift;;
+    --no-dns)   RESOLVE=0; shift;;
+    --no-vendor) VENDOR_ON=0; shift;;
+    --refresh)  REFRESH=1; shift;;
+    --timeout)  TIMEOUT="${2:-}"; shift 2;;
+    --fping-timeout) FPING_MS="${2:-150}"; shift 2;;
+    --debug)    DEBUG=1; shift;;
+    -h|--help|-help) usage; exit 0;;
+    *) echo "Opción no reconocida: $1" >&2; usage; exit 1;;
+  esac
+done
+
+# Root
+if (( EUID != 0 )); then exec sudo -E "$0" "$@"; fi
+
+[ -n "$IFACE" ] || IFACE="$(auto_iface || true)"
+[ -n "$IFACE" ] || IFACE="$(ip route | awk "/default/ {print \$5; exit}")"
+[ -n "$IFACE" ] || { echo "No puedo detectar interfaz. Usa -i" >&2; exit 1; }
+
+[ -n "$NET" ] || NET="$(cidr_for_iface "$IFACE")"
+[ -n "$NET" ] || { echo "No puedo detectar la red (CIDR). Usa -n" >&2; exit 1; }
+
+NET_SCAN="$(clamp_net "$NET" "$WIDE")"
+
+# Datos del propio host (para garantizar IP/MAC/hostname locales)
+MY_IP="$(ip -o -4 addr show dev "$IFACE" | awk '{print $4}' | cut -d/ -f1)"
+MY_MAC="$(cat "/sys/class/net/$IFACE/address" 2>/dev/null || echo "")"
+MY_HOSTNAME="$(hostname)"
+
+# Auto (veloz): fping -> arp -> nmap
+if [ "$ENGINE" = "auto" ]; then
+  if   have fping; then ENGINE="fping"
+  elif have ip;    then ENGINE="arp"
+  elif have nmap;  then ENGINE="nmap"
+  else ENGINE="arp"
+  fi
+fi
+[ "$DEBUG" -eq 1 ] && echo "[DEBUG] IFACE=$IFACE NET=$NET NET_SCAN=$NET_SCAN ENGINE=$ENGINE MODE=$MODE TIMEOUT=$TIMEOUT FPING_MS=$FPING_MS CSV=$CSV RESOLVE=$RESOLVE VENDOR_ON=$VENDOR_ON WIDE=$WIDE" >&2
+
+# Opcional: calentar ARP
+if [ "$REFRESH" -eq 1 ]; then
+  if have fping; then fping -a -q -g "$NET_SCAN" -r 0 -t "$FPING_MS" 2>/dev/null || true
+  else
+    base="${NET_SCAN%/*}"; IFS=. read -r a b c d <<<"$base"
+    for i in $(seq 1 254); do ping -n -c1 -W1 "$a.$b.$c.$i" >/dev/null 2>&1 & done; wait || true
+  fi
+fi
+
+print_header
+
+# Descubrimiento
+mapfile -t IPS < <(
+  case "$ENGINE" in
+    nmap)     discover_with_nmap;;
+    fping)    discover_with_fping;;
+    arp)      discover_with_arp;;
+    *)        discover_with_arp;;
+  esac
+)
+[ "${#IPS[@]}" -gt 0 ] || mapfile -t IPS < <(discover_with_arp)
+IPS=( $(printf "%s\n" "${IPS[@]}" | sed "/^$/d" | sort -V | uniq) )
+
+# Garantizar que la IP local (MY_IP) está incluida en la lista
+if [ -n "${MY_IP:-}" ]; then
+  found_self=0
+  for ip in "${IPS[@]}"; do
+    if [ "$ip" = "$MY_IP" ]; then
+      found_self=1
+      break
+    fi
+  done
+  if [ "$found_self" -eq 0 ]; then
+    IPS+=("$MY_IP")
+  fi
+fi
+
+# Filas
+for ip in "${IPS[@]}"; do
+  [ -n "$ip" ] || continue
+  mac="$(mac_for_ip "$ip" || true)"
+  if [ -z "$mac" ]; then warm_arp_one "$ip"; mac="$(mac_for_ip "$ip" || true)"; fi
+  host="$(resolve_name "$ip" || true)"
+
+  # Si es la IP local, usar como fallback la MAC e hostname locales
+  if [ -n "${MY_IP:-}" ] && [ "$ip" = "$MY_IP" ]; then
+    [ -z "$mac" ] && [ -n "${MY_MAC:-}" ] && mac="$MY_MAC"
+    [ -z "$host" ] && [ -n "${MY_HOSTNAME:-}" ] && host="$MY_HOSTNAME"
+  fi
+
+  vend=""; if [ "$VENDOR_ON" -eq 1 ]; then vend="$(vendor_for_mac "${mac:-}" || true)"; fi
+  print_row "$ip" "${mac:-}" "$IFACE" "${host:-}" "${vend:-}"
+done

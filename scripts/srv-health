@@ -1,0 +1,251 @@
+#!/usr/bin/env bash
+# srv-health – Chequeo rápido de salud del servidor (ZFS, WireGuard, Docker, servicios, logs)
+# Versión robusta: no aborta por errores puntuales, siempre intenta mostrar todo.
+set -Euo pipefail
+
+# Si no somos root, relanzar con sudo (preserva argumentos)
+if (( EUID != 0 )); then
+  exec sudo -E "$0" "$@"
+fi
+
+# --------- Opciones ---------
+SHORT=0   # --short / -s → sin sección de logs (vista más compacta)
+
+while (( $# )); do
+  case "$1" in
+    --short|-s)
+      SHORT=1
+      shift
+      ;;
+    *)
+      # De momento ignoramos otras opciones
+      shift
+      ;;
+  esac
+done
+
+HOSTNAME_REAL="$(hostname || echo "desconocido")"
+NOW_HUMAN="$(date '+%F %T')"
+UPTIME_HUMAN="$(uptime -p 2>/dev/null || echo "uptime no disponible")"
+
+OK=0
+WARN=0
+FAIL=0
+
+# Colores solo si es TTY
+if [ -t 1 ]; then
+  C_GREEN="$(printf '\033[32m')"
+  C_YELLOW="$(printf '\033[33m')"
+  C_RED="$(printf '\033[31m')"
+  C_RESET="$(printf '\033[0m')"
+else
+  C_GREEN=""; C_YELLOW=""; C_RED=""; C_RESET=""
+fi
+
+status_line() {
+  local level="$1" msg="$2"
+  case "$level" in
+    OK)   printf "[%sOK%s]    %s\n"   "$C_GREEN" "$C_RESET" "$msg"; ((OK++));;
+    WARN) printf "[%sWARN%s]  %s\n"   "$C_YELLOW" "$C_RESET" "$msg"; ((WARN++));;
+    FAIL) printf "[%sFAIL%s]  %s\n"   "$C_RED" "$C_RESET" "$msg"; ((FAIL++));;
+    *)    printf "[    ]    %s\n"    "$msg";;
+  esac
+}
+
+section() {
+  echo
+  echo "== $1 =="
+}
+
+# ---------------- Cabecera ----------------
+section "Servidor"
+LOAD_AVG="$(uptime 2>/dev/null | sed 's/.*load average: //')" || LOAD_AVG="N/D"
+MEM_LINE="$(free -h 2>/dev/null | awk '/Mem:/ {print "used=" $3 ", free=" $4 ", total=" $2}')" || MEM_LINE="N/D"
+
+echo "Host:   $HOSTNAME_REAL"
+echo "Fecha:  $NOW_HUMAN"
+echo "Uptime: $UPTIME_HUMAN"
+echo "Carga:  ${LOAD_AVG:-N/D}"
+echo "Mem:    ${MEM_LINE:-N/D}"
+
+# ---------------- ZFS ----------------
+section "ZFS"
+
+if command -v zpool >/dev/null 2>&1; then
+  if zpool list -H tank >/dev/null 2>&1; then
+    HEALTH="$(zpool get -H -o value health tank 2>/dev/null || echo "?")"
+    CAPACITY_RAW="$(zpool list -H -o capacity tank 2>/dev/null || echo "0%")"
+    CAPACITY_NUM="${CAPACITY_RAW%%%}"   # "23%" -> "23"
+    SIZE_RAW="$(zpool list -H -o size tank 2>/dev/null || echo "?")"
+
+    # Detectar tipo de RAID de forma sencilla a partir de zpool status
+    RAID_TYPE="$(
+      zpool status tank 2>/dev/null | awk '
+        /config:/ {cfg=1; next}
+        /^errors:/ {cfg=0}
+        cfg && $1 ~ /^mirror/ {print "mirror"; exit}
+        cfg && $1 ~ /^raidz1/ {print "raidz1"; exit}
+        cfg && $1 ~ /^raidz2/ {print "raidz2"; exit}
+        cfg && $1 ~ /^raidz3/ {print "raidz3"; exit}
+      '
+    )"
+    [ -z "$RAID_TYPE" ] && RAID_TYPE="desconocido"
+
+    msg="ZFS pool '\''tank'\'' HEALTH=$HEALTH, RAID=$RAID_TYPE, tamaño=$SIZE_RAW, uso=$CAPACITY_RAW"
+
+    if [ "$HEALTH" != "ONLINE" ]; then
+      status_line FAIL "$msg (revisar 'zpool status -x')"
+    elif [[ "$CAPACITY_NUM" =~ ^[0-9]+$ ]]; then
+      if [ "$CAPACITY_NUM" -ge 90 ]; then
+        status_line FAIL "$msg (casi lleno)"
+      elif [ "$CAPACITY_NUM" -ge 80 ]; then
+        status_line WARN "$msg (alto uso)"
+      else
+        status_line OK "$msg"
+      fi
+    else
+      # Por si capacity no es un número (N/A, -)
+      status_line OK "$msg"
+    fi
+  else
+    status_line WARN "ZFS instalado pero pool 'tank' no encontrado (zpool list tank falla)"
+  fi
+else
+  status_line WARN "ZFS no instalado (zpool no disponible)"
+fi
+
+# ---------------- Servicios críticos ----------------
+section "Servicios críticos (systemd)"
+
+CRIT_UNITS=( "wg-quick@wg0" "docker" "zfs-zed" "smartd" "cron" )
+
+for unit in "${CRIT_UNITS[@]}"; do
+  # systemctl status devuelve 4 si la unidad no existe
+  if systemctl status "$unit" >/dev/null 2>&1; then
+    if systemctl is-active --quiet "$unit"; then
+      status_line OK "Servicio $unit activo"
+    else
+      status_line WARN "Servicio $unit instalado pero no activo"
+    fi
+  else
+    # Si no existe, no ensuciamos la salida
+    :
+  fi
+done
+
+# ---------------- WireGuard ----------------
+section "WireGuard (wg0)"
+
+if command -v wg >/dev/null 2>&1; then
+  if wg show wg0 >/dev/null 2>&1; then
+    PEERS_TOTAL="$(wg show wg0 peers 2>/dev/null | sed '/^$/d' | wc -l || echo 0)"
+
+    NOW_TS="$(date +%s)"
+    ACTIVE_RECENT=0
+    while read -r PUBKEY TS; do
+      [ -z "$PUBKEY" ] && continue
+      [ -z "$TS" ] && continue
+      if [ "$TS" -ne 0 ] && [ $((NOW_TS - TS)) -le 1800 ]; then
+        ACTIVE_RECENT=$((ACTIVE_RECENT + 1))
+      fi
+    done < <(wg show wg0 latest-handshakes 2>/dev/null || true)
+
+    if [ "${PEERS_TOTAL:-0}" -eq 0 ]; then
+      status_line WARN "WireGuard wg0 sin peers configurados"
+    else
+      if [ "${ACTIVE_RECENT:-0}" -eq 0 ]; then
+        status_line WARN "WireGuard wg0: $PEERS_TOTAL peers, ninguno con handshake < 30 min"
+      else
+        status_line OK "WireGuard wg0: $PEERS_TOTAL peers, $ACTIVE_RECENT con handshake < 30 min"
+      fi
+    fi
+  else
+    status_line WARN "WireGuard instalado, pero wg0 no está levantado (wg show wg0 falla)"
+  fi
+else
+  status_line WARN "WireGuard no instalado (wg no disponible)"
+fi
+
+# ---------------- Docker ----------------
+section "Docker"
+
+if command -v docker >/dev/null 2>&1; then
+  if systemctl is-active --quiet docker 2>/dev/null; then
+    RUNNING_NAMES="$(docker ps --format '{{.Names}}' 2>/dev/null || true)"
+    RUNNING_COUNT="$(printf "%s\n" "$RUNNING_NAMES" | sed '/^$/d' | wc -l || echo 0)"
+
+    if [ "${RUNNING_COUNT:-0}" -gt 0 ]; then
+      status_line OK "Docker activo: ${RUNNING_COUNT:-0} contenedores corriendo"
+      # En modo corto no mostramos la lista completa de nombres
+      if [ "$SHORT" -eq 0 ]; then
+        NAMES_INLINE="$(printf "%s" "$RUNNING_NAMES" | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g')"
+        echo "  Contenedores: $NAMES_INLINE"
+      fi
+    else
+      status_line WARN "Docker activo pero sin contenedores en ejecución"
+    fi
+  else
+    status_line WARN "Docker instalado pero servicio docker inactivo"
+  fi
+else
+  status_line WARN "Docker no instalado"
+fi
+
+# ---------------- Systemd: unidades fallidas ----------------
+section "Systemd (unidades fallidas)"
+
+FAILED_UNITS="$(systemctl --failed --no-legend --plain 2>/dev/null || true)"
+FAILED_COUNT="$(printf "%s\n" "$FAILED_UNITS" | sed '/^$/d' | wc -l || echo 0)"
+
+if [ "$FAILED_COUNT" -eq 0 ]; then
+  status_line OK "No hay unidades systemd fallidas"
+else
+  status_line WARN "$FAILED_COUNT unidades systemd fallidas"
+  if [ "$SHORT" -eq 0 ]; then
+    echo "  Unidades:"
+    # Formato típico: UNIT LOAD ACTIVE SUB DESCRIPTION
+    printf "%s\n" "$FAILED_UNITS" | sed '/^$/d' | awk '{printf "   - %s (%s)\n", $1, $4}'
+  fi
+fi
+
+# ---------------- Logs clave ----------------
+if [ "$SHORT" -eq 0 ]; then
+  section "Logs clave"
+
+  BASE="/home/alejandro/servidores/state/main1"
+  SMART_LOG="$BASE/smart-weekly.log"
+  SYNC_LOG="$BASE/sync.log"
+
+  if [ -f "$SMART_LOG" ]; then
+    echo "smart-weekly.log (última línea):"
+    tail -n 1 "$SMART_LOG"
+  else
+    status_line WARN "No se encuentra $SMART_LOG (¿aún no se ha generado el informe SMART semanal?)"
+  fi
+
+  echo
+
+  if [ -f "$SYNC_LOG" ]; then
+    echo "sync.log (últimas 3 líneas):"
+    tail -n 3 "$SYNC_LOG"
+  else
+    status_line WARN "No se encuentra $SYNC_LOG (¿cron de commit-and-push en marcha?)"
+  fi
+fi
+
+# ---------------- Resumen final ----------------
+section "Resumen"
+
+if [ "$FAIL" -gt 0 ]; then
+  status="CRÍTICO"
+  color="$C_RED"
+elif [ "$WARN" -gt 0 ]; then
+  status="ATENCIÓN"
+  color="$C_YELLOW"
+else
+  status="OK"
+  color="$C_GREEN"
+fi
+
+printf "%sEstado general: %s (OK=%d, WARN=%d, FAIL=%d)%s\n" \
+  "$color" "$status" "$OK" "$WARN" "$FAIL" "$C_RESET"

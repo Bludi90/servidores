@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+arg="${1:-wg0}"
+
+# auto-elevación sin password
+if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
+  exec sudo -n /usr/bin/env bash "$0" "$@" || { echo "ERROR: falta NOPASSWD para /bin/wg-list-peers"; exit 1; }
+fi
+
+# interfaces a listar
+if [[ "$arg" == "all" ]]; then
+  mapfile -t IFACES < <(wg show interfaces 2>/dev/null | tr ' ' '\n' | awk 'NF && !seen[$0]++')
+else
+  IFACES=("$arg")
+fi
+
+# mapa opcional de nombres: /etc/wireguard/names.tsv  =>  "<pubkey>\t<Nombre>"
+declare -A NAME=()
+if [[ -r /etc/wireguard/names.tsv ]]; then
+  while IFS=$'\t' read -r k v; do
+    [[ -n "$k" && -n "$v" ]] && NAME["$k"]="$v"
+  done < <(grep -vE '^\s*(#|$)' /etc/wireguard/names.tsv || true)
+fi
+
+# cabecera
+printf "%-8s %-20s %-18s %-17s %-22s %-12s %-12s %-12s\n" \
+  "IFACE" "NOMBRE" "IP" "PUBKEY(16)" "ENDPOINT" "HS_ago" "RX" "TX"
+printf "%-8s %-20s %-18s %-17s %-22s %-12s %-12s %-12s\n" \
+  "------" "------" "------------------" "-----------------" "----------------------" "------" "------" "------"
+
+for i in "${IFACES[@]}"; do
+  ip link show "$i" &>/dev/null || { echo "Aviso: $i no está levantada."; continue; }
+  wg show "$i" dump | awk -v iface="$i" -v now="$(date +%s)" '
+    NR==1 {next} # línea de interfaz: saltar
+    {
+      pub=$1; ep=$3; ips=$4; hs=$5; rx=$6; tx=$7;
+      short=substr(pub,1,16);
+      # formatear HS
+      if (hs==0) ago="—";
+      else {
+        d=now-hs;
+        if (d<60) ago=d "s";
+        else if (d<3600) {m=int(d/60); s=d%60; ago=m "m " s "s";}
+        else if (d<86400) {h=int(d/3600); m=int((d%3600)/60); ago=h "h " m "m";}
+        else {days=int(d/86400); h=int((d%86400)/3600); ago=days "d " h "h";}
+      }
+      print iface "\t" pub "\t" short "\t" ips "\t" ep "\t" ago "\t" rx "\t" tx;
+    }' | while IFS=$'\t' read -r ifc pub short ips ep ago rx tx; do
+         [[ "$ep" == "(none)" || -z "$ep" ]] && ep="-"
+         name="${NAME[$pub]:--}"; [[ "$name" = "-" && "$ips" != "-" ]] && name="${ips%%,*}"
+         printf "%-8s %-20s %-18s %-17s %-22s %-12s %-12s %-12s\n" \
+                "$ifc" "$name" "$ips" "$short" "$ep" "$ago" "$rx" "$tx"
+       done
+done

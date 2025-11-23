@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SR_REPO_DIR="/home/alejandro/servidores"
+LOG_FILE="$SR_REPO_DIR/state/main1/srv-health-weekly.log"
+
+# ===== Estado general (srv-health --short) =====
+if command -v srv-health >/dev/null 2>&1; then
+  STATUS_RAW="$(
+    set +e
+    srv-health --short 2>&1
+  )"
+else
+  STATUS_RAW="Estado general: srv-health no está disponible en ${HOSTNAME}"
+fi
+
+# Intentar sacar la línea que contenga 'Estado general:'
+STATUS_LINE="$(
+  set +e
+  printf '%s\n' "$STATUS_RAW" | grep -F 'Estado general:' | head -n1
+)"
+
+# Limpiar líneas vacías
+STATUS_LINE="$(
+  printf '%s\n' "$STATUS_LINE" \
+  | sed '/^[[:space:]]*$/d' \
+  | head -n1
+)"
+
+# Si no encontramos 'Estado general:', usamos la primera línea no vacía
+if [ -z "$STATUS_LINE" ]; then
+  STATUS_LINE="$(
+    printf '%s\n' "$STATUS_RAW" \
+    | sed '/^[[:space:]]*$/d' \
+    | head -n1
+  )"
+fi
+
+# Si aun así no hay nada, mensaje por defecto
+if [ -z "$STATUS_LINE" ]; then
+  STATUS_LINE="Estado general: no se pudo obtener salida de srv-health"
+fi
+
+# Sacar contadores OK/WARN/FAIL de la línea
+OK_COUNT="$(printf '%s\n' "$STATUS_LINE"   | sed -n 's/.*OK=\([0-9][0-9]*\).*/\1/p')"
+WARN_COUNT="$(printf '%s\n' "$STATUS_LINE" | sed -n 's/.*WARN=\([0-9][0-9]*\).*/\1/p')"
+FAIL_COUNT="$(printf '%s\n' "$STATUS_LINE" | sed -n 's/.*FAIL=\([0-9][0-9]*\).*/\1/p')"
+
+: "${OK_COUNT:=0}"
+: "${WARN_COUNT:=0}"
+: "${FAIL_COUNT:=0}"
+
+# Elegir color según los contadores
+if [ "$FAIL_COUNT" -gt 0 ]; then
+  STATUS_ICON="🔴"
+elif [ "$WARN_COUNT" -gt 0 ]; then
+  STATUS_ICON="🟡"
+else
+  STATUS_ICON="🟢"
+fi
+
+SUMMARY_LINE="${STATUS_ICON} ${STATUS_LINE}"
+
+# ===== Resumen ZFS (tipo / % usado) =====
+ZFS_LINE="💾 ZFS: sin información"
+
+if command -v zpool >/dev/null 2>&1; then
+  ZFS_LINE="$(
+    set +e
+    ZPOOL_LIST="$(zpool list -H -o name,size,alloc,free,cap,health 2>/dev/null)"
+    if [ -z "$ZPOOL_LIST" ]; then
+      echo "💾 ZFS: sin información"
+      exit 0
+    fi
+
+    # Tomamos solo el primer pool (normalmente 'tank')
+    first_line="$(printf '%s\n' "$ZPOOL_LIST" | head -n1)"
+
+    # name size alloc free cap health
+    set -- $first_line
+    pool_name="$1"
+    pool_size="$2"
+    # pool_alloc="$3"
+    # pool_free="$4"
+    pool_cap="$5"
+    pool_health="$6"
+
+    status="$(zpool status "$pool_name" 2>/dev/null || true)"
+
+    layout="desconocido"
+    if printf '%s\n' "$status" | grep -q 'raidz3'; then
+      layout="raidz3"
+    elif printf '%s\n' "$status" | grep -q 'raidz2'; then
+      layout="raidz2"
+    elif printf '%s\n' "$status" | grep -q 'raidz1'; then
+      layout="raidz1"
+    elif printf '%s\n' "$status" | grep -q 'mirror'; then
+      layout="mirror"
+    elif [ -n "$status" ]; then
+      layout="stripe"
+    fi
+
+    # Línea visual: porcentaje y capacidad total
+    printf '💾 ZFS %s (%s): %s usado de %s (salud %s)' \
+      "$pool_name" "$layout" "$pool_cap" "$pool_size" "$pool_health"
+  )"
+fi
+
+# ===== Construir mensaje final =====
+DATE_STR="$(date '+%d/%m/%Y %H:%M:%S %Z')"
+LINE1="📅 ${DATE_STR}"
+LINE2="${SUMMARY_LINE}"
+LINE3="${ZFS_LINE}"
+
+MESSAGE="${LINE1}
+${LINE2}
+${LINE3}"
+
+# Guardar en log
+{
+  echo "$LINE1"
+  echo "$LINE2"
+  echo "$LINE3"
+  echo
+} >> "$LOG_FILE"
+
+# Envío a Telegram
+if command -v notify-telegram >/dev/null 2>&1; then
+  notify-telegram "$MESSAGE"
+fi
+
+exit 0

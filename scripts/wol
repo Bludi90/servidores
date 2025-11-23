@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+# 'wol <name...>' == 'wolctl wake <name...>'
+if [[ $# -eq 0 || "$1" =~ ^(-h|--help|-help)$ ]]; then
+  exec wolctl -h
+fi
+wolctl wake "$@" || { echo "wol: fallo al enviar. (ayuda: wolctl -h)"; exit 1; }
