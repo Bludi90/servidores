@@ -1,7 +1,7 @@
 # Servidores privados (main1, backup, etc.)
 
-Repositorio de configuración y estado de mis servidores caseros.  
-No contiene datos sensibles: solo scripts, configuración y resúmenes de estado.
+Repositorio de configuración y estado de mis servidores caseros (main1 y futuros servidores de backup).  
+Los datos de usuario viven en `/srv/storage` sobre ZFS (`tank`); aquí **no** hay datos sensibles ni secretos, solo scripts, configuración y resúmenes de estado.
 
 ---
 
@@ -12,7 +12,7 @@ No contiene datos sensibles: solo scripts, configuración y resúmenes de estado
 - 📝 **Snapshots detallados** (por host):  
   - `state/main1/AAAA-MM-DD_HHMM-state.md`
   - `state/<OTROHOST>/AAAA-MM-DD_HHMM-state.md`
-- 🔁 El snapshot y el índice se regeneran **cada hora** mediante cron.
+- 🔁 El snapshot y el índice se regeneran **cada hora** mediante cron en `main1`.
 
 ---
 
@@ -24,27 +24,48 @@ No contiene datos sensibles: solo scripts, configuración y resúmenes de estado
   - `docs/BACKLOG.md` → tareas pendientes y prioridades.
   - `docs/SCRIPTS.md` → notas sobre scripts y uso.
   - `docs/COMANDOS.md` → resumen de comandos personalizados (autogenerado).
-- `scripts/` – Scripts de administración.
+
+- `scripts/` – Scripts de administración y utilidades.
   - `snapshot-state.sh` → genera un snapshot de estado para un host.
   - `build-index.sh` → reconstruye `docs/ESTADO.md`.
   - `commit-and-push.sh` → sube cambios a GitHub.
+  - Otros scripts de apoyo (informes SMART/ZFS, generación de docs, etc.).
+
+- `bin/` – Scripts preparados para instalarse como comandos del sistema  
+  (por ejemplo `srv-health`, `wol`, `lan-scan`, etc.).
+
 - `state/` – Snapshots generados periódicamente.
-  - `state/main1/` → snapshots y logs del host `main1`.
-- `common/` – Ficheros compartidos entre scripts (p.ej. registro de comandos).
+  - `state/main1/` → snapshots, `current-state.md` y logs del host `main1`.
+
+- `reports/` – Informes periódicos (SMART, ZFS, salud del servidor, etc.).
+
+- `common/` – Ficheros compartidos entre scripts (p.ej. registro de comandos o plantillas).
+
+- `hosts/` – Configuración/estado específico por host (si aplica).
+
+- `root/`, `private/` – Material auxiliar específico para root o interno del proyecto  
+  (sin datos sensibles ni secretos).
 
 ---
 
 ## Automatización (resumen rápido)
 
-- Un cron en `main1` ejecuta periódicamente:
+En `main1` hay varios cron jobs:
+
+- Cada hora:
   - `scripts/snapshot-state.sh` → genera `state/main1/current-state.md` y el snapshot horario.
   - `scripts/build-index.sh` → actualiza `docs/ESTADO.md`.
   - `scripts/commit-and-push.sh` → hace commit y push de cambios (snapshots, índice, logs).
 
+- Periódicamente (semanal, etc.):
+  - Scripts de monitorización generan informes SMART/ZFS en `reports/`  
+    y envían avisos (por ejemplo, vía Telegram) si se detectan problemas.
+
 Los logs principales están en:
 
 - `state/main1/sync.log` → actividad de `commit-and-push.sh`.
-- `state/main1/cron.out` → salida de cron (si se configura).
+- `state/main1/cron.out` → salida de cron horario (si se configura).
+- `reports/` → informes de salud del sistema.
 
 ---
 
@@ -56,8 +77,8 @@ Desde la raíz del repo (`~/servidores`):
 # Generar snapshot manual de main1
 ./scripts/snapshot-state.sh
 
-# Regenerar índice de estado
-./scripts/build-index.sh
+# Ver resumen rápido del estado del servidor (ZFS, servicios, WG, etc.)
+srv-health
 
-# Hacer commit + push manual
-./scripts/commit-and-push.sh
+# Ver actividad reciente del sistema de snapshots/commits
+tail -40 state/main1/sync.log
