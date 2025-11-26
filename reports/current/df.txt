@@ -1,3 +1,3 @@
 S.ficheros          Tipo     Tamaño Usados  Disp Uso% Montado en
-/dev/nvme0n1p2      ext4       900G   8,6G  846G   1% /
+/dev/nvme0n1p2      ext4       900G   8,6G  846G   2% /
 /dev/nvme0n1p1      vfat       975M   8,8M  966M   1% /boot/efi
