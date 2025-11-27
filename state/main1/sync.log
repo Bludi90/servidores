@@ -3569,3 +3569,17 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M state/main1/current-state.md
  M state/main1/sync.log
 ?? state/main1/2025-11-27_1600-state.md
+[main b343a99] auto: snapshot main1 2025-11-27 16:00
+ 6 files changed, 296 insertions(+), 18 deletions(-)
+ create mode 100644 state/main1/2025-11-27_1600-state.md
+[2025-11-27 16:00:02] Commit creado: auto: snapshot main1 2025-11-27 16:00
+[2025-11-27 16:00:03] git push OK.
+[2025-11-27 16:00:03] === Fin commit-and-push ===
+[2025-11-27 17:00:02] === Inicio commit-and-push ===
+[2025-11-27 17:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/zfs_list.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+?? state/main1/2025-11-27_1700-state.md
