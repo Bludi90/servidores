@@ -4,7 +4,7 @@ tank/appdata           12.8G  7.07T   104K  /srv/storage/appdata
 tank/appdata/casaos     304K  7.07T   304K  /srv/storage/appdata/casaos
 tank/appdata/docker    12.8G  7.07T  12.8G  /srv/storage/appdata/docker
 tank/media             10.6M  7.07T  10.6M  /srv/storage/media
-tank/nextcloud         36.0G  7.07T   257M  /srv/storage/nextcloud
+tank/nextcloud         36.0G  7.07T   258M  /srv/storage/nextcloud
 tank/nextcloud/config   628M  7.07T   628M  /srv/storage/nextcloud/config
 tank/nextcloud/data    35.0G  7.07T  35.0G  /srv/storage/nextcloud/data
 tank/nextcloud/db       134M  7.07T   134M  /srv/storage/nextcloud/db

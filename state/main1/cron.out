@@ -3311,3 +3311,20 @@ Escrito: /home/alejandro/servidores/state/main1/2025-11-29_0200-state.md
  M state/main1/current-state.md
  M state/main1/sync.log
 ?? state/main1/2025-11-29_0200-state.md
+[main 6560aa1] auto: snapshot main1 2025-11-29 02:00
+ 5 files changed, 284 insertions(+), 8 deletions(-)
+ create mode 100644 state/main1/2025-11-29_0200-state.md
+[2025-11-29 02:00:02] Commit creado: auto: snapshot main1 2025-11-29 02:00
+To github.com:Bludi90/servidores.git
+   f557617..6560aa1  main -> main
+[2025-11-29 02:00:04] git push OK.
+[2025-11-29 02:00:04] === Fin commit-and-push ===
+Escrito: /home/alejandro/servidores/state/main1/2025-11-29_0300-state.md
+[2025-11-29 03:00:01] === Inicio commit-and-push ===
+[2025-11-29 03:00:01] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/zfs_list.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+?? state/main1/2025-11-29_0300-state.md
