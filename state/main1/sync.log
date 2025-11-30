@@ -4544,3 +4544,34 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M state/main1/sync.log
 ?? root/
 ?? scripts/cmd/
+[main 69d9583] auto: snapshot main1 2025-11-30 14:20
+ 4 files changed, 186 insertions(+)
+ create mode 100755 root/backup-scripts/wg-add-peer.orig
+ create mode 100755 scripts/cmd/wg-add-peer
+[2025-11-30 14:20:08] Commit creado: auto: snapshot main1 2025-11-30 14:20
+[2025-11-30 14:20:09] git push OK.
+[2025-11-30 14:20:09] === Fin commit-and-push ===
+[2025-11-30 15:00:01] === Inicio commit-and-push ===
+[2025-11-30 15:00:01] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ D scripts/lan-scan
+ D scripts/srv-health
+ D scripts/wg-add
+ D scripts/wg-repair
+ D scripts/wol
+ D scripts/wolctl
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+?? root/backup-scripts/lan-scan.orig
+?? root/backup-scripts/lan2wol.orig
+?? root/backup-scripts/wol.orig
+?? root/backup-scripts/wolctl.orig
+?? scripts/cmd/lan-scan
+?? scripts/cmd/lan2wol
+?? scripts/cmd/srv-health
+?? scripts/cmd/wg-repair
+?? scripts/cmd/wol
+?? scripts/cmd/wolctl
+?? state/main1/2025-11-30_1500-state.md

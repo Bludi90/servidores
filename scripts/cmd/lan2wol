@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+lan-scan --engine arp-scan | awk '
+  /^IP[[:space:]]+MAC/ || /^-+/ {next}
+  /^[0-9]+\./ {
+    ip=$1; mac=$2; name=ip;
+    gsub(/\./,"-",name);
+    printf "wolctl add host-%s %s %s -\n", name, mac, ip
+  }'

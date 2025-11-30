@@ -3922,3 +3922,28 @@ To github.com:Bludi90/servidores.git
    06b3a74..fed10e4  main -> main
 [2025-11-30 14:00:04] git push OK.
 [2025-11-30 14:00:04] === Fin commit-and-push ===
+Escrito: /home/alejandro/servidores/state/main1/2025-11-30_1500-state.md
+[2025-11-30 15:00:01] === Inicio commit-and-push ===
+[2025-11-30 15:00:01] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ D scripts/lan-scan
+ D scripts/srv-health
+ D scripts/wg-add
+ D scripts/wg-repair
+ D scripts/wol
+ D scripts/wolctl
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+?? root/backup-scripts/lan-scan.orig
+?? root/backup-scripts/lan2wol.orig
+?? root/backup-scripts/wol.orig
+?? root/backup-scripts/wolctl.orig
+?? scripts/cmd/lan-scan
+?? scripts/cmd/lan2wol
+?? scripts/cmd/srv-health
+?? scripts/cmd/wg-repair
+?? scripts/cmd/wol
+?? scripts/cmd/wolctl
+?? state/main1/2025-11-30_1500-state.md
