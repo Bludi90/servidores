@@ -1,15 +1,22 @@
 # Comandos y scripts (resumen)
 
-_Generado: 2025-11-19 09:49_
+_Generado: 2025-11-30 18:34_
 
 Este documento es un **índice** para consulta rápida. Las guías completas están enlazadas.
 
 ## Índice
 
+- [import-peli](comandos/import-peli.md)
 - [LAN-Scan — Guía rápida](comandos/lan-scan.md)
 - [Server-Health — Chequeo rápido del servidor - Cheatsheet](comandos/srv-health.md)
 - [WireGuard — Cheatsheet](comandos/wireguard.md)
 - [Wake-on-LAN — Cheatsheet](comandos/wol.md)
+
+## import-peli
+
+Importa una película desde un disco externo a la biblioteca de Jellyfin, creando la carpeta `Título (Año)`, copiando el vídeo y los subtítulos, renombrándolos y ajustando permisos en `/srv/storage/media`.
+
+[→ Abrir guía completa](comandos/import-peli.md)
 
 ## LAN-Scan — Guía rápida
 

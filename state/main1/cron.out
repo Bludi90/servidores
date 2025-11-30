@@ -4034,3 +4034,12 @@ Escrito: /home/alejandro/servidores/state/main1/2025-11-30_1800-state.md
  M state/main1/sync.log
 ?? scripts/import-peli.sh
 ?? state/main1/2025-11-30_1800-state.md
+[main 47d7f22] auto: snapshot main1 2025-11-30 18:00
+ 9 files changed, 478 insertions(+), 14 deletions(-)
+ create mode 100755 scripts/import-peli.sh
+ create mode 100644 state/main1/2025-11-30_1800-state.md
+[2025-11-30 18:00:02] Commit creado: auto: snapshot main1 2025-11-30 18:00
+To github.com:Bludi90/servidores.git
+   058852a..47d7f22  main -> main
+[2025-11-30 18:00:04] git push OK.
+[2025-11-30 18:00:04] === Fin commit-and-push ===

@@ -120,7 +120,8 @@ else
   echo "Se encontraron varios vídeos. Elige uno:"
   i=1
   for vf in "${VIDEO_FILES[@]}"; do
-    printf "  [%d] %s\n" "$i" "$vf"
+    size=$(du -h "$vf" | cut -f1)
+    printf "  [%d] %s (%s)\n" "$i" "$vf" "$size"
     ((i++))
   done
   read -rp "Número de vídeo principal: " choice
@@ -155,6 +156,22 @@ if [[ -d "$VIDEO_DIR_OLD" ]]; then
     echo "    Moviendo subtítulo:"
     echo "      $sf -> $TARGET_SUB"
     mv "$sf" "$TARGET_SUB"
+  done
+fi
+
+# Mover vídeos extra fuera de la biblioteca (para que Jellyfin no los vea)
+if (( ${#VIDEO_FILES[@]} > 1 )); then
+  echo ">>> Moviendo vídeos extra a carpeta de extras..."
+  EXTRAS_BASE="${DEST_BASE%/}/peliculas_extras"
+  mkdir -p "$EXTRAS_BASE"
+
+  for vf in "${VIDEO_FILES[@]}"; do
+    # Saltar el vídeo principal (ruta vieja y ruta nueva)
+    if [[ "$vf" == "$SELECTED_VIDEO" ]] || [[ "$vf" == "$TARGET_VIDEO_PATH" ]]; then
+      continue
+    fi
+    echo "    Extra: $vf -> $EXTRAS_BASE/"
+    mv "$vf" "$EXTRAS_BASE"/
   done
 fi
 
