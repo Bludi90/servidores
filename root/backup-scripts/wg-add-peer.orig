@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# Alta de peer en wg0 con IP libre y conf de cliente coherente (10.8/24 + LAN)
+IF="${WG_IF:-wg0}"
+NAME="${1:-}"; ALLOWED="${2:-10.8.0.0/24,192.168.1.0/24}"; DNSCLI="${3:-10.8.0.1}"
+[ -n "$NAME" ] || { echo "Uso: wg-add-peer <nombre> [AllowedIPs] [DNS]"; exit 1; }
+
+umask 077
+CONF="/etc/wireguard/${IF}.conf"; [ -f "$CONF" ] || { echo "No existe $CONF"; exit 2; }
+
+# Leer ListenPort y red del servidor
+LISTEN_PORT="$(awk -F= '/^\s*ListenPort/{gsub(/[[:space:]]/,"",$2);print $2}' "$CONF" | tail -n1)"
+[ -n "$LISTEN_PORT" ] || { echo "No se pudo leer ListenPort de $CONF"; exit 3; }
+NETCIDR="$(awk -F= '/^\s*Address/{sub(/^[[:space:]]*/,"",$2);print $2}' "$CONF" | head -n1)"
+NET="${NETCIDR%%/*}"; IFS=. read -r A B C _ <<<"$NET"; BASE="${A}.${B}.${C}"
+
+# PublicKey del servidor
+SERVER_PUB=""
+if [ -r /etc/wireguard/keys/server_public.key ]; then
+  SERVER_PUB="$(cat /etc/wireguard/keys/server_public.key)"
+else
+  PRIV_LINE="$(awk -F= '/^\s*PrivateKey/{gsub(/[[:space:]]/,"",$2);print $2; exit}' "$CONF")"
+  if [ -f "$PRIV_LINE" ]; then
+   SERVER_PUB="$(wg pubkey < "$PRIV_LINE")"
+  else
+   SERVER_PUB="$(printf '%s\n' "$PRIV_LINE" | wg pubkey)"; fi
+fi
+[ -n "$SERVER_PUB" ] || { echo "No se pudo determinar la PublicKey del servidor"; exit 4; }
+
+ENDPOINT_HOST="${ENDPOINT_HOST:-llobregat6.duckdns.org}"
+ENDPOINT="${ENDPOINT_HOST}:${LISTEN_PORT}"
+
+# Buscar IP libre (10.8.0.10–254) evitando runtime + conf
+TMP="$(mktemp)"; {
+  wg show "$IF" allowed-ips 2>/dev/null | awk '{print $2}' | cut -d/ -f1
+  awk '
+    /^\[Peer\]/{p=1; next}
+    p && /^AllowedIPs/{
+      gsub(/[[:space:]]/,""); split($0,a,"=");
+      ip=a[2]; sub(/,.*/,"",ip); sub(/\/.*/,"",ip);
+      print ip; p=0
+    }' "$CONF"
+} | sed '/^$/d' | sort -u > "$TMP"
+IP=""; for d in $(seq 10 254); do C="${BASE}.${d}"; grep -qx "$C" "$TMP" || { IP="$C"; break; }; done
+rm -f "$TMP"; [ -n "$IP" ] || { echo "Sin IP libre en ${BASE}.10-254"; exit 5; }
+
+# Claves del cliente
+mkdir -p /etc/wireguard/clients
+BASEP="/etc/wireguard/clients/${NAME}"
+[ ! -e "${BASEP}.key" ] || { echo "Ya existe ${NAME}"; exit 6; }
+wg genkey | tee "${BASEP}.key" | wg pubkey > "${BASEP}.pub"
+
+# Alta persistente + runtime (servidor SIEMPRE /32)
+cp -a "$CONF" "${CONF}.bak.$(date +%F_%H%M%S)"
+cat >> "$CONF" <<EOC
+
+# ${NAME}
+[Peer]
+PublicKey = $(cat ${BASEP}.pub)
+AllowedIPs = ${IP}/32
+EOC
+wg set "$IF" peer "$(cat ${BASEP}.pub)" allowed-ips "${IP}/32"
+
+# Ficha cliente: Address /24; rutas WG+LAN (NO /32)
+cat > "${BASEP}.conf" <<EOC
+[Interface]
+PrivateKey = $(cat ${BASEP}.key)
+Address = ${IP}/24
+DNS = ${DNSCLI}
+
+[Peer]
+PublicKey = ${SERVER_PUB}
+Endpoint = ${ENDPOINT}
+AllowedIPs = ${ALLOWED}
+PersistentKeepalive = 25
+EOC
+
+# QR opcional
+qrencode -t ansiutf8 < "${BASEP}.conf" > "${BASEP}.qr.txt" 2>/dev/null || true
+qrencode -o "${BASEP}.png" < "${BASEP}.conf" 2>/dev/null || true
+
+echo "OK: ${NAME} -> ${IP}"
+echo "Conf: ${BASEP}.conf"
