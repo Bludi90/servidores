@@ -4612,3 +4612,27 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
 ?? scripts/cmd/wg-recover.sh
 ?? scripts/cmd/wg-rename-peer
 ?? state/main1/2025-11-30_1600-state.md
+[main 81eba52] auto: snapshot main1 2025-11-30 16:00
+ 18 files changed, 566 insertions(+), 57 deletions(-)
+ create mode 100755 root/backup-scripts/wg-del-peer.orig
+ create mode 100755 root/backup-scripts/wg-recover.sh.orig
+ create mode 100755 root/backup-scripts/wg-rename-peer.orig
+ create mode 100755 root/backup-scripts/wg-repair.orig
+ create mode 100755 scripts/cmd/wg-del-peer
+ create mode 100755 scripts/cmd/wg-recover.sh
+ create mode 100755 scripts/cmd/wg-rename-peer
+ create mode 100644 state/main1/2025-11-30_1600-state.md
+[2025-11-30 16:00:01] Commit creado: auto: snapshot main1 2025-11-30 16:00
+[2025-11-30 16:00:03] git push OK.
+[2025-11-30 16:00:03] === Fin commit-and-push ===
+[2025-11-30 17:00:02] === Inicio commit-and-push ===
+[2025-11-30 17:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zpool_list.txt
+ M state/main1/2025-11-30_smart.md.tmp
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+?? state/main1/2025-11-30_1700-state.md
