@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IF="${WG_IF:-wg0}"
+NAME="${1:-}"; [ -n "$NAME" ] || { echo "Uso: wg-del-peer <nombre>"; exit 1; }
+CONF="/etc/wireguard/${IF}.conf"; BASE="/etc/wireguard/clients/${NAME}"
+[ -f "${BASE}.pub" ] || { echo "No existe el peer ${NAME}"; exit 2; }
+PUB="$(cat ${BASE}.pub)"
+
+wg set "$IF" peer "$PUB" remove || true
+cp -a "$CONF" "${CONF}.bak.$(date +%F_%H%M%S)"
+awk -v pub="$PUB" '
+  BEGIN{blk=0; keep=1}
+  /^\[Peer\]$/ {blk=1; buf=$0 ORS; next}
+  {
+    if (blk){buf=buf $0 ORS; if ($0 ~ /^PublicKey[[:space:]]*=/ && index($0,pub)) tgt=1}
+    else {print}
+  }
+  /^$/ { if (blk){ if(!tgt) printf "%s", buf; blk=0; tgt=0; buf="" } }
+  END { if (blk && !tgt) printf "%s", buf }
+' "$CONF" > "${CONF}.tmp" && mv "${CONF}.tmp" "$CONF"
+
+rm -f "${BASE}.key" "${BASE}.pub" "${BASE}.conf" "${BASE}.png" "${BASE}.qr.txt" || true
+echo "Peer ${NAME} eliminado."

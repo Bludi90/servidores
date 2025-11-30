@@ -3947,3 +3947,43 @@ Escrito: /home/alejandro/servidores/state/main1/2025-11-30_1500-state.md
 ?? scripts/cmd/wol
 ?? scripts/cmd/wolctl
 ?? state/main1/2025-11-30_1500-state.md
+[main 0db5b0f] auto: snapshot main1 2025-11-30 15:00
+ 17 files changed, 688 insertions(+), 12 deletions(-)
+ rename scripts/lan-scan => root/backup-scripts/lan-scan.orig (100%)
+ create mode 100755 root/backup-scripts/lan2wol.orig
+ rename scripts/wol => root/backup-scripts/wol.orig (100%)
+ rename scripts/wolctl => root/backup-scripts/wolctl.orig (100%)
+ create mode 100755 scripts/cmd/lan-scan
+ create mode 100755 scripts/cmd/lan2wol
+ rename scripts/{ => cmd}/srv-health (100%)
+ rename scripts/{ => cmd}/wg-repair (100%)
+ create mode 100755 scripts/cmd/wol
+ create mode 100755 scripts/cmd/wolctl
+ delete mode 100755 scripts/wg-add
+ create mode 100644 state/main1/2025-11-30_1500-state.md
+[2025-11-30 15:00:01] Commit creado: auto: snapshot main1 2025-11-30 15:00
+To github.com:Bludi90/servidores.git
+   69d9583..0db5b0f  main -> main
+[2025-11-30 15:00:03] git push OK.
+[2025-11-30 15:00:03] === Fin commit-and-push ===
+Escrito: /home/alejandro/servidores/state/main1/2025-11-30_1600-state.md
+[2025-11-30 16:00:01] === Inicio commit-and-push ===
+[2025-11-30 16:00:01] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zpool_list.txt
+ M root/backup-scripts/wg-add-peer.orig
+ M scripts/cmd/wg-repair
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/srv-health-weekly.log
+ M state/main1/sync.log
+?? root/backup-scripts/wg-del-peer.orig
+?? root/backup-scripts/wg-recover.sh.orig
+?? root/backup-scripts/wg-rename-peer.orig
+?? root/backup-scripts/wg-repair.orig
+?? scripts/cmd/wg-del-peer
+?? scripts/cmd/wg-recover.sh
+?? scripts/cmd/wg-rename-peer
+?? state/main1/2025-11-30_1600-state.md
