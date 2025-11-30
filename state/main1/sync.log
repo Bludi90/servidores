@@ -4667,3 +4667,20 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M state/main1/cron.out
  M state/main1/sync.log
 ?? docs/comandos/import-peli.md
+[main a0c7b6e] auto: snapshot main1 2025-11-30 18:34
+ 5 files changed, 154 insertions(+), 2 deletions(-)
+ create mode 100644 docs/comandos/import-peli.md
+[2025-11-30 18:34:45] Commit creado: auto: snapshot main1 2025-11-30 18:34
+[2025-11-30 18:34:47] git push OK.
+[2025-11-30 18:34:47] === Fin commit-and-push ===
+[2025-11-30 19:00:01] === Inicio commit-and-push ===
+[2025-11-30 19:00:01] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zpool_list.txt
+ M scripts/import-peli.sh
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+?? state/main1/2025-11-30_1900-state.md

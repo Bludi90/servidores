@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# import-peli.sh
+# Import-peli.sh
 # Importa una película a la biblioteca de Jellyfin siguiendo:
 #   DESTINO_BASE/TITULO (ANIO)/TITULO (ANIO).ext
 #
