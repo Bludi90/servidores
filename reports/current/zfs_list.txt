@@ -7,4 +7,4 @@ tank/media             49.9G  7.02T  49.9G  /srv/storage/media
 tank/nextcloud         36.1G  7.02T   262M  /srv/storage/nextcloud
 tank/nextcloud/config   628M  7.02T   628M  /srv/storage/nextcloud/config
 tank/nextcloud/data    35.1G  7.02T  35.1G  /srv/storage/nextcloud/data
-tank/nextcloud/db       151M  7.02T   151M  /srv/storage/nextcloud/db
+tank/nextcloud/db       152M  7.02T   152M  /srv/storage/nextcloud/db
