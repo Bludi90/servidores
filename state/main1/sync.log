@@ -5383,3 +5383,21 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M state/main1/sync.log
 ?? docker/
 ?? state/main1/2025-12-02_1900-state.md
+[main a17278f] auto: snapshot main1 2025-12-02 19:00
+ 11 files changed, 372 insertions(+), 37 deletions(-)
+ create mode 100644 docker/caddy/docker-compose.yml
+ create mode 100644 state/main1/2025-12-02_1900-state.md
+[2025-12-02 19:00:01] Commit creado: auto: snapshot main1 2025-12-02 19:00
+[2025-12-02 19:00:03] git push OK.
+[2025-12-02 19:00:03] === Fin commit-and-push ===
+[2025-12-02 20:00:01] === Inicio commit-and-push ===
+[2025-12-02 20:00:01] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/df.txt
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zpool_list.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+?? state/main1/2025-12-02_2000-state.md
