@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    restart: unless-stopped
+
+    # Volvemos a usar la red del host
+    network_mode: host
+
+    volumes:
+      - /srv/storage/services/reverse-proxy/caddy/config:/etc/caddy
+      - /srv/storage/services/reverse-proxy/caddy/data:/data
+
+    labels:
+      icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/caddy.png"
+
+x-casaos:
+  author: "alejandro"
+  category: "network"
+  icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/caddy.png"
+  index: "/"
+  is_uncontrolled: false
+  port_map: "443"
+  scheme: "https"
+  title:
+    custom: "Caddy Reverse Proxy"
