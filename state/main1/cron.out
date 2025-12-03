@@ -6066,3 +6066,12 @@ scripts/root/gui-remove-safe.sh: Permiso denegado
 scripts/root/servidores/docker/dns/docker-compose.yml: Permiso denegado
 scripts/root/servidores/reports/daily/TELEMETRY_2025-11-12_0005.md: Permiso denegado
 scripts/root/wireguard-backup-2025-11-05.tgz: Permiso denegado
+[main 98701f7] auto: snapshot main1 2025-12-03 17:00
+ 10 files changed, 1113 insertions(+), 17 deletions(-)
+ create mode 100755 scripts/cmd/srv-urls
+ create mode 100644 state/main1/2025-12-03_1700-state.md
+[2025-12-03 17:00:01] Commit creado: auto: snapshot main1 2025-12-03 17:00
+To github.com:Bludi90/servidores.git
+   c70a098..98701f7  main -> main
+[2025-12-03 17:00:03] git push OK.
+[2025-12-03 17:00:03] === Fin commit-and-push ===
