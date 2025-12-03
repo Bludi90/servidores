@@ -5708,3 +5708,298 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
 [2025-12-03 16:49:33] Cambios detectados:
  M state/main1/sync.log
 ?? scripts/root/
+[main 9fe98d2] auto: snapshot main1 2025-12-03 16:49
+ Committer: root <root@main1.llobregat.com>
+Tu nombre y correo fueron configurados automáticamente basados
+en tu usuario y nombre de host. Por favor verifica que sean correctos.
+Tú puedes suprimir este mensaje configurándolos de forma explícita. Ejecuta el
+siguiente comando y sigue las instrucciones de tu editor
+ para modificar tu archivo de configuración:
+
+    git config --global --edit
+
+Tras hacer esto, puedes arreglar la identidad usada para este commit con:
+
+    git commit --amend --reset-author
+
+ 263 files changed, 50381 insertions(+)
+ create mode 100755 scripts/root/.acme.sh/acme.sh
+ create mode 100644 scripts/root/.acme.sh/acme.sh.env
+ create mode 100644 scripts/root/.acme.sh/ca/acme-v02.api.letsencrypt.org/directory/account.json
+ create mode 100644 scripts/root/.acme.sh/deploy/README.md
+ create mode 100644 scripts/root/.acme.sh/deploy/ali_cdn.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/ali_dcdn.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/apache.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/cachefly.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/cleverreach.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/consul.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/cpanel_uapi.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/directadmin.sh
+ create mode 100755 scripts/root/.acme.sh/deploy/docker.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/dovecot.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/edgio.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/exim4.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/fritzbox.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/gcore_cdn.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/gitlab.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/haproxy.sh
+ create mode 100755 scripts/root/.acme.sh/deploy/kemplm.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/keychain.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/keyhelp.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/keyhelp_api.sh
+ create mode 100755 scripts/root/.acme.sh/deploy/kong.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/lighttpd.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/mailcow.sh
+ create mode 100755 scripts/root/.acme.sh/deploy/myapi.sh
+ create mode 100755 scripts/root/.acme.sh/deploy/mydevil.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/mysqld.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/netlify.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/nginx.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/openmediavault.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/opensshd.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/openstack.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/panos.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/peplink.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/proxmoxbs.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/proxmoxve.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/pureftpd.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/qiniu.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/routeros.sh
+ create mode 100755 scripts/root/.acme.sh/deploy/ruckus.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/ssh.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/strongswan.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/synology_dsm.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/truenas.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/truenas_ws.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/unifi.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/vault.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/vault_cli.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/vsftpd.sh
+ create mode 100644 scripts/root/.acme.sh/deploy/zyxel_gs1900.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/README.md
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_1984hosting.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_acmedns.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_acmeproxy.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_active24.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_ad.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_ali.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_alviy.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_anx.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_artfiles.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_arvan.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_aurora.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_autodns.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_aws.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_azion.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_azure.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_beget.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_bookmyname.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_bunny.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_cf.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_clouddns.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_cloudns.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_cn.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_conoha.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_constellix.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_cpanel.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_curanet.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_cyon.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_da.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_ddnss.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_desec.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_df.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_dgon.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_dnsexit.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_dnshome.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_dnsimple.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_dnsservices.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_doapi.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_domeneshop.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_dp.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_dpi.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_dreamhost.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_duckdns.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_durabledns.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_dyn.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_dynu.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_dynv6.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_easydns.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_edgecenter.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_edgedns.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_euserv.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_exoscale.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_fornex.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_freedns.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_freemyip.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_gandi_livedns.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_gcloud.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_gcore.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_gd.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_geoscaling.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_googledomains.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_he.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_he_ddns.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_hetzner.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_hexonet.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_hostingde.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_huaweicloud.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_infoblox.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_infomaniak.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_internetbs.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_inwx.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_ionos.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_ionos_cloud.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_ipv64.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_ispconfig.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_jd.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_joker.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_kappernet.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_kas.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_kinghost.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_knot.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_la.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_leaseweb.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_lexicon.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_limacity.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_linode.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_linode_v4.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_loopia.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_lua.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_maradns.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_me.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_miab.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_mijnhost.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_misaka.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_myapi.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_mydevil.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_mydnsjp.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_mythic_beasts.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_namecheap.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_namecom.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_namesilo.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_nanelo.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_nederhost.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_neodigit.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_netcup.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_netlify.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_nic.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_njalla.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_nm.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_nsd.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_nsone.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_nsupdate.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_nw.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_oci.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_omglol.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_one.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_online.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_openprovider.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_openprovider_rest.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_openstack.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_opnsense.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_ovh.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_pdns.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_pleskxml.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_pointhq.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_porkbun.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_rackcorp.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_rackspace.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_rage4.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_rcode0.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_regru.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_scaleway.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_schlundtech.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_selectel.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_selfhost.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_servercow.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_simply.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_spaceship.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_technitium.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_tele3.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_tencent.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_timeweb.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_transip.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_udr.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_ultra.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_unoeuro.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_variomedia.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_veesp.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_vercel.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_vscale.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_vultr.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_websupport.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_west_cn.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_world4you.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_yandex360.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_yc.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_zilore.sh
+ create mode 100755 scripts/root/.acme.sh/dnsapi/dns_zone.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_zoneedit.sh
+ create mode 100644 scripts/root/.acme.sh/dnsapi/dns_zonomi.sh
+ create mode 100644 scripts/root/.acme.sh/http.header
+ create mode 100644 scripts/root/.acme.sh/llobregat6.duckdns.org_ecc/ca.cer
+ create mode 100644 scripts/root/.acme.sh/llobregat6.duckdns.org_ecc/fullchain.cer
+ create mode 100644 scripts/root/.acme.sh/llobregat6.duckdns.org_ecc/llobregat6.duckdns.org.cer
+ create mode 100644 scripts/root/.acme.sh/llobregat6.duckdns.org_ecc/llobregat6.duckdns.org.csr
+ create mode 100644 scripts/root/.acme.sh/notify/aws_ses.sh
+ create mode 100644 scripts/root/.acme.sh/notify/bark.sh
+ create mode 100644 scripts/root/.acme.sh/notify/callmebotWhatsApp.sh
+ create mode 100644 scripts/root/.acme.sh/notify/cqhttp.sh
+ create mode 100644 scripts/root/.acme.sh/notify/dingtalk.sh
+ create mode 100644 scripts/root/.acme.sh/notify/discord.sh
+ create mode 100644 scripts/root/.acme.sh/notify/feishu.sh
+ create mode 100644 scripts/root/.acme.sh/notify/gotify.sh
+ create mode 100644 scripts/root/.acme.sh/notify/ifttt.sh
+ create mode 100644 scripts/root/.acme.sh/notify/mail.sh
+ create mode 100644 scripts/root/.acme.sh/notify/mailgun.sh
+ create mode 100644 scripts/root/.acme.sh/notify/mattermost.sh
+ create mode 100644 scripts/root/.acme.sh/notify/ntfy.sh
+ create mode 100644 scripts/root/.acme.sh/notify/opsgenie.sh
+ create mode 100644 scripts/root/.acme.sh/notify/pop.sh
+ create mode 100644 scripts/root/.acme.sh/notify/postmark.sh
+ create mode 100644 scripts/root/.acme.sh/notify/pushbullet.sh
+ create mode 100644 scripts/root/.acme.sh/notify/pushover.sh
+ create mode 100644 scripts/root/.acme.sh/notify/sendgrid.sh
+ create mode 100644 scripts/root/.acme.sh/notify/slack.sh
+ create mode 100755 scripts/root/.acme.sh/notify/slack_app.sh
+ create mode 100644 scripts/root/.acme.sh/notify/smtp.sh
+ create mode 100755 scripts/root/.acme.sh/notify/teams.sh
+ create mode 100644 scripts/root/.acme.sh/notify/telegram.sh
+ create mode 100644 scripts/root/.acme.sh/notify/weixin_work.sh
+ create mode 100644 scripts/root/.acme.sh/notify/xmpp.sh
+ create mode 100644 scripts/root/.bash_history
+ create mode 100644 scripts/root/.bash_history-26107.tmp
+ create mode 100644 scripts/root/.bash_history-26660.tmp
+ create mode 100644 scripts/root/.bashrc
+ create mode 100644 scripts/root/.config/nextcloud-mariadb.cnf
+ create mode 100644 scripts/root/.duckdns/duckdns.env
+ create mode 100644 scripts/root/.lesshst
+ create mode 100644 scripts/root/.local/share/nano/search_history
+ create mode 100644 scripts/root/.profile
+ create mode 100644 scripts/root/.selected_editor
+ create mode 100644 scripts/root/.ssh/authorised_keys
+ create mode 100644 scripts/root/.ssh/config
+ create mode 100644 scripts/root/.ssh/known_hosts.old
+ create mode 100644 scripts/root/.wget-hsts
+ create mode 100755 scripts/root/gui-remove-safe.sh
+ create mode 100644 scripts/root/servidores/docker/dns/docker-compose.yml
+ create mode 100644 scripts/root/servidores/reports/daily/TELEMETRY_2025-11-12_0005.md
+ create mode 100644 scripts/root/wireguard-backup-2025-11-05.tgz
+[2025-12-03 16:49:33] Commit creado: auto: snapshot main1 2025-12-03 16:49
+[2025-12-03 16:51:48] === Inicio commit-and-push ===
+[2025-12-03 16:51:48] Cambios detectados:
+ M docs/ESTADO.md
+ D root/backup-scripts/lan-scan.orig
+ D root/backup-scripts/lan2wol.orig
+ D root/backup-scripts/wg-add-peer.orig
+ D root/backup-scripts/wg-del-peer.orig
+ D root/backup-scripts/wg-recover.sh.orig
+ D root/backup-scripts/wg-rename-peer.orig
+ D root/backup-scripts/wg-repair.orig
+ D root/backup-scripts/wol.orig
+ D root/backup-scripts/wolctl.orig
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? scripts/backup-scripts/
+?? state/main1/2025-12-03_1651-state.md
