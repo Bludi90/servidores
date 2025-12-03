@@ -6003,3 +6003,36 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M state/main1/urls-proxy.md
 ?? scripts/backup-scripts/
 ?? state/main1/2025-12-03_1651-state.md
+[main 846011c] auto: snapshot main1 2025-12-03 16:51
+ Committer: root <root@main1.llobregat.com>
+Tu nombre y correo fueron configurados automáticamente basados
+en tu usuario y nombre de host. Por favor verifica que sean correctos.
+Tú puedes suprimir este mensaje configurándolos de forma explícita. Ejecuta el
+siguiente comando y sigue las instrucciones de tu editor
+ para modificar tu archivo de configuración:
+
+    git config --global --edit
+
+Tras hacer esto, puedes arreglar la identidad usada para este commit con:
+
+    git commit --amend --reset-author
+
+ 14 files changed, 702 insertions(+), 13 deletions(-)
+ rename {root => scripts}/backup-scripts/lan-scan.orig (100%)
+ rename {root => scripts}/backup-scripts/lan2wol.orig (100%)
+ rename {root => scripts}/backup-scripts/wg-add-peer.orig (100%)
+ rename {root => scripts}/backup-scripts/wg-del-peer.orig (100%)
+ rename {root => scripts}/backup-scripts/wg-recover.sh.orig (100%)
+ rename {root => scripts}/backup-scripts/wg-rename-peer.orig (100%)
+ rename {root => scripts}/backup-scripts/wg-repair.orig (100%)
+ rename {root => scripts}/backup-scripts/wol.orig (100%)
+ rename {root => scripts}/backup-scripts/wolctl.orig (100%)
+ create mode 100644 state/main1/2025-12-03_1651-state.md
+[2025-12-03 16:51:48] Commit creado: auto: snapshot main1 2025-12-03 16:51
+[2025-12-03 16:58:31] === Inicio commit-and-push ===
+[2025-12-03 16:58:31] Cambios detectados:
+ M docs/ESTADO.md
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2025-12-03_1658-state.md
