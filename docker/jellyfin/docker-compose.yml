@@ -1,0 +1,59 @@
+name: sparkling_martin
+services:
+  jellyfin:
+    cpu_shares: 90
+    command: []
+    container_name: jellyfin
+    deploy:
+      resources:
+        limits:
+          memory: 15282M
+    environment:
+      - PGID=1000
+      - PUID=1000
+      - TZ=Europe/Madrid
+    hostname: jellyfin
+    image: lscr.io/linuxserver/jellyfin:latest
+    labels:
+      icon: https://icon.casaos.io/main/all/jellyfin.png
+    ports:
+      - target: 8096
+        published: "8096"
+        protocol: tcp
+      - target: 7359
+        published: "7359"
+        protocol: udp
+      - target: 1900
+        published: "1900"
+        protocol: udp
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /srv/storage/services/jellyfin/config
+        target: /config
+      - type: bind
+        source: /srv/storage/services/jellyfin/cache
+        target: /cache
+      - type: bind
+        source: /srv/storage/services/jellyfin/transcode
+        target: /transcode
+      - type: bind
+        source: /srv/storage/media
+        target: /media
+    devices: []
+    cap_add: []
+    network_mode: bridge
+    privileged: false
+x-casaos:
+  author: self
+  category: self
+  hostname: ""
+  icon: https://icon.casaos.io/main/all/jellyfin.png
+  index: /
+  is_uncontrolled: false
+  port_map: "8096"
+  scheme: http
+  store_app_id: sparkling_martin
+  title:
+    custom: ""
+    en_us: jellyfin

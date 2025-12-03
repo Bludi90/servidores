@@ -1,0 +1,70 @@
+name: big-bear-nextcloud-ls
+services:
+    big-bear-nextcloud-ls:
+        cpu_shares: 90
+        command: []
+        container_name: big-bear-nextcloud-ls
+        deploy:
+            resources:
+                limits:
+                    memory: "16024338432"
+        environment:
+            PGID: "33"
+            PUID: "33"
+            TZ: Europe/Madrid
+        hostname: big-bear-nextcloud-ls
+        image: linuxserver/nextcloud:32.0.1
+        labels:
+            icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/nextcloud.png
+        networks:
+            default: null
+        ports:
+            - mode: ingress
+              target: 443
+              published: "10443"
+              protocol: tcp
+        restart: unless-stopped
+        volumes:
+            - type: bind
+              source: /srv/storage/nextcloud/config
+              target: /config
+              bind:
+                create_host_path: true
+            - type: bind
+              source: /srv/storage/nextcloud/data
+              target: /data
+              bind:
+                create_host_path: true
+            - type: bind
+              source: /srv/storage
+              target: /srv/storage
+networks:
+    default:
+        name: big-bear-nextcloud-ls_default
+x-casaos:
+    architectures:
+        - amd64
+        - arm64
+    author: BigBearTechWorld
+    category: BigBearCasaOS
+    description:
+        en_us: Nextcloud puts your data at your fingertips, under your control. Store your documents, calendar, contacts and photos on a server at home, at one of our providers or in a data center you trust.
+    developer: nextcloud
+    hostname: 10.8.0.1
+    icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/nextcloud.png
+    index: /
+    is_uncontrolled: false
+    main: big-bear-nextcloud-ls
+    port_map: "10443"
+    scheme: http
+    screenshot_link:
+        - https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Nextcloud/screenshot-1.png
+        - https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Nextcloud/screenshot-2.png
+        - https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Nextcloud/screenshot-3.png
+    store_app_id: big-bear-nextcloud-ls
+    tagline:
+        en_us: LinuxServer - The productivity platform that keeps you in control
+    thumbnail: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Nextcloud/thumbnail.jpg
+    title:
+        custom: ""
+        en_us: Nextcloud LS

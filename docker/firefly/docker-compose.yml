@@ -1,0 +1,427 @@
+name: docker
+services:
+  app:
+    container_name: firefly_iii_core
+    depends_on:
+      db:
+        condition: service_started
+        required: true
+    environment:
+      - ALLOW_WEBHOOKS=false
+      - APP_DEBUG=false
+      - APP_ENV=production
+      - APP_KEY=1iz2IH4pwGaTyZzg2Ib4F3a37OCbaJSj
+      - APP_LOG_LEVEL=notice
+      - APP_NAME=FireflyIII
+      - APP_URL=http://192.168.1.116:10080
+      - AUDIT_LOG_CHANNEL=
+      - AUDIT_LOG_LEVEL=emergency
+      - AUTHENTICATION_GUARD=web
+      - AUTHENTICATION_GUARD_EMAIL=
+      - AUTHENTICATION_GUARD_HEADER=REMOTE_USER
+      - BROADCAST_DRIVER=log
+      - CACHE_DRIVER=file
+      - CACHE_PREFIX=firefly
+      - COOKIE_DOMAIN=
+      - COOKIE_PATH=/
+      - COOKIE_SAMESITE=lax
+      - COOKIE_SECURE=false
+      - CUSTOM_LOGOUT_URL=
+      - DB_CONNECTION=mysql
+      - DB_DATABASE=firefly
+      - DB_HOST=db
+      - DB_PASSWORD=CuecesAveOEnriqueces2025
+      - DB_PORT=3306
+      - DB_SOCKET=
+      - DB_USERNAME=firefly
+      - DEFAULT_LANGUAGE=es_ES
+      - DEFAULT_LOCALE=equal
+      - DEMO_PASSWORD=
+      - DEMO_USERNAME=
+      - DISABLE_CSP_HEADER=false
+      - DISABLE_FRAME_HEADER=false
+      - DKR_CHECK_SQLITE=true
+      - ENABLE_EXCHANGE_RATES=false
+      - ENABLE_EXTERNAL_MAP=false
+      - ENABLE_EXTERNAL_RATES=false
+      - FIREFLY_III_LAYOUT=v1
+      - IPINFO_TOKEN=
+      - LOG_CHANNEL=stack
+      - MAIL_ALLOW_SELF_SIGNED=false
+      - MAIL_ENCRYPTION=null
+      - MAIL_FROM=changeme@example.com
+      - MAIL_HOST=null
+      - MAIL_MAILER=log
+      - MAIL_PASSWORD=null
+      - MAIL_PORT=2525
+      - MAIL_SENDMAIL_COMMAND=
+      - MAIL_USERNAME=null
+      - MAIL_VERIFY_PEER=true
+      - MAIL_VERIFY_PEER_NAME=true
+      - MAILERSEND_API_KEY=
+      - MAILGUN_DOMAIN=
+      - MAILGUN_ENDPOINT=api.mailgun.net
+      - MAILGUN_SECRET=
+      - MANDRILL_SECRET=
+      - MAP_DEFAULT_LAT=51.983333
+      - MAP_DEFAULT_LONG=5.916667
+      - MAP_DEFAULT_ZOOM=6
+      - MYSQL_SSL_CA=
+      - MYSQL_SSL_CAPATH=/etc/ssl/certs/
+      - MYSQL_SSL_CERT=
+      - MYSQL_SSL_CIPHER=
+      - MYSQL_SSL_KEY=
+      - MYSQL_SSL_VERIFY_SERVER_CERT=true
+      - MYSQL_USE_SSL=false
+      - PAPERTRAIL_HOST=
+      - PAPERTRAIL_PORT=
+      - PASSPORT_PRIVATE_KEY=
+      - PASSPORT_PUBLIC_KEY=
+      - PGSQL_SCHEMA=public
+      - PGSQL_SSL_CERT=null
+      - PGSQL_SSL_CRL_FILE=null
+      - PGSQL_SSL_KEY=null
+      - PGSQL_SSL_MODE=prefer
+      - PGSQL_SSL_ROOT_CERT=null
+      - PUSHER_ID=
+      - PUSHER_KEY=
+      - PUSHER_SECRET=
+      - QUERY_PARSER_IMPLEMENTATION=new
+      - QUEUE_DRIVER=sync
+      - REDIS_CACHE_DB=1
+      - REDIS_DB=0
+      - REDIS_HOST=127.0.0.1
+      - REDIS_PASSWORD=
+      - REDIS_PATH=
+      - REDIS_PORT=6379
+      - REDIS_SCHEME=tcp
+      - REDIS_USERNAME=
+      - REPORT_ERRORS_ONLINE=false
+      - SEND_ERROR_MESSAGE=true
+      - SEND_REPORT_JOURNALS=true
+      - SESSION_DRIVER=file
+      - SITE_OWNER=sone_master@hotmail.com
+      - SPARKPOST_SECRET=
+      - STATIC_CRON_TOKEN=1d6f446466bb2a1440a09d61f439e95f
+      - TRACKER_SITE_ID=
+      - TRACKER_URL=
+      - TRUSTED_PROXIES=
+      - TZ=Europe/Madrid
+      - USE_RUNNING_BALANCE=false
+      - VALID_URL_PROTOCOLS=
+    env_file:
+      - /home/alejandro/Descargas/docker/.env
+    hostname: firefly_iii_core
+    image: fireflyiii/core:latest
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "1080"
+        protocol: tcp
+    restart: always
+    volumes:
+      - type: volume
+        source: "[object Object]"
+        target: /var/www/html/storage/upload
+        volume: {}
+    devices: []
+    cap_add: []
+    command: []
+    networks:
+      - firefly_iii
+    privileged: false
+    cpu_shares: 90
+    deploy:
+      resources:
+        limits:
+          memory: 15282M
+  cron:
+    command:
+      - sh
+      - -c
+      - ' apk add tzdata &&  (ln -fs /usr/share/zoneinfo/$TZ /etc/localtime ||
+        true) &&  echo "0 3 * * * wget -qO-
+        http://app:8080/api/v1/cron/$STATIC_CRON_TOKEN;echo" | crontab -
+        &&  crond -f -L /dev/stdout'
+    container_name: firefly_iii_cron
+    depends_on:
+      app:
+        condition: service_started
+        required: true
+    environment:
+      - ALLOW_WEBHOOKS=false
+      - APP_DEBUG=false
+      - APP_ENV=production
+      - APP_KEY=1iz2IH4pwGaTyZzg2Ib4F3a37OCbaJSj
+      - APP_LOG_LEVEL=notice
+      - APP_NAME=FireflyIII
+      - APP_URL=http://192.168.1.116:10080
+      - AUDIT_LOG_CHANNEL=
+      - AUDIT_LOG_LEVEL=emergency
+      - AUTHENTICATION_GUARD=web
+      - AUTHENTICATION_GUARD_EMAIL=
+      - AUTHENTICATION_GUARD_HEADER=REMOTE_USER
+      - BROADCAST_DRIVER=log
+      - CACHE_DRIVER=file
+      - CACHE_PREFIX=firefly
+      - COOKIE_DOMAIN=
+      - COOKIE_PATH=/
+      - COOKIE_SAMESITE=lax
+      - COOKIE_SECURE=false
+      - CUSTOM_LOGOUT_URL=
+      - DB_CONNECTION=mysql
+      - DB_DATABASE=firefly
+      - DB_HOST=db
+      - DB_PASSWORD=CuecesAveOEnriqueces2025
+      - DB_PORT=3306
+      - DB_SOCKET=
+      - DB_USERNAME=firefly
+      - DEFAULT_LANGUAGE=es_ES
+      - DEFAULT_LOCALE=equal
+      - DEMO_PASSWORD=
+      - DEMO_USERNAME=
+      - DISABLE_CSP_HEADER=false
+      - DISABLE_FRAME_HEADER=false
+      - DKR_CHECK_SQLITE=true
+      - ENABLE_EXCHANGE_RATES=false
+      - ENABLE_EXTERNAL_MAP=false
+      - ENABLE_EXTERNAL_RATES=false
+      - FIREFLY_III_LAYOUT=v1
+      - IPINFO_TOKEN=
+      - LOG_CHANNEL=stack
+      - MAIL_ALLOW_SELF_SIGNED=false
+      - MAIL_ENCRYPTION=null
+      - MAIL_FROM=changeme@example.com
+      - MAIL_HOST=null
+      - MAIL_MAILER=log
+      - MAIL_PASSWORD=null
+      - MAIL_PORT=2525
+      - MAIL_SENDMAIL_COMMAND=
+      - MAIL_USERNAME=null
+      - MAIL_VERIFY_PEER=true
+      - MAIL_VERIFY_PEER_NAME=true
+      - MAILERSEND_API_KEY=
+      - MAILGUN_DOMAIN=
+      - MAILGUN_ENDPOINT=api.mailgun.net
+      - MAILGUN_SECRET=
+      - MANDRILL_SECRET=
+      - MAP_DEFAULT_LAT=51.983333
+      - MAP_DEFAULT_LONG=5.916667
+      - MAP_DEFAULT_ZOOM=6
+      - MYSQL_SSL_CA=
+      - MYSQL_SSL_CAPATH=/etc/ssl/certs/
+      - MYSQL_SSL_CERT=
+      - MYSQL_SSL_CIPHER=
+      - MYSQL_SSL_KEY=
+      - MYSQL_SSL_VERIFY_SERVER_CERT=true
+      - MYSQL_USE_SSL=false
+      - PAPERTRAIL_HOST=
+      - PAPERTRAIL_PORT=
+      - PASSPORT_PRIVATE_KEY=
+      - PASSPORT_PUBLIC_KEY=
+      - PGSQL_SCHEMA=public
+      - PGSQL_SSL_CERT=null
+      - PGSQL_SSL_CRL_FILE=null
+      - PGSQL_SSL_KEY=null
+      - PGSQL_SSL_MODE=prefer
+      - PGSQL_SSL_ROOT_CERT=null
+      - PUSHER_ID=
+      - PUSHER_KEY=
+      - PUSHER_SECRET=
+      - QUERY_PARSER_IMPLEMENTATION=new
+      - QUEUE_DRIVER=sync
+      - REDIS_CACHE_DB=1
+      - REDIS_DB=0
+      - REDIS_HOST=127.0.0.1
+      - REDIS_PASSWORD=
+      - REDIS_PATH=
+      - REDIS_PORT=6379
+      - REDIS_SCHEME=tcp
+      - REDIS_USERNAME=
+      - REPORT_ERRORS_ONLINE=false
+      - SEND_ERROR_MESSAGE=true
+      - SEND_REPORT_JOURNALS=true
+      - SESSION_DRIVER=file
+      - SITE_OWNER=sone_master@hotmail.com
+      - SPARKPOST_SECRET=
+      - STATIC_CRON_TOKEN=1d6f446466bb2a1440a09d61f439e95f
+      - TRACKER_SITE_ID=
+      - TRACKER_URL=
+      - TRUSTED_PROXIES=
+      - TZ=Europe/Madrid
+      - USE_RUNNING_BALANCE=false
+      - VALID_URL_PROTOCOLS=
+    env_file:
+      - /home/alejandro/Descargas/docker/.env
+    image: alpine
+    restart: always
+    ports: []
+    volumes: []
+    devices: []
+    cap_add: []
+    networks:
+      - firefly_iii
+    privileged: false
+    hostname: firefly_iii_cron
+    cpu_shares: 90
+    deploy:
+      resources:
+        limits:
+          memory: 15282M
+  db:
+    container_name: firefly_iii_db
+    environment:
+      - MYSQL_DATABASE=firefly
+      - MYSQL_PASSWORD=CuecesAveOEnriqueces2025
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_USER=firefly
+    env_file:
+      - /home/alejandro/Descargas/docker/.db.env
+    hostname: firefly_iii_db
+    image: mariadb:lts
+    restart: always
+    volumes:
+      - type: volume
+        source: "[object Object]"
+        target: /var/lib/mysql
+        volume: {}
+    ports: []
+    devices: []
+    cap_add: []
+    command: []
+    networks:
+      - firefly_iii
+    privileged: false
+    cpu_shares: 90
+    deploy:
+      resources:
+        limits:
+          memory: 15282M
+  importer:
+    container_name: firefly_iii_importer
+    depends_on:
+      app:
+        condition: service_started
+        required: true
+    environment:
+      - APP_DEBUG=false
+      - APP_ENV=local
+      - APP_NAME=DataImporter
+      - APP_URL=http://10.8.0.1/firefly
+      - ASSET_URL=
+      - AUTO_IMPORT_SECRET=
+      - BROADCAST_DRIVER=log
+      - CACHE_DRIVER=file
+      - CAN_POST_AUTOIMPORT=false
+      - CAN_POST_FILES=false
+      - CONNECTION_TIMEOUT=31.41
+      - ENABLE_MAIL_REPORT=false
+      - EXPECT_SECURE_URL=false
+      - FAKE_DATA=false
+      - FALLBACK_IN_DIR=false
+      - FALLBACK_LOCALE=es_ES
+      - FIREFLY_III_ACCESS_TOKEN=
+      - FIREFLY_III_CLIENT_ID=3
+      - FIREFLY_III_URL=http://app:8080
+      - GOCARDLESS_GET_ACCOUNT_DETAILS=false
+      - GOCARDLESS_GET_BALANCE_DETAILS=false
+      - IGNORE_DUPLICATE_ERRORS=false
+      - IGNORE_NOT_FOUND_TRANSACTIONS=false
+      - IMPORT_DIR_ALLOWLIST=
+      - IS_EXTERNAL=false
+      - JSON_CONFIGURATION_DIR=
+      - LOG_CHANNEL=stack
+      - LOG_LEVEL=debug
+      - LOG_RETURN_JSON=false
+      - LUNCH_FLOW_API_KEY=
+      - LUNCH_FLOW_API_URL=https://lunchflow.app/api/v1/
+      - MAIL_DESTINATION=noreply@example.com
+      - MAIL_ENCRYPTION=null
+      - MAIL_FROM_ADDRESS=noreply@example.com
+      - MAIL_HOST=smtp.mailtrap.io
+      - MAIL_MAILER=
+      - MAIL_PASSWORD=password
+      - MAIL_PORT=2525
+      - MAIL_USERNAME=username
+      - MAILGUN_DOMAIN=
+      - MAILGUN_ENDPOINT=
+      - MAILGUN_SECRET=
+      - NORDIGEN_ID=
+      - NORDIGEN_KEY=
+      - NORDIGEN_SANDBOX=false
+      - POSTMARK_TOKEN=
+      - QUEUE_CONNECTION=sync
+      - REDIS_CACHE_DB=1
+      - REDIS_DB=0
+      - REDIS_HOST=127.0.0.1
+      - REDIS_PASSWORD=null
+      - REDIS_PORT=6379
+      - RESPOND_TO_GOCARDLESS_LIMIT=wait
+      - SESSION_DRIVER=file
+      - SESSION_LIFETIME=120
+      - SIMPLEFIN_AUTO_CREATE_EXPENSE_ACCOUNTS=true
+      - SIMPLEFIN_CACHE_DURATION=3600
+      - SIMPLEFIN_CLUSTERING_SIMILARITY_THRESHOLD=0.7
+      - SIMPLEFIN_CONNECTION_TIMEOUT=30
+      - SIMPLEFIN_DEFAULT_DATE_RANGE=90
+      - SIMPLEFIN_DEMO_TOKEN=
+      - SIMPLEFIN_DEMO_URL=
+      - SIMPLEFIN_ENABLE_CACHING=true
+      - SIMPLEFIN_ENABLE_TRANSACTION_CLUSTERING=true
+      - SIMPLEFIN_EXPENSE_MATCHING_THRESHOLD=0.7
+      - SIMPLEFIN_MAX_TRANSACTIONS=10000
+      - SIMPLEFIN_REQUEST_TIMEOUT=60
+      - SIMPLEFIN_RETRY_ATTEMPTS=3
+      - SIMPLEFIN_RETRY_DELAY=
+      - SIMPLEFIN_SMART_EXPENSE_MATCHING=true
+      - SIMPLEFIN_TOKEN=
+      - SPECTRE_APP_ID=
+      - SPECTRE_SECRET=
+      - TRACKER_SITE_ID=
+      - TRACKER_URL=
+      - TRUSTED_PROXIES=
+      - TZ=Europe/Madrid
+      - USE_CACHE=true
+      - VANITY_URL=http://192.168.1.116:1080
+      - VERIFY_TLS_SECURITY=true
+    env_file:
+      - /home/alejandro/Descargas/docker/.importer.env
+    hostname: firefly_iii_importer
+    image: fireflyiii/data-importer:latest
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "1081"
+        protocol: tcp
+    restart: always
+    volumes: []
+    devices: []
+    cap_add: []
+    command: []
+    networks:
+      - firefly_iii
+    privileged: false
+    cpu_shares: 90
+    deploy:
+      resources:
+        limits:
+          memory: 15282M
+networks:
+  firefly_iii:
+    name: docker_firefly_iii
+    driver: bridge
+volumes:
+  firefly_iii_db:
+    name: docker_firefly_iii_db
+  firefly_iii_upload:
+    name: docker_firefly_iii_upload
+x-casaos:
+  hostname: ""
+  scheme: http
+  index: /
+  port_map: ""
+  author: self
+  category: self
+  icon: ""
+  title:
+    custom: ""

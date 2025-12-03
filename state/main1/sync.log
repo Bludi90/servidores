@@ -6641,3 +6641,14 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
 ?? scripts/list-docker-yml.sh
 ?? state/main1/2025-12-03_1751-state.md
 ?? state/main1/2025-12-03_1800-state.md
+[2025-12-03 18:05:32] === Inicio commit-and-push ===
+[2025-12-03 18:05:32] Cambios detectados:
+ M docs/ESTADO.md
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? docker/firefly/
+?? docker/jellyfin/
+?? docker/nextcloud/
+?? state/main1/2025-12-03_1800-state.md
+?? state/main1/2025-12-03_1805-state.md
