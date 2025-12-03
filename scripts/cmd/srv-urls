@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Directorio raíz del repo (scripts/cmd/ → repo/.. /..)
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# Resolver la ruta real del script siguiendo symlinks
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+# scripts/cmd/ → repo raíz (dos niveles arriba)
+REPO_DIR="$(cd "$(dirname "$SCRIPT_PATH")/../.." && pwd)"
 
 cd "$REPO_DIR"
 

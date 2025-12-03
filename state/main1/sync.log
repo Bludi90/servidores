@@ -6070,3 +6070,18 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M state/main1/urls-proxy.md
 ?? scripts/install-commands.sh
 ?? state/main1/2025-12-03_1705-state.md
+[main 4f8e144] auto: snapshot main1 2025-12-03 17:05
+ 7 files changed, 346 insertions(+), 13 deletions(-)
+ create mode 100755 scripts/install-commands.sh
+ create mode 100644 state/main1/2025-12-03_1705-state.md
+[2025-12-03 17:05:53] Commit creado: auto: snapshot main1 2025-12-03 17:05
+[2025-12-03 17:05:55] git push OK.
+[2025-12-03 17:05:55] === Fin commit-and-push ===
+[2025-12-03 17:14:06] === Inicio commit-and-push ===
+[2025-12-03 17:14:06] Cambios detectados:
+ M docs/ESTADO.md
+ M scripts/cmd/srv-urls
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2025-12-03_1714-state.md
