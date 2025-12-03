@@ -5695,3 +5695,16 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
 ?? scripts/snapshot-urls.sh
 ?? state/main1/2025-12-03_1645-state.md
 ?? state/main1/urls-proxy.md
+[main 80fb2cc] auto: snapshot main1 2025-12-03 16:45
+ 8 files changed, 365 insertions(+), 16 deletions(-)
+ create mode 100644 common/urls-proxy.tsv
+ create mode 100755 scripts/snapshot-urls.sh
+ create mode 100644 state/main1/2025-12-03_1645-state.md
+ create mode 100644 state/main1/urls-proxy.md
+[2025-12-03 16:45:42] Commit creado: auto: snapshot main1 2025-12-03 16:45
+[2025-12-03 16:45:44] git push OK.
+[2025-12-03 16:45:44] === Fin commit-and-push ===
+[2025-12-03 16:49:33] === Inicio commit-and-push ===
+[2025-12-03 16:49:33] Cambios detectados:
+ M state/main1/sync.log
+?? scripts/root/
