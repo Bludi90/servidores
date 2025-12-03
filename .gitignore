@@ -43,3 +43,5 @@ Thumbs.db
 *~
 scripts/*.bak*
 *.bak
+scripts/root/
+scripts/root/

@@ -1,0 +1,72 @@
+name: collabora
+services:
+    collabora:
+        cap_add:
+            - MKNOD
+        cpu_shares: 90
+        command: []
+        deploy:
+            resources:
+                limits:
+                    memory: "16024338432"
+        environment:
+            LC_CTYPE: C.UTF-8
+            PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+            dictionaries: es en
+            domain: 10\.8\.0\.1
+        image: collabora/code:latest
+        labels:
+            icon: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTaZxFz5pLzdpb97ef_H8SiAXm1vftGCpo1jykVASJi00f-hWWXc-QgaUZDA_7U10_Z2Bs&usqp=CAU
+        network_mode: bridge
+        ports:
+            - target: 9980
+              published: "9980"
+              protocol: tcp
+        restart: unless-stopped
+        x-casaos:
+            envs:
+                - container: domain
+                  description:
+                    en_us: ""
+                - container: dictionaries
+                  description:
+                    en_us: ""
+                - container: PATH
+                  description:
+                    en_us: ""
+                - container: LC_CTYPE
+                  description:
+                    en_us: ""
+            image: ""
+            ports:
+                - container: "9980"
+                  description:
+                    en_us: ""
+networks:
+    default:
+        name: collabora_default
+x-casaos:
+    architectures:
+        - amd64
+    author: CasaOS User
+    category: unknown
+    description:
+        en_us: ""
+    developer: unknown
+    hostname: ""
+    icon: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTaZxFz5pLzdpb97ef_H8SiAXm1vftGCpo1jykVASJi00f-hWWXc-QgaUZDA_7U10_Z2Bs&usqp=CAU
+    image: null
+    index: /
+    is_uncontrolled: false
+    main: collabora
+    port_map: ""
+    scheme: http
+    store_app_id: collabora
+    tagline:
+        en_us: This is a compose app converted from a legacy app (CasaOS v0.4.3 or earlier)
+    thumbnail: ""
+    tips:
+        custom: This is a compose app converted from a legacy app (CasaOS v0.4.3 or earlier)
+    title:
+        custom: collabora
+        en_us: collabora
