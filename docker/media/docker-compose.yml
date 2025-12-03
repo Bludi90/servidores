@@ -102,7 +102,21 @@ services:
         networks:
             - media
         restart: unless-stopped
-
+    sabnzbd:
+        image: lscr.io/linuxserver/sabnzbd:latest
+        container_name: sabnzbd
+        environment:
+          - PUID=1000
+          - PGID=1000
+          - TZ=Europe/Madrid
+        volumes:
+          - /srv/storage/services/sabnzbd/config:/config
+          - /srv/storage/services/downloads:/downloads
+        ports:
+          - "8082:8080"      # WebUI SABnzbd (host 8082 -> contenedor 8080)
+        networks:
+          - media
+        restart: unless-stopped
 networks:
     default:
         name: media_default
