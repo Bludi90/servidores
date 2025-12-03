@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Directorio raíz del repo (scripts/cmd/ → repo/.. /..)
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+cd "$REPO_DIR"
+
+if [[ ! -f common/urls-proxy.tsv ]]; then
+  echo "ERROR: no encuentro $REPO_DIR/common/urls-proxy.tsv" >&2
+  exit 1
+fi
+
+# Mostrar la tabla de URLs alineada
+column -t -s$'\t' common/urls-proxy.tsv
