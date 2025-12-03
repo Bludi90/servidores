@@ -6652,3 +6652,26 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
 ?? docker/nextcloud/
 ?? state/main1/2025-12-03_1800-state.md
 ?? state/main1/2025-12-03_1805-state.md
+[main 3327bb1] auto: snapshot main1 2025-12-03 18:05
+ 9 files changed, 1114 insertions(+), 19 deletions(-)
+ create mode 100644 docker/firefly/docker-compose.yml
+ create mode 100644 docker/jellyfin/docker-compose.yml
+ create mode 100644 docker/nextcloud/docker-compose.yml
+ create mode 100644 state/main1/2025-12-03_1800-state.md
+ create mode 100644 state/main1/2025-12-03_1805-state.md
+[2025-12-03 18:05:32] Commit creado: auto: snapshot main1 2025-12-03 18:05
+[2025-12-03 18:05:33] git push OK.
+[2025-12-03 18:05:33] === Fin commit-and-push ===
+[2025-12-03 19:00:02] === Inicio commit-and-push ===
+[2025-12-03 19:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/ip.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zpool_list.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? docker/media/
+?? state/main1/2025-12-03_1900-state.md

@@ -6358,3 +6358,17 @@ Escrito: /home/alejandro/servidores/state/main1/2025-12-03_1800-state.md
 error: open("docker/collabora/docker-compose.yml"): Permiso denegado
 error: no es posible indexar archivo 'docker/collabora/docker-compose.yml'
 fatal: falló al agregar archivos
+Escrito: /home/alejandro/servidores/state/main1/2025-12-03_1900-state.md
+[2025-12-03 19:00:02] === Inicio commit-and-push ===
+[2025-12-03 19:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/ip.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zpool_list.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? docker/media/
+?? state/main1/2025-12-03_1900-state.md
