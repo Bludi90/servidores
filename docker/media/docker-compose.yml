@@ -88,6 +88,21 @@ services:
               target: /movies
               bind:
                 create_host_path: true
+    prowlarr:
+        image: lscr.io/linuxserver/prowlarr:latest
+        container_name: prowlarr
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Europe/Madrid
+        volumes:
+            - /srv/storage/services/prowlarr/config:/config
+        ports:
+            - "9696:9696"        # WebUI Prowlarr
+        networks:
+            - media
+        restart: unless-stopped
+
 networks:
     default:
         name: media_default
