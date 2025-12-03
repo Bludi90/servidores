@@ -5679,3 +5679,19 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M state/main1/current-state.md
  M state/main1/sync.log
 ?? state/main1/2025-12-03_1600-state.md
+[main a6c02ad] auto: snapshot main1 2025-12-03 16:00
+ 6 files changed, 309 insertions(+), 16 deletions(-)
+ create mode 100644 state/main1/2025-12-03_1600-state.md
+[2025-12-03 16:00:01] Commit creado: auto: snapshot main1 2025-12-03 16:00
+[2025-12-03 16:00:03] git push OK.
+[2025-12-03 16:00:03] === Fin commit-and-push ===
+[2025-12-03 16:45:42] === Inicio commit-and-push ===
+[2025-12-03 16:45:42] Cambios detectados:
+ M docs/ESTADO.md
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+?? common/
+?? scripts/snapshot-urls.sh
+?? state/main1/2025-12-03_1645-state.md
+?? state/main1/urls-proxy.md
