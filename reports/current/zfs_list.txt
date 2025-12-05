@@ -1,5 +1,5 @@
 NAME                    USED  AVAIL  REFER  MOUNTPOINT
-tank                    160G  6.97T  20.9G  /srv/storage
+tank                    161G  6.97T  21.7G  /srv/storage
 tank/appdata           14.6G  6.97T   104K  /srv/storage/appdata
 tank/appdata/casaos     304K  6.97T   304K  /srv/storage/appdata/casaos
 tank/appdata/docker    14.6G  6.97T  14.6G  /srv/storage/appdata/docker
