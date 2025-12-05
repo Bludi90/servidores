@@ -1,3 +1,3 @@
                total       usado       libre  compartido   búf/caché  disponible
-Mem:            14Gi        11Gi       285Mi        32Mi       4,2Gi       3,9Gi
+Mem:            14Gi        11Gi       301Mi        38Mi       4,0Gi       3,9Gi
 Inter:          15Gi       2,3Gi        13Gi
