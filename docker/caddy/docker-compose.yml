@@ -1,28 +1,41 @@
-version: "3.8"
-
+name: caddy
 services:
-  caddy:
-    image: caddy:latest
-    container_name: caddy
-    restart: unless-stopped
-
-    # Volvemos a usar la red del host
-    network_mode: host
-
-    volumes:
-      - /srv/storage/services/reverse-proxy/caddy/config:/etc/caddy
-      - /srv/storage/services/reverse-proxy/caddy/data:/data
-
-    labels:
-      icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/caddy.png"
-
+    caddy:
+        cpu_shares: 90
+        command: []
+        container_name: caddy
+        deploy:
+            resources:
+                limits:
+                    memory: "16024338432"
+        hostname: caddy
+        image: caddy:latest
+        labels:
+            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/caddy.png
+        network_mode: host
+        restart: unless-stopped
+        volumes:
+            - type: bind
+              source: /srv/storage/services/reverse-proxy/caddy/config
+              target: /etc/caddy
+              bind:
+                create_host_path: true
+            - type: bind
+              source: /srv/storage/services/reverse-proxy/caddy/data
+              target: /data
+              bind:
+                create_host_path: true
+networks:
+    default:
+        name: caddy_default
 x-casaos:
-  author: "alejandro"
-  category: "network"
-  icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/caddy.png"
-  index: "/"
-  is_uncontrolled: false
-  port_map: "443"
-  scheme: "https"
-  title:
-    custom: "Caddy Reverse Proxy"
+    author: alejandro
+    category: network
+    hostname: ""
+    icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/caddy.png
+    index: /
+    is_uncontrolled: false
+    port_map: "443"
+    scheme: https
+    title:
+        custom: Caddy Reverse Proxy
