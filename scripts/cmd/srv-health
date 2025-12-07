@@ -191,6 +191,53 @@ else
   status_line WARN "Docker no instalado"
 fi
 
+# ---------------- DNS (Pi-hole + Unbound) ----------------
+section "DNS (Pi-hole + Unbound)"
+
+if command -v docker >/dev/null 2>&1 && command -v nslookup >/dev/null 2>&1; then
+  PIHOLE_CONT="pihole-pihole-1"
+  UNBOUND_CONT="unbound-unbound-1"
+
+  # Estado de Pi-hole
+  PIHOLE_LINE="$(docker ps --format '{{.Names}} {{.Status}}' 2>/dev/null | awk '$1=="'"$PIHOLE_CONT"'"{$1=""; sub(/^ /," "); print}' || true)"
+  if [ -z "$PIHOLE_LINE" ]; then
+    status_line WARN "Pi-hole: contenedor ${PIHOLE_CONT} no está en ejecución"
+  elif echo "$PIHOLE_LINE" | grep -qi "healthy"; then
+    status_line OK "Pi-hole: ${PIHOLE_CONT} (${PIHOLE_LINE})"
+  else
+    status_line WARN "Pi-hole: ${PIHOLE_CONT} estado = ${PIHOLE_LINE}"
+  fi
+
+  # Estado de Unbound
+  UNBOUND_LINE="$(docker ps --format '{{.Names}} {{.Status}}' 2>/dev/null | awk '$1=="'"$UNBOUND_CONT"'"{$1=""; sub(/^ /," "); print}' || true)"
+  if [ -z "$UNBOUND_LINE" ]; then
+    status_line WARN "Unbound: contenedor ${UNBOUND_CONT} no está en ejecución"
+  elif echo "$UNBOUND_LINE" | grep -qi "healthy"; then
+    status_line OK "Unbound: ${UNBOUND_CONT} (${UNBOUND_LINE})"
+  else
+    status_line WARN "Unbound: ${UNBOUND_CONT} estado = ${UNBOUND_LINE}"
+  fi
+
+  # Test DNS Pi-hole (10.8.0.1)
+  if timeout 3 nslookup google.es 10.8.0.1 >/dev/null 2>&1; then
+    status_line OK "DNS Pi-hole: 10.8.0.1 responde para google.es"
+  else
+    status_line WARN "DNS Pi-hole: 10.8.0.1 NO responde correctamente (nslookup google.es)"
+  fi
+
+  # Test DNS Unbound directo
+  UNBOUND_IP="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$UNBOUND_CONT" 2>/dev/null || echo "")"
+  if [ -n "$UNBOUND_IP" ]; then
+    if timeout 3 nslookup google.es "$UNBOUND_IP" >/dev/null 2>&1; then
+      status_line OK "DNS Unbound: ${UNBOUND_IP} responde para google.es"
+    else
+      status_line WARN "DNS Unbound: ${UNBOUND_IP} NO responde correctamente (nslookup google.es)"
+    fi
+  fi
+else
+  status_line WARN "DNS: no se pudieron probar Pi-hole/Unbound (faltan docker o nslookup)"
+fi
+
 # ---------------- Systemd: unidades fallidas ----------------
 section "Systemd (unidades fallidas)"
 

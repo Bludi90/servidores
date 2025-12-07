@@ -8181,3 +8181,22 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M state/main1/urls-proxy.md
 ?? docs/DNS-PIHOLE-UNBOUND.md
 ?? state/main1/2025-12-07_1800-state.md
+[main 1a19997] auto: snapshot main1 2025-12-07 18:00
+ 10 files changed, 511 insertions(+), 27 deletions(-)
+ create mode 100644 docs/DNS-PIHOLE-UNBOUND.md
+ create mode 100644 state/main1/2025-12-07_1800-state.md
+[2025-12-07 18:00:02] Commit creado: auto: snapshot main1 2025-12-07 18:00
+[2025-12-07 18:00:04] git push OK.
+[2025-12-07 18:00:04] === Fin commit-and-push ===
+[2025-12-07 19:00:02] === Inicio commit-and-push ===
+[2025-12-07 19:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zpool_list.txt
+ M scripts/cmd/srv-health
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2025-12-07_1900-state.md
