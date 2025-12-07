@@ -1,0 +1,45 @@
+name: dns
+
+services:
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    hostname: pihole
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+    networks:
+      - dns-net
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "8081:80/tcp"
+    environment:
+      TZ: Europe/Madrid
+      DNSMASQ_USER: pihole
+      FTL_CMD: no-daemon
+      FTLCONF_dns_listeningMode: ALL
+      # Upstream por defecto; se puede sobreescribir en .env
+      FTLCONF_dns_upstreams: ${PIHOLE_DNS_UPSTREAMS:-1.1.1.1}
+      # Contraseña de la web de Pi-hole (SECRETO, sólo en .env)
+      WEBPASSWORD: ${PIHOLE_WEBPASSWORD}
+    volumes:
+      - /srv/storage/services/dns/pihole/etc-pihole:/etc/pihole
+      - /srv/storage/services/dns/pihole/etc-dnsmasq.d:/etc/dnsmasq.d
+      - /srv/storage/services/dns/pihole/log:/var/log/pihole
+
+  unbound:
+    image: mvance/unbound:latest
+    container_name: unbound
+    hostname: unbound
+    restart: unless-stopped
+    networks:
+      - dns-net
+    volumes:
+      - /srv/storage/services/dns/unbound/conf.d:/opt/unbound/etc/unbound
+    # No exponemos el 53 al host: sólo Pi-hole habla con Unbound
+
+networks:
+  dns-net:
+    name: dns_dns-net
+    driver: bridge

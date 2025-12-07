@@ -1,0 +1,114 @@
+name: pihole
+services:
+    pihole:
+        cap_add:
+            - NET_ADMIN
+        cpu_shares: 90
+        command: []
+        deploy:
+            resources:
+                limits:
+                    memory: "16024338432"
+        environment:
+            DNSMASQ_USER: pihole
+            FTL_CMD: no-daemon
+            FTLCONF_dns_listeningMode: ALL
+            FTLCONF_dns_upstreams: 1.1.1.1
+            OPENAI_API_KEY: sk-xxxxxx
+            PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+            TZ: Europe/Madrid
+            WEBPASSWORD: CuecesAveOEnriqueces2025
+        image: pihole/pihole:latest
+        labels:
+            icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/pi-hole.png
+        network_mode: dns_dns-net
+        ports:
+            - target: 53
+              published: "53"
+              protocol: tcp
+            - target: 53
+              published: "53"
+              protocol: udp
+            - target: 80
+              published: "8081"
+              protocol: tcp
+        restart: unless-stopped
+        volumes:
+            - type: bind
+              source: /srv/storage/services/dns/pihole/etc-dnsmasq.d
+              target: /etc/dnsmasq.d
+            - type: bind
+              source: /srv/storage/services/dns/pihole/etc-pihole
+              target: /etc/pihole
+        x-casaos:
+            envs:
+                - container: FTLCONF_dns_upstreams
+                  description:
+                    en_us: ""
+                - container: TZ
+                  description:
+                    en_us: ""
+                - container: WEBPASSWORD
+                  description:
+                    en_us: ""
+                - container: OPENAI_API_KEY
+                  description:
+                    en_us: ""
+                - container: FTLCONF_dns_listeningMode
+                  description:
+                    en_us: ""
+                - container: PATH
+                  description:
+                    en_us: ""
+                - container: DNSMASQ_USER
+                  description:
+                    en_us: ""
+                - container: FTL_CMD
+                  description:
+                    en_us: ""
+            image: ""
+            ports:
+                - container: "53"
+                  description:
+                    en_us: ""
+                - container: "53"
+                  description:
+                    en_us: ""
+                - container: "80"
+                  description:
+                    en_us: ""
+            volumes:
+                - container: /etc/dnsmasq.d
+                  description:
+                    en_us: ""
+                - container: /etc/pihole
+                  description:
+                    en_us: ""
+networks:
+    default:
+        name: pihole_default
+x-casaos:
+    architectures:
+        - amd64
+    author: CasaOS User
+    category: unknown
+    description:
+        en_us: ""
+    developer: unknown
+    hostname: 10.8.0.1
+    icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/pi-hole.png
+    image: null
+    index: /admin
+    is_uncontrolled: false
+    main: pihole
+    port_map: "8081"
+    scheme: http
+    store_app_id: pihole
+    tagline:
+        en_us: This is a compose app converted from a legacy app (CasaOS v0.4.3 or earlier)
+    thumbnail: ""
+    tips:
+        custom: This is a compose app converted from a legacy app (CasaOS v0.4.3 or earlier)
+    title:
+        custom: ""
+        en_us: pihole
