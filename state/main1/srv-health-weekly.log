@@ -19,3 +19,7 @@
 🟢 Estado general: OK (OK=9, WARN=0, FAIL=0)
 💾 ZFS tank (mirror): 0% usado de 7.25T (salud ONLINE)
 
+📅 07/12/2025 12:00:02 CET
+🟡 Estado general: ATENCIÓN (OK=8, WARN=1, FAIL=0)
+💾 ZFS tank (mirror): 4% usado de 7.25T (salud ONLINE)
+
