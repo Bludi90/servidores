@@ -1,24 +1,25 @@
 name: caddy
+
 services:
   caddy:
-    cpu_shares: 90
-    command: []
+    image: caddy:latest
     container_name: caddy
+    hostname: caddy
+
+    cpu_shares: 90
     deploy:
       resources:
         limits:
           memory: "16024338432"
-    hostname: caddy
-    image: caddy:latest
-    labels:
-      icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/caddy.png
-
-    # 🔽 Quitamos network_mode: host y usamos puertos explícitos
-    ports:
-      - "80:80"
-      - "443:443"
 
     restart: unless-stopped
+
+    # Caddy comparte red con el host → ve 127.0.0.1:17080
+    network_mode: host
+
+    labels:
+      icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/caddy.png"
+
     volumes:
       - type: bind
         source: /srv/storage/services/reverse-proxy/caddy/config
@@ -26,17 +27,15 @@ services:
       - type: bind
         source: /srv/storage/services/reverse-proxy/caddy/data
         target: /data
-networks:
-    default:
-        name: caddy_default
+
 x-casaos:
-    author: alejandro
-    category: network
-    hostname: ""
-    icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/caddy.png
-    index: /
-    is_uncontrolled: false
-    port_map: "443"
-    scheme: https
-    title:
-        custom: Caddy Reverse Proxy
+  author: "alejandro"
+  category: "network"
+  hostname: ""
+  icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/caddy.png"
+  index: "/"
+  is_uncontrolled: false
+  port_map: "443"
+  scheme: "https"
+  title:
+    custom: "Caddy Reverse Proxy"
