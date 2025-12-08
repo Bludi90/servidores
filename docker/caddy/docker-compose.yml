@@ -1,30 +1,31 @@
 name: caddy
 services:
-    caddy:
-        cpu_shares: 90
-        command: []
-        container_name: caddy
-        deploy:
-            resources:
-                limits:
-                    memory: "16024338432"
-        hostname: caddy
-        image: caddy:latest
-        labels:
-            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/caddy.png
-        network_mode: host
-        restart: unless-stopped
-        volumes:
-            - type: bind
-              source: /srv/storage/services/reverse-proxy/caddy/config
-              target: /etc/caddy
-              bind:
-                create_host_path: true
-            - type: bind
-              source: /srv/storage/services/reverse-proxy/caddy/data
-              target: /data
-              bind:
-                create_host_path: true
+  caddy:
+    cpu_shares: 90
+    command: []
+    container_name: caddy
+    deploy:
+      resources:
+        limits:
+          memory: "16024338432"
+    hostname: caddy
+    image: caddy:latest
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/caddy.png
+
+    # 🔽 Quitamos network_mode: host y usamos puertos explícitos
+    ports:
+      - "80:80"
+      - "443:443"
+
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /srv/storage/services/reverse-proxy/caddy/config
+        target: /etc/caddy
+      - type: bind
+        source: /srv/storage/services/reverse-proxy/caddy/data
+        target: /data
 networks:
     default:
         name: caddy_default
