@@ -5,25 +5,42 @@ services:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
     restart: unless-stopped
+
+    # Puerto que usará Caddy para llegar a Homepage
     ports:
-      - "3000:3000"          # ya lo tenías así para que Caddy llegue
+      - "3000:3000"
+
     volumes:
+      # Configuración de Homepage (settings.yaml, widgets.yaml, services.yaml…)
       - /srv/storage/services/portal/homepage:/app/config
+
+      # Para que Homepage pueda leer el estado de contenedores (opcional, pero útil)
       - /var/run/docker.sock:/var/run/docker.sock:ro
+
+      # Iconos personalizados (jellyfin, immich, etc.)
       - /srv/storage/services/portal/assets/services:/app/public/icons:ro
+
+      # Sólo lectura del árbol de /srv/storage por si algún widget lo necesita
       - /srv/storage:/srv/storage:ro
+
     environment:
       PUID: 1000
       PGID: 1000
       TZ: Europe/Madrid
-      # Podés dejar esto o quitarlo, ya casi no lo necesitamos:
-      # NODE_TLS_REJECT_UNAUTHORIZED: "0"
+
+      # IMPORTANTÍSIMO: permitir el host portal.srv (si no, da "Host validation failed")
+      HOMEPAGE_ALLOWED_HOSTS: "portal.srv,localhost,127.0.0.1"
+      HOMEPAGE_BASE_URL: "https://portal.srv"
 
   portal-api:
     image: nginx:alpine
     container_name: portal-api
     restart: unless-stopped
+
+    # Sirve directamente los JSON desde /srv/storage/services/portal/data
     volumes:
       - /srv/storage/services/portal/data:/usr/share/nginx/html:ro
+
+    # Sólo hace falta que sea accesible desde otros contenedores del mismo stack
     expose:
       - "80"

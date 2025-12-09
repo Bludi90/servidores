@@ -99,3 +99,4 @@ tmp="$(mktemp)"
 } > "$tmp"
 
 mv "$tmp" "$TARGET_JSON"
+chmod 644 "$TARGET_JSON"
