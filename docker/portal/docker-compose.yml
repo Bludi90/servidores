@@ -1,34 +1,29 @@
+name: portal
+
 services:
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
     restart: unless-stopped
-
-    # Para que sólo escuche en loopback y lo exponga Caddy
     ports:
-      - "127.0.0.1:3000:3000"
-
-    environment:
-      # Permitir acceder por portal.srv sin que se queje
-      HOMEPAGE_ALLOWED_HOSTS: "portal.srv,localhost,127.0.0.1"
-      # ⚠️ Para no pelear con el certificado interno de Caddy desde dentro del contenedor
-      NODE_TLS_REJECT_UNAUTHORIZED: "0"
-
-    extra_hosts:
-      # Hace que 'portal.srv' dentro del contenedor apunte al host main1
-      # Usa la IP de main1 vista en la LAN; si prefieres 192.168.1.X en vez de 10.8.0.1, ponla aquí.
-      - "portal.srv:10.8.0.1"
-
-      # Opcional: correr como el mismo usuario que el resto (si quisieras)
-      # PUID: "1000"
-      # PGID: "1000"
-
+      - "3000:3000"          # ya lo tenías así para que Caddy llegue
     volumes:
-      # Config principal del portal (YAMLs)
       - /srv/storage/services/portal/homepage:/app/config
-      - /srv/storage/services/portal/data:/srv/storage/services/portal/data
-      # (opcional para futuro) acceso a docker.sock para integraciones
-      # - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /srv/storage/services/portal/assets/services:/app/public/icons:ro
+      - /srv/storage:/srv/storage:ro
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Madrid
+      # Podés dejar esto o quitarlo, ya casi no lo necesitamos:
+      # NODE_TLS_REJECT_UNAUTHORIZED: "0"
 
-      # (opcional para futuro) acceso a /srv/storage si algún widget lo necesita
-      # - /srv/storage:/srv/storage:ro
+  portal-api:
+    image: nginx:alpine
+    container_name: portal-api
+    restart: unless-stopped
+    volumes:
+      - /srv/storage/services/portal/data:/usr/share/nginx/html:ro
+    expose:
+      - "80"
