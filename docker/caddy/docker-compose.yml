@@ -27,6 +27,9 @@ services:
       - type: bind
         source: /srv/storage/services/reverse-proxy/caddy/data
         target: /data
+      - type: bind
+        source: /srv/storage/services/portal/data
+        target: /srv/storage/services/portal/data
 
 x-casaos:
   author: "alejandro"
