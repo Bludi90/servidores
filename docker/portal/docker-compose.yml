@@ -11,6 +11,13 @@ services:
     environment:
       # Permitir acceder por portal.srv sin que se queje
       HOMEPAGE_ALLOWED_HOSTS: "portal.srv,localhost,127.0.0.1"
+      # ⚠️ Para no pelear con el certificado interno de Caddy desde dentro del contenedor
+      NODE_TLS_REJECT_UNAUTHORIZED: "0"
+
+    extra_hosts:
+      # Hace que 'portal.srv' dentro del contenedor apunte al host main1
+      # Usa la IP de main1 vista en la LAN; si prefieres 192.168.1.X en vez de 10.8.0.1, ponla aquí.
+      - "portal.srv:10.8.0.1"
 
       # Opcional: correr como el mismo usuario que el resto (si quisieras)
       # PUID: "1000"
@@ -19,7 +26,7 @@ services:
     volumes:
       # Config principal del portal (YAMLs)
       - /srv/storage/services/portal/homepage:/app/config
-
+      - /srv/storage/services/portal/data:/srv/storage/services/portal/data
       # (opcional para futuro) acceso a docker.sock para integraciones
       # - /var/run/docker.sock:/var/run/docker.sock:ro
 

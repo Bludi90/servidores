@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Dónde escribe el JSON que usa portal.srv
+TARGET_JSON="/srv/storage/services/portal/data/status.json"
+
+SERVER_NAME="$(hostname -s 2>/dev/null || echo 'unknown')"
+
+# -------------------------------
+# 1. Estado global (srv-health)
+# -------------------------------
+status="UNKNOWN"
+
+if command -v srv-health >/dev/null 2>&1; then
+    if srv-health --short >/dev/null 2>&1; then
+        status="OK"
+    else
+        status="FAIL"
+    fi
+fi
+
+# -------------------------------
+# 2. ZFS (pool tank)
+# -------------------------------
+zfs_percent="null"
+zfs_health="unknown"
+
+if command -v zpool >/dev/null 2>&1; then
+    if zpool list -H -o name 2>/dev/null | grep -qx "tank"; then
+        capacity="$(zpool list -H -o capacity tank 2>/dev/null || true)"
+        health="$(zpool list -H -o health tank 2>/dev/null || true)"
+
+        if [[ "$capacity" =~ ^([0-9]+)%$ ]]; then
+            zfs_percent="${BASH_REMATCH[1]}"
+        fi
+
+        if [[ -n "$health" ]]; then
+            zfs_health="$health"
+        fi
+    fi
+fi
+
+# Si ZFS no está ONLINE y por ahora todo era OK, rebajamos a WARN
+if [[ "$zfs_health" != "ONLINE" && "$zfs_health" != "healthy" ]]; then
+    if [[ "$status" == "OK" ]]; then
+        status="WARN"
+    fi
+fi
+
+# -------------------------------
+# 3. Backups (log de restic)
+# -------------------------------
+backup_policy="Copias automáticas 3 noches por semana; conservación semanal y mensual."
+last_backup="unknown"
+backup_status="unknown"
+
+log_file="/var/log/backup_restic.log"
+
+if [[ -f "$log_file" ]]; then
+    # Usamos la fecha de modificación del log como "último backup"
+    ts="$(stat -c '%y' "$log_file" 2>/dev/null || true)"
+    if [[ -n "$ts" ]]; then
+        last_backup="$(date -d "$ts" --iso-8601=seconds 2>/dev/null || echo "$ts")"
+    fi
+
+    # Heurística simple: si hay "error" en las últimas líneas, marcamos FAIL
+    if tail -n 50 "$log_file" 2>/dev/null | grep -qi "error"; then
+        backup_status="FAIL"
+        status="FAIL"
+    else
+        backup_status="OK"
+    fi
+fi
+
+generated_at="$(date --iso-8601=seconds)"
+
+# -------------------------------
+# 4. Generar JSON de forma atómica
+# -------------------------------
+tmp="$(mktemp)"
+
+{
+    printf '{\n'
+    printf '  "server_name": "%s",\n' "$SERVER_NAME"
+    printf '  "status": "%s",\n' "$status"
+
+    if [[ "$zfs_percent" != "null" ]]; then
+        printf '  "zfs_percent": %s,\n' "$zfs_percent"
+    else
+        printf '  "zfs_percent": null,\n'
+    fi
+
+    printf '  "zfs_health": "%s",\n' "$zfs_health"
+    printf '  "last_backup": "%s",\n' "$last_backup"
+    printf '  "backup_status": "%s",\n' "$backup_status"
+    printf '  "backup_policy": "%s",\n' "$backup_policy"
+    printf '  "generated_at": "%s"\n' "$generated_at"
+    printf '}\n'
+} > "$tmp"
+
+mv "$tmp" "$TARGET_JSON"
