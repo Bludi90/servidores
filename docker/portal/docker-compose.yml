@@ -1,0 +1,27 @@
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    restart: unless-stopped
+
+    # Para que sólo escuche en loopback y lo exponga Caddy
+    ports:
+      - "127.0.0.1:3000:3000"
+
+    environment:
+      # Permitir acceder por portal.srv sin que se queje
+      HOMEPAGE_ALLOWED_HOSTS: "portal.srv,localhost,127.0.0.1"
+
+      # Opcional: correr como el mismo usuario que el resto (si quisieras)
+      # PUID: "1000"
+      # PGID: "1000"
+
+    volumes:
+      # Config principal del portal (YAMLs)
+      - /srv/storage/services/portal/homepage:/app/config
+
+      # (opcional para futuro) acceso a docker.sock para integraciones
+      # - /var/run/docker.sock:/var/run/docker.sock:ro
+
+      # (opcional para futuro) acceso a /srv/storage si algún widget lo necesita
+      # - /srv/storage:/srv/storage:ro
