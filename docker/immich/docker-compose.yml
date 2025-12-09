@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  immich-server:
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-v2}
+    container_name: immich-server
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "2283:2283"
+    environment:
+      # Config DB
+      - DB_HOST=immich-db
+      - DB_PORT=5432
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE_NAME=${DB_DATABASE_NAME}
+
+      # Rutas internas dentro del contenedor (fijas)
+      - UPLOAD_LOCATION=/usr/src/app/upload
+      - BACKUP_LOCATION=/usr/src/app/backups
+      - THUMB_LOCATION=/usr/src/app/thumbs
+      - ENCODED_VIDEO_LOCATION=/usr/src/app/encoded-video
+      - PROFILE_LOCATION=/usr/src/app/profile
+    depends_on:
+      - immich-db
+      - immich-redis
+    volumes:
+      # Mapeos HOST -> CONTENEDOR usando las rutas del .env
+      - ${HOST_UPLOAD}:/usr/src/app/upload
+      - ${HOST_BACKUPS}:/usr/src/app/backups
+      - ${HOST_THUMBS}:/usr/src/app/thumbs
+      - ${HOST_ENCODED}:/usr/src/app/encoded-video
+      - ${HOST_PROFILE}:/usr/src/app/profile
+      - /etc/localtime:/etc/localtime:ro
+
+  immich-machine-learning:
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-v2}
+    container_name: immich-ml
+    restart: always
+    depends_on:
+      - immich-server
+    volumes:
+      - ${HOST_ML_CACHE}:/.cache
+      - /etc/localtime:/etc/localtime:ro
+
+  immich-db:
+    image: postgres:15
+    container_name: immich-db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_DB=${DB_DATABASE_NAME}
+    volumes:
+      - ${DB_DATA}:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+
+  immich-redis:
+    image: redis:6
+    container_name: immich-redis
+    restart: always
+    volumes:
+      - ${REDIS_DATA}:/data
+      - /etc/localtime:/etc/localtime:ro
