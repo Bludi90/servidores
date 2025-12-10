@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IF="${WG_IF:-wg0}"
+OLD="${1:-}"; NEW="${2:-}"
+[ -n "$OLD" ] && [ -n "$NEW" ] || { echo "Uso: wg-rename-peer <antiguo> <nuevo>"; exit 1; }
+BASE="/etc/wireguard/clients"; CONF="/etc/wireguard/${IF}.conf"
+[ -e "$BASE/${OLD}.pub" ] || { echo "No existe ${OLD}"; exit 2; }
+[ ! -e "$BASE/${NEW}.pub" ] || { echo "Ya existe ${NEW}"; exit 3; }
+for ext in key pub conf png qr.txt; do
+  [ -e "$BASE/${OLD}.$ext" ] && mv "$BASE/${OLD}.$ext" "$BASE/${NEW}.$ext"
+done
+# si en el conf hay comentarios "# <nombre>", actualízalos (no es obligatorio)
+[ -f "$CONF" ] && sed -i "s/^# ${OLD}\$/# ${NEW}/" "$CONF" || true
+echo "Renombrado: $OLD → $NEW"
+WG_IF="$IF" wg-list-peers || true

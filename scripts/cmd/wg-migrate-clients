@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# wg-migrate-clients — migrar clientes de WireGuard a esquema de carpetas
+# Uso:
+#   sudo wg-migrate-clients          # solo migra (con backup tar.gz)
+#   sudo wg-migrate-clients --zip    # migra + genera ZIP cifrado en /tmp
+set -euo pipefail
+
+DO_ZIP=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --zip)
+      DO_ZIP=1
+      shift
+      ;;
+    -h|--help)
+      echo "Uso: sudo wg-migrate-clients [--zip]"
+      exit 0
+      ;;
+    *)
+      echo "Opción no reconocida: $1" >&2
+      echo "Uso: sudo wg-migrate-clients [--zip]" >&2
+      exit 1
+      ;;
+  esac
+done
+
+CLIENT_ROOT="/etc/wireguard/clients"
+cd "$CLIENT_ROOT"
+
+# Para que *.conf vacío no se expanda literalmente
+shopt -s nullglob
+
+TS=$(date +%F_%H%M%S)
+BACKUP="/root/wireguard-clients-backup-${TS}.tar.gz"
+
+echo ">> Creando backup de ${CLIENT_ROOT} en ${BACKUP}..."
+tar czf "$BACKUP" .
+
+echo ">> Migrando clientes planos a carpetas..."
+for conf in *.conf; do
+  base="${conf%.conf}"
+
+  # Si ya existe carpeta con ese nombre, asumimos que ya está migrado
+  if [ -d "$base" ]; then
+    echo "[SKIP] $base (ya tiene carpeta)"
+    continue
+  fi
+
+  echo "[MOVE] ${base}.* -> ${base}/"
+  mkdir -m 700 "$base"
+  mv "${base}".* "$base"/
+done
+
+echo ">> Migración completada."
+echo "   Backup en: ${BACKUP}"
+echo "   Revisa con: sudo ls -R ${CLIENT_ROOT}"
+
+if (( DO_ZIP )); then
+  echo ">> Generando ZIP cifrado de clients/ en /tmp ..."
+  FECHA=$(date +%F)
+  ZIP_PATH="/tmp/wg-clients-${FECHA}.zip"
+
+  # Nos movemos a /etc/wireguard para que el ZIP tenga 'clients/' como raíz
+  cd /etc/wireguard
+  if ! command -v zip >/dev/null 2>&1; then
+    echo "zip no está instalado. Instálalo con: sudo apt install zip" >&2
+    exit 2
+  fi
+
+  echo "   Se pedirá una contraseña para proteger el ZIP."
+  zip -r -e "$ZIP_PATH" clients/
+
+  echo ">> ZIP creado en: $ZIP_PATH"
+  echo "   Cópialo al móvil (por ejemplo):"
+  echo "   scp alejandro@10.8.0.1:$ZIP_PATH ~/storage/downloads/"
+fi

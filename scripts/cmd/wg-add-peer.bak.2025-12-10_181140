@@ -44,22 +44,10 @@ TMP="$(mktemp)"; {
 IP=""; for d in $(seq 10 254); do C="${BASE}.${d}"; grep -qx "$C" "$TMP" || { IP="$C"; break; }; done
 rm -f "$TMP"; [ -n "$IP" ] || { echo "Sin IP libre en ${BASE}.10-254"; exit 5; }
 
-# Claves del cliente (nuevo esquema: carpeta por cliente)
-CLIENT_ROOT="/etc/wireguard/clients"
-mkdir -p "$CLIENT_ROOT"
-
-CLIENT_DIR="${CLIENT_ROOT}/${NAME}"
-FLAT_PREFIX="${CLIENT_ROOT}/${NAME}"
-
-# No machacar un cliente existente (ni en formato nuevo ni en formato viejo)
-if [ -d "$CLIENT_DIR" ] || [ -e "${FLAT_PREFIX}.key" ] || [ -e "${FLAT_PREFIX}.conf" ] || [ -e "${FLAT_PREFIX}.pub" ]; then
-  echo "Ya existe el cliente ${NAME} en /etc/wireguard/clients (formato nuevo o antiguo)."
-  exit 6
-fi
-
-mkdir -m 700 "$CLIENT_DIR"
-BASEP="${CLIENT_DIR}/${NAME}"
-
+# Claves del cliente
+mkdir -p /etc/wireguard/clients
+BASEP="/etc/wireguard/clients/${NAME}"
+[ ! -e "${BASEP}.key" ] || { echo "Ya existe ${NAME}"; exit 6; }
 wg genkey | tee "${BASEP}.key" | wg pubkey > "${BASEP}.pub"
 
 # Alta persistente + runtime (servidor SIEMPRE /32)

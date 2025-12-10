@@ -3,13 +3,65 @@ set -euo pipefail
 IF="${WG_IF:-wg0}"
 OLD="${1:-}"; NEW="${2:-}"
 [ -n "$OLD" ] && [ -n "$NEW" ] || { echo "Uso: wg-rename-peer <antiguo> <nuevo>"; exit 1; }
-BASE="/etc/wireguard/clients"; CONF="/etc/wireguard/${IF}.conf"
-[ -e "$BASE/${OLD}.pub" ] || { echo "No existe ${OLD}"; exit 2; }
-[ ! -e "$BASE/${NEW}.pub" ] || { echo "Ya existe ${NEW}"; exit 3; }
-for ext in key pub conf png qr.txt; do
-  [ -e "$BASE/${OLD}.$ext" ] && mv "$BASE/${OLD}.$ext" "$BASE/${NEW}.$ext"
-done
-# si en el conf hay comentarios "# <nombre>", actualízalos (no es obligatorio)
-[ -f "$CONF" ] && sed -i "s/^# ${OLD}\$/# ${NEW}/" "$CONF" || true
-echo "Renombrado: $OLD → $NEW"
+
+CLIENT_ROOT="/etc/wireguard/clients"
+CONF="/etc/wireguard/${IF}.conf"
+
+DIR_OLD="${CLIENT_ROOT}/${OLD}"
+DIR_NEW="${CLIENT_ROOT}/${NEW}"
+FLAT_OLD="${CLIENT_ROOT}/${OLD}"
+FLAT_NEW="${CLIENT_ROOT}/${NEW}"
+
+MODE=""   # "dir" o "flat"
+
+# Detectar si el peer viejo está en carpeta (esquema nuevo) o plano (esquema viejo)
+if [ -f "${DIR_OLD}/${OLD}.pub" ]; then
+  MODE="dir"
+  OLD_BASE="${DIR_OLD}/${OLD}"
+elif [ -f "${FLAT_OLD}.pub" ]; then
+  MODE="flat"
+  OLD_BASE="${FLAT_OLD}"
+else
+  echo "No existe ${OLD} en ${CLIENT_ROOT} (ni carpeta ni archivos planos)."
+  exit 2
+fi
+
+# Comprobar que el nuevo nombre no existe ya ni como carpeta ni como plano
+if [ -d "$DIR_NEW" ] || [ -f "${DIR_NEW}/${NEW}.pub" ] || [ -f "${FLAT_NEW}.pub" ]; then
+  echo "Ya existe ${NEW} en ${CLIENT_ROOT}."
+  exit 3
+fi
+
+# Renombrar según el modo
+case "$MODE" in
+  dir)
+    # Renombrar carpeta
+    mv "$DIR_OLD" "$DIR_NEW"
+    # Renombrar archivos internos OLD.* -> NEW.*
+    for ext in key pub conf png qr.txt; do
+      if [ -e "${DIR_NEW}/${OLD}.${ext}" ]; then
+        mv "${DIR_NEW}/${OLD}.${ext}" "${DIR_NEW}/${NEW}.${ext}"
+      fi
+    done
+    ;;
+  flat)
+    # Renombrar archivos planos OLD.* -> NEW.*
+    for ext in key pub conf png qr.txt; do
+      if [ -e "${FLAT_OLD}.${ext}" ]; then
+        mv "${FLAT_OLD}.${ext}" "${FLAT_NEW}.${ext}"
+      fi
+    done
+    ;;
+  *)
+    echo "Modo desconocido (esto no debería pasar)."
+    exit 4
+    ;;
+esac
+
+# Actualizar comentario "# <nombre>" en wg0.conf si existe
+if [ -f "$CONF" ]; then
+  sed -i "s/^# ${OLD}\$/# ${NEW}/" "$CONF" || true
+fi
+
+echo "Renombrado: ${OLD} → ${NEW}"
 WG_IF="$IF" wg-list-peers || true

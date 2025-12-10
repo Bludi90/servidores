@@ -9350,3 +9350,31 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M state/main1/urls-proxy.md
 ?? scripts/cmd/portal-usage.sh
 ?? state/main1/2025-12-10_1800-state.md
+[main 13878ab] auto: snapshot main1 2025-12-10 18:00
+ 8 files changed, 437 insertions(+), 33 deletions(-)
+ create mode 100755 scripts/cmd/portal-usage.sh
+ create mode 100644 state/main1/2025-12-10_1800-state.md
+[2025-12-10 18:00:02] Commit creado: auto: snapshot main1 2025-12-10 18:00
+[2025-12-10 18:00:04] git push OK.
+[2025-12-10 18:00:04] === Fin commit-and-push ===
+[2025-12-10 19:00:01] === Inicio commit-and-push ===
+[2025-12-10 19:00:01] Cambios detectados:
+ M docker/portal/docker-compose.yml
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/ip.txt
+ M scripts/cmd/portal-usage.sh
+ M scripts/cmd/srv-portal-status
+ M scripts/cmd/wg-add-peer
+ M scripts/cmd/wg-del-peer
+ M scripts/cmd/wg-rename-peer
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? scripts/cmd/wg-add-peer.bak.2025-12-10_181140
+?? scripts/cmd/wg-del-peer.bak.2025-12-10_181140
+?? scripts/cmd/wg-migrate-clients
+?? scripts/cmd/wg-migrate-clients.bak.2025-12-10_184922
+?? scripts/cmd/wg-rename-peer.bak.2025-12-10_183936
+?? state/main1/2025-12-10_1900-state.md

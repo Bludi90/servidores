@@ -2,6 +2,15 @@
 set -euo pipefail
 
 # ==============================
+# Comprobación de permisos
+# ==============================
+
+if [[ "${EUID:-$(id -u)}" -ne 0 ]]; then
+  echo "Este script debe ejecutarse como root (usa sudo)." >&2
+  exit 1
+fi
+
+# ==============================
 # Configuración
 # ==============================
 
@@ -65,3 +74,6 @@ export LC_ALL=C
 
 # Movimiento atómico para no dejar archivos a medio escribir
 mv "$tmp" "$OUT"
+
+# Permisos: legible por cualquiera (el contenedor, el usuario alejandro, etc.)
+chmod 644 "$OUT"

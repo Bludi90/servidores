@@ -23,6 +23,9 @@ services:
       # Sólo lectura del árbol de /srv/storage por si algún widget lo necesita
       - /srv/storage:/srv/storage:ro
 
+      # JSON automático para el Homepage con información sobre el almacenamiento en: Jellyfin, Immich y Nextcloud
+      - /srv/storage/services/portal/data:/app/public/data:ro
+
     environment:
       PUID: 1000
       PGID: 1000

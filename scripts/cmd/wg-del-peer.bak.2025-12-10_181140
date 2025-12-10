@@ -2,22 +2,9 @@
 set -euo pipefail
 IF="${WG_IF:-wg0}"
 NAME="${1:-}"; [ -n "$NAME" ] || { echo "Uso: wg-del-peer <nombre>"; exit 1; }
-CONF="/etc/wireguard/${IF}.conf"
-
-CLIENT_ROOT="/etc/wireguard/clients"
-DIR_BASE="${CLIENT_ROOT}/${NAME}"        # esquema nuevo: carpeta
-FLAT_BASE="${CLIENT_ROOT}/${NAME}"       # esquema viejo: archivos planos
-
-if [ -f "${DIR_BASE}/${NAME}.pub" ]; then
-  BASE="${DIR_BASE}/${NAME}"
-elif [ -f "${FLAT_BASE}.pub" ]; then
-  BASE="${FLAT_BASE}"
-else
-  echo "No existe el peer ${NAME} en ${CLIENT_ROOT} (ni carpeta ni archivos planos)."
-  exit 2
-fi
-
-PUB="$(cat "${BASE}.pub")"
+CONF="/etc/wireguard/${IF}.conf"; BASE="/etc/wireguard/clients/${NAME}"
+[ -f "${BASE}.pub" ] || { echo "No existe el peer ${NAME}"; exit 2; }
+PUB="$(cat ${BASE}.pub)"
 
 wg set "$IF" peer "$PUB" remove || true
 cp -a "$CONF" "${CONF}.bak.$(date +%F_%H%M%S)"
@@ -33,10 +20,4 @@ awk -v pub="$PUB" '
 ' "$CONF" > "${CONF}.tmp" && mv "${CONF}.tmp" "$CONF"
 
 rm -f "${BASE}.key" "${BASE}.pub" "${BASE}.conf" "${BASE}.png" "${BASE}.qr.txt" || true
-
-# Si era esquema nuevo, intentar borrar la carpeta (si queda vacía)
-if [ -d "$DIR_BASE" ]; then
-  rmdir "$DIR_BASE" 2>/dev/null || true
-fi
-
 echo "Peer ${NAME} eliminado."
