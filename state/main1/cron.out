@@ -9608,3 +9608,26 @@ Escrito: /home/alejandro/servidores/state/main1/2025-12-10_2000-state.md
 ?? scripts/cmd/wg-list-peers.bak.2025-12-10_195715
 ?? scripts/cmd/wg-set-name
 ?? state/main1/2025-12-10_2000-state.md
+[main de7de3a] auto: snapshot main1 2025-12-10 20:00
+ 12 files changed, 539 insertions(+), 46 deletions(-)
+ create mode 100755 scripts/cmd/wg-list-peers
+ rename scripts/{wg-list-peers => cmd/wg-list-peers.bak.2025-12-10_195715} (100%)
+ create mode 100755 scripts/cmd/wg-set-name
+ create mode 100644 state/main1/2025-12-10_2000-state.md
+[2025-12-10 20:00:01] Commit creado: auto: snapshot main1 2025-12-10 20:00
+To github.com:Bludi90/servidores.git
+   75e95cf..de7de3a  main -> main
+[2025-12-10 20:00:03] git push OK.
+[2025-12-10 20:00:03] === Fin commit-and-push ===
+Escrito: /home/alejandro/servidores/state/main1/2025-12-10_2100-state.md
+[2025-12-10 21:00:01] === Inicio commit-and-push ===
+[2025-12-10 21:00:01] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M scripts/cmd/srv-portal-status
+ M scripts/cmd/wg-list-peers
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2025-12-10_2100-state.md

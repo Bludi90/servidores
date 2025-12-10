@@ -80,25 +80,22 @@ fi
 issues_summary="Todo OK"
 
 if [[ -n "$HEALTH_OUTPUT" ]]; then
-    # Buscamos líneas con [WARN] o [FAIL] en la salida de srv-health
-    mapfile -t ISSUE_LINES < <(grep -E '\[(WARN|FAIL)\]' <<<"$HEALTH_OUTPUT" || true)
-
+    # ...
     if ((${#ISSUE_LINES[@]} > 0)); then
-        labels=()
-        for line in "${ISSUE_LINES[@]}"; do
-            # Eliminamos todo hasta el primer "] " para quedarnos con el texto
-            stripped="${line#*] }"
-            labels+=("$stripped")
-        done
-        issues_summary="$(printf '%s; ' "${labels[@]}")"
-        issues_summary="${issues_summary%; }"
-
-        # Si hasta ahora estábamos en OK, pasamos a WARN
+        # ...
         if [[ "$status" == "OK" ]]; then
             status="WARN"
         fi
     fi
 fi
+
+# Representación amigable para el portal (semáforo con iconos)
+case "$status" in
+    OK)   status_display="🟢 OK" ;;
+    WARN) status_display="🟡 WARN" ;;
+    FAIL) status_display="🔴 FAIL" ;;
+    *)    status_display="$status" ;;
+esac
 
 generated_at="$(date --iso-8601=seconds)"
 
@@ -111,6 +108,7 @@ tmp="$(mktemp)"
     printf '{\n'
     printf '  "server_name": "%s",\n' "$SERVER_NAME"
     printf '  "status": "%s",\n' "$status"
+    printf '  "status_display": "%s",\n' "$status_display"
 
     if [[ "$zfs_percent" != "null" ]]; then
         printf '  "zfs_percent": %s,\n' "$zfs_percent"
