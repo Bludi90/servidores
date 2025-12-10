@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+arg="${1:-wg0}"
+
+# auto-elevación sin password
+if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
+  exec sudo -n /usr/bin/env bash "$0" "$@" || {
+    echo "ERROR: falta NOPASSWD para /bin/wg-list-peers" >&2
+    exit 1
+  }
+fi
+
+# ayuda rápida
+if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
+  cat <<'EOF'
+Uso:
+  wg-list-peers [IFACE|all]
+
+Muestra los peers de WireGuard en forma de tabla con alias (si existen),
+estado del último handshake y tráfico RX/TX en unidades humanas.
+
+Ejemplos:
+  wg-list-peers        # wg0 por defecto
+  wg-list-peers all    # todas las interfaces
+  wg-list-peers wg1    # solo wg1
+EOF
+  exit 0
+fi
+
+# interfaces a listar
+if [[ "$arg" == "all" ]]; then
+  mapfile -t IFACES < <(wg show interfaces 2>/dev/null | tr ' ' '\n' | awk 'NF && !seen[$0]++')
+else
+  IFACES=("$arg")
+fi
+
+# mapa opcional de nombres: /etc/wireguard/names.tsv  =>  "<pubkey>\t<Nombre>"
+declare -A NAME=()
+if [[ -r /etc/wireguard/names.tsv ]]; then
+  while IFS=$'\t' read -r k v; do
+    [[ -n "$k" && -n "$v" ]] && NAME["$k"]="$v"
+  done < <(grep -vE '^\s*(#|$)' /etc/wireguard/names.tsv || true)
+fi
+
+# formato de tabla
+FMT="%-5s │ %-22s │ %-18s │ %-16s │ %-22s │ %-6s │ %-10s │ %10s │ %10s\n"
+SEP="-----┼------------------------┼------------------┼----------------┼----------------------┼--------┼------------┼------------┼------------"
+
+# cabecera
+printf "$FMT" "IFACE" "NOMBRE" "IP" "PUBKEY(16)" "ENDPOINT" "ESTADO" "HS_ago" "RX" "TX"
+printf '%s\n' "$SEP"
+
+for i in "${IFACES[@]}"; do
+  ip link show "$i" &>/dev/null || { echo "Aviso: $i no está levantada."; continue; }
+
+  wg show "$i" dump | awk -v iface="$i" -v now="$(date +%s)" '
+    NR==1 {next} # línea de interfaz: saltar
+    {
+      pub=$1; ep=$3; ips=$4; hs=$5; rx=$6; tx=$7;
+      short=substr(pub,1,16);
+
+      # HS: calcular diferencia y texto "hace X"
+      if (hs==0) {
+        ago="—";
+        status="⚫";
+      } else {
+        d=now-hs;
+        if (d<60) ago=d "s";
+        else if (d<3600) {m=int(d/60); s=d%60; ago=m "m " s "s";}
+        else if (d<86400) {h=int(d/3600); m=int((d%3600)/60); ago=h "h " m "m";}
+        else {days=int(d/86400); h=int((d%86400)/3600); ago=days "d " h "h";}
+
+        if (d <= 600)        status="🟢";
+        else if (d <= 3600)  status="🟡";
+        else                 status="⚫";
+      }
+
+      rxh=human(rx);
+      txh=human(tx);
+
+      print iface "\t" pub "\t" short "\t" ips "\t" ep "\t" status "\t" ago "\t" rxh "\t" txh;
+    }
+
+    function human(n,   s, u) {
+      s = n + 0;
+      if (s <= 0) return "0B";
+      u = "B";
+      if (s >= 1024) {s/=1024; u="KiB";}
+      if (s >= 1024) {s/=1024; u="MiB";}
+      if (s >= 1024) {s/=1024; u="GiB";}
+      if (s >= 1024) {s/=1024; u="TiB";}
+      return sprintf("%.1f%s", s, u);
+    }
+  ' | while IFS=$'\t' read -r ifc pub short ips ep status ago rx tx; do
+        [[ "$ep" == "(none)" || -z "$ep" ]] && ep="-"
+
+        # alias: si no hay en names.tsv, usar IP como fallback
+        name="${NAME[$pub]:--}"
+        [[ "$name" = "-" && "$ips" != "-" ]] && name="${ips%%,*}"
+
+        printf "$FMT" "$ifc" "$name" "$ips" "$short" "$ep" "$status" "$ago" "$rx" "$tx"
+    done
+done

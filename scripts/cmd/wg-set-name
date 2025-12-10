@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# wg-set-name — asignar alias legible a un peer de WireGuard
+# Uso: sudo wg-set-name <peer> "<Alias con espacios si querés>"
+set -euo pipefail
+
+PEER="${1:-}"
+ALIAS="${2:-}"
+
+if [[ -z "$PEER" || -z "$ALIAS" ]]; then
+  echo "Uso: sudo wg-set-name <peer> \"Alias descriptivo\"" >&2
+  exit 1
+fi
+
+CLIENT_ROOT="/etc/wireguard/clients"
+
+PUB=""
+# Esquema nuevo: /etc/wireguard/clients/peer/peer.pub
+if [[ -f "${CLIENT_ROOT}/${PEER}/${PEER}.pub" ]]; then
+  PUB="$(<"${CLIENT_ROOT}/${PEER}/${PEER}.pub")"
+# Esquema viejo migrado: /etc/wireguard/clients/peer/peer_public.key
+elif [[ -f "${CLIENT_ROOT}/${PEER}/${PEER}_public.key" ]]; then
+  PUB="$(<"${CLIENT_ROOT}/${PEER}/${PEER}_public.key")"
+# Muy viejo: /etc/wireguard/clients/peer.pub (por si queda alguno)
+elif [[ -f "${CLIENT_ROOT}/${PEER}.pub" ]]; then
+  PUB="$(<"${CLIENT_ROOT}/${PEER}.pub")"
+else
+  echo "No encuentro clave pública para '${PEER}' en ${CLIENT_ROOT}" >&2
+  exit 2
+fi
+
+if [[ -z "$PUB" ]]; then
+  echo "La clave pública de '${PEER}' está vacía, algo raro pasó." >&2
+  exit 3
+fi
+
+NAMES="/etc/wireguard/names.tsv"
+TMP="${NAMES}.tmp.$$"
+
+# Asegurar que existe y solo root la puede leer/escribir
+touch "$NAMES"
+chmod 600 "$NAMES"
+
+# Quitar (si existe) la línea previa de este pubkey
+grep -Fv "${PUB}" "$NAMES" > "$TMP" || true
+
+# Añadir la nueva entrada "<pub>\t<Alias>"
+printf '%s\t%s\n' "$PUB" "$ALIAS" >> "$TMP"
+
+mv "$TMP" "$NAMES"
+
+echo "Alias asignado:"
+echo "  peer  : $PEER"
+echo "  pub   : ${PUB:0:16}..."
+echo "  alias : $ALIAS"
+echo
+echo "Puedes comprobarlo con: wg list-peers"
