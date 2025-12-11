@@ -13,7 +13,6 @@ status="UNKNOWN"
 HEALTH_OUTPUT=""
 
 if command -v srv-health >/dev/null 2>&1; then
-    # Guardamos salida y usamos el código de retorno para el estado base
     if HEALTH_OUTPUT="$(srv-health 2>&1)"; then
         status="OK"
     else
@@ -78,11 +77,27 @@ fi
 # 4. Incidencias a partir de srv-health
 # -------------------------------
 issues_summary="Todo OK"
+ISSUE_LINES=()
 
 if [[ -n "$HEALTH_OUTPUT" ]]; then
-    # ...
+    # Recorremos la salida línea a línea buscando [WARN] o [FAIL]
+    while IFS= read -r line; do
+        if [[ "$line" =~ \[(WARN|FAIL)\] ]]; then
+            ISSUE_LINES+=("$line")
+        fi
+    done <<< "$HEALTH_OUTPUT"
+
     if ((${#ISSUE_LINES[@]} > 0)); then
-        # ...
+        labels=()
+        for ln in "${ISSUE_LINES[@]}"; do
+            # Quitamos todo hasta el primer "] " para quedarnos con el texto
+            stripped="${ln#*] }"
+            labels+=("$stripped")
+        done
+        issues_summary="$(printf '%s; ' "${labels[@]}")"
+        issues_summary="${issues_summary%; }"
+
+        # Si hasta ahora estábamos en OK, pasamos a WARN
         if [[ "$status" == "OK" ]]; then
             status="WARN"
         fi
@@ -91,9 +106,9 @@ fi
 
 # Representación amigable para el portal (semáforo con iconos)
 case "$status" in
-    OK)   status_display="🟢 OK" ;;
-    WARN) status_display="🟡 WARN" ;;
-    FAIL) status_display="🔴 FAIL" ;;
+    OK)   status_display=$'🟢 OK' ;;
+    WARN) status_display=$'🟡 WARN' ;;
+    FAIL) status_display=$'🔴 FAIL' ;;
     *)    status_display="$status" ;;
 esac
 
