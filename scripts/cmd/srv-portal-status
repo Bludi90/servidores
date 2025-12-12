@@ -1,29 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
-umask 022    # los ficheros se crean como 644, legibles por nginx
 
 # Dónde escribe el JSON que usa portal.srv
 TARGET_JSON="/srv/storage/services/portal/data/status.json"
 
 SERVER_NAME="$(hostname -s 2>/dev/null || echo 'unknown')"
 
-# -------------------------------
-# 1. Estado global via srv-health
-# -------------------------------
+# --------------------------------
+# 1. Estado global (srv-health)
+# --------------------------------
 status="UNKNOWN"
-HEALTH_OUTPUT=""
 
 if command -v srv-health >/dev/null 2>&1; then
-    if HEALTH_OUTPUT="$(srv-health 2>&1)"; then
+    if srv-health --short >/dev/null 2>&1; then
         status="OK"
     else
         status="FAIL"
     fi
 fi
 
-# -------------------------------
+# --------------------------------
 # 2. ZFS (pool tank)
-# -------------------------------
+# --------------------------------
 zfs_percent="null"
 zfs_health="unknown"
 
@@ -49,9 +47,9 @@ if [[ "$zfs_health" != "ONLINE" && "$zfs_health" != "healthy" ]]; then
     fi
 fi
 
-# -------------------------------
+# --------------------------------
 # 3. Backups (log de restic)
-# -------------------------------
+# --------------------------------
 backup_policy="Copias automáticas 3 noches por semana; conservación semanal y mensual."
 last_backup="unknown"
 backup_status="unknown"
@@ -74,68 +72,90 @@ if [[ -f "$log_file" ]]; then
     fi
 fi
 
-# -------------------------------
-# 4. Incidencias a partir de srv-health
-# -------------------------------
-issues_summary="Todo OK"
-ISSUE_LINES=()
+# --------------------------------
+# 4. Tiempo (leer weather.json si existe)
+# --------------------------------
+weather_file="/srv/storage/services/portal/data/weather.json"
 
-if [[ -n "$HEALTH_OUTPUT" ]]; then
-    # Recorremos la salida línea a línea buscando [WARN] o [FAIL]
-    while IFS= read -r line; do
-        if [[ "$line" =~ \[(WARN|FAIL)\] ]]; then
-            ISSUE_LINES+=("$line")
-        fi
-    done <<< "$HEALTH_OUTPUT"
+temp_now_c=""
+temp_max_c=""
+temp_min_c=""
+rain_prob_pct=""
 
-    if ((${#ISSUE_LINES[@]} > 0)); then
-        labels=()
-        for ln in "${ISSUE_LINES[@]}"; do
-            # Quitamos todo hasta el primer "] " para quedarnos con el texto
-            stripped="${ln#*] }"
-            labels+=("$stripped")
-        done
-        issues_summary="$(printf '%s; ' "${labels[@]}")"
-        issues_summary="${issues_summary%; }"
+extract_number() {
+    local key="$1" file="$2"
+    sed -n 's/.*"'"$key"'":[^0-9-]*\([-0-9.][0-9.]*\).*/\1/p' "$file" | head -n1
+}
 
-        # Si hasta ahora estábamos en OK, pasamos a WARN
-        if [[ "$status" == "OK" ]]; then
-            status="WARN"
-        fi
-    fi
+if [[ -r "$weather_file" ]]; then
+    temp_now_c="$(extract_number temp_now_c "$weather_file" || true)"
+    temp_max_c="$(extract_number temp_max_c "$weather_file" || true)"
+    temp_min_c="$(extract_number temp_min_c "$weather_file" || true)"
+    rain_prob_pct="$(extract_number rain_prob_pct "$weather_file" || true)"
 fi
 
-# Representación amigable para el portal (semáforo con iconos)
-case "$status" in
-    OK)   status_display=$'🟢 OK' ;;
-    WARN) status_display=$'🟡 WARN' ;;
-    FAIL) status_display=$'🔴 FAIL' ;;
-    *)    status_display="$status" ;;
-esac
+# --------------------------------
+# 5. Resumen de incidencias
+# --------------------------------
+issues_summary="Todo OK"
+
+if [[ "$status" == "FAIL" ]]; then
+    issues_summary="Fallo detectado. Revisar srv-health."
+elif [[ "$status" == "WARN" ]]; then
+    issues_summary="Advertencias en srv-health. Revisar."
+fi
 
 generated_at="$(date --iso-8601=seconds)"
 
-# -------------------------------
-# 5. Generar JSON de forma atómica
-# -------------------------------
+# --------------------------------
+# 6. Generar JSON de forma atómica
+# --------------------------------
 tmp="$(mktemp)"
 
 {
     printf '{\n'
     printf '  "server_name": "%s",\n' "$SERVER_NAME"
     printf '  "status": "%s",\n' "$status"
-    printf '  "status_display": "%s",\n' "$status_display"
 
+    # ZFS
     if [[ "$zfs_percent" != "null" ]]; then
         printf '  "zfs_percent": %s,\n' "$zfs_percent"
     else
         printf '  "zfs_percent": null,\n'
     fi
-
     printf '  "zfs_health": "%s",\n' "$zfs_health"
+
+    # Backups
     printf '  "last_backup": "%s",\n' "$last_backup"
     printf '  "backup_status": "%s",\n' "$backup_status"
     printf '  "backup_policy": "%s",\n' "$backup_policy"
+
+    # Tiempo (si no hay datos, dejamos null)
+    if [[ -n "$temp_now_c" ]]; then
+        printf '  "temp_now_c": %s,\n' "$temp_now_c"
+    else
+        printf '  "temp_now_c": null,\n'
+    fi
+
+    if [[ -n "$temp_max_c" ]]; then
+        printf '  "temp_max_c": %s,\n' "$temp_max_c"
+    else
+        printf '  "temp_max_c": null,\n'
+    fi
+
+    if [[ -n "$temp_min_c" ]]; then
+        printf '  "temp_min_c": %s,\n' "$temp_min_c"
+    else
+        printf '  "temp_min_c": null,\n'
+    fi
+
+    if [[ -n "$rain_prob_pct" ]]; then
+        printf '  "rain_prob_pct": %s,\n' "$rain_prob_pct"
+    else
+        printf '  "rain_prob_pct": null,\n'
+    fi
+
+    # Resumen + marca de tiempo
     printf '  "issues_summary": "%s",\n' "$issues_summary"
     printf '  "generated_at": "%s"\n' "$generated_at"
     printf '}\n'

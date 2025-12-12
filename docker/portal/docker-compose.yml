@@ -20,6 +20,9 @@ services:
       # Iconos personalizados (jellyfin, immich, etc.)
       - /srv/storage/services/portal/assets/services:/app/public/icons:ro
 
+      # Imágenes de Fondo
+      - /srv/storage/services/portal/assets/wallpapers:/app/public/images
+
       # Sólo lectura del árbol de /srv/storage por si algún widget lo necesita
       - /srv/storage:/srv/storage:ro
 
