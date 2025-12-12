@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Forzar punto decimal (.) en vez de coma (,)
+export LC_ALL=C
+export LANG=C
+
+TARGET_JSON="/srv/storage/services/portal/data/resources.json"
+
+# -----------------------------
+# 1. CPU (% usado, media rápida)
+# -----------------------------
+read -r cpu_user1 cpu_nice1 cpu_system1 cpu_idle1 cpu_iowait1 cpu_irq1 cpu_softirq1 cpu_steal1 _ < <(
+    awk '/^cpu / {print $2,$3,$4,$5,$6,$7,$8,$9,$10}' /proc/stat
+)
+total1=$((cpu_user1+cpu_nice1+cpu_system1+cpu_idle1+cpu_iowait1+cpu_irq1+cpu_softirq1+cpu_steal1))
+
+sleep 0.5
+
+read -r cpu_user2 cpu_nice2 cpu_system2 cpu_idle2 cpu_iowait2 cpu_irq2 cpu_softirq2 cpu_steal2 _ < <(
+    awk '/^cpu / {print $2,$3,$4,$5,$6,$7,$8,$9,$10}' /proc/stat
+)
+total2=$((cpu_user2+cpu_nice2+cpu_system2+cpu_idle2+cpu_iowait2+cpu_irq2+cpu_softirq2+cpu_steal2))
+
+delta_total=$((total2 - total1))
+delta_idle=$((cpu_idle2 - cpu_idle1))
+
+cpu_percent=$(awk -v dt="$delta_total" -v di="$delta_idle" 'BEGIN {
+    if (dt <= 0) {print 0.0; exit}
+    printf "%.1f", (dt-di)*100.0/dt
+}')
+
+# -----------------------------
+# 2. RAM (% usada)
+# -----------------------------
+mem_total_kb=$(awk '/MemTotal:/ {print $2}' /proc/meminfo)
+mem_avail_kb=$(awk '/MemAvailable:/ {print $2}' /proc/meminfo)
+
+mem_percent=$(awk -v t="$mem_total_kb" -v a="$mem_avail_kb" 'BEGIN {
+    if (t <= 0) {print 0.0; exit}
+    printf "%.1f", (t-a)*100.0/t
+}')
+
+# -----------------------------
+# 3. ZFS (% ocupado, si existe)
+# -----------------------------
+zfs_capacity=$(zpool list -H -o capacity 2>/dev/null | head -n1 | tr -d '%')
+
+if [[ -z "${zfs_capacity:-}" ]]; then
+    zfs_field="null"
+else
+    # Lo dejamos como número entero, sin comillas
+    zfs_field="$zfs_capacity"
+fi
+
+# -----------------------------
+# 4. Generar JSON de forma atómica
+# -----------------------------
+generated_at=$(date --iso-8601=seconds)
+tmp="$(mktemp)"
+
+{
+    printf '{\n'
+    printf '  "cpu_percent": %.1f,\n' "$cpu_percent"
+    printf '  "mem_percent": %.1f,\n' "$mem_percent"
+
+    if [[ "$zfs_field" = "null" ]]; then
+        printf '  "zfs_percent": null,\n'
+    else
+        printf '  "zfs_percent": %s,\n' "$zfs_field"
+    fi
+
+    printf '  "generated_at": "%s"\n' "$generated_at"
+    printf '}\n'
+} > "$tmp"
+
+install -m 644 "$tmp" "$TARGET_JSON"
+rm -f "$tmp"

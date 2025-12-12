@@ -168,26 +168,26 @@ tmp="$(mktemp)"
     printf '  "backup_status": "%s",\n' "$backup_status"
     printf '  "backup_policy": "%s",\n' "$backup_policy"
 
-    # Tiempo (si no hay datos, dejamos null)
-    if [[ -n "$temp_now_c" ]]; then
+    # Tiempo (valores opcionales)
+    if [[ -n "${temp_now_c:-}" ]]; then
         printf '  "temp_now_c": %s,\n' "$temp_now_c"
     else
         printf '  "temp_now_c": null,\n'
     fi
 
-    if [[ -n "$temp_max_c" ]]; then
+    if [[ -n "${temp_max_c:-}" ]]; then
         printf '  "temp_max_c": %s,\n' "$temp_max_c"
     else
         printf '  "temp_max_c": null,\n'
     fi
 
-    if [[ -n "$temp_min_c" ]]; then
+    if [[ -n "${temp_min_c:-}" ]]; then
         printf '  "temp_min_c": %s,\n' "$temp_min_c"
     else
         printf '  "temp_min_c": null,\n'
     fi
 
-    if [[ -n "$rain_prob_pct" ]]; then
+    if [[ -n "${rain_prob_pct:-}" ]]; then
         printf '  "rain_prob_pct": %s,\n' "$rain_prob_pct"
     else
         printf '  "rain_prob_pct": null,\n'

@@ -44,9 +44,10 @@ if [[ -r /etc/wireguard/names.tsv ]]; then
 fi
 
 # formato de tabla
-# NOMBRE: dejamos hasta 22 caracteres visibles, pero ancho de 26 para que haya margen
-FMT="%-5s │ %-26.22s │ %-18s │ %-16s │ %-22s │ %-6s │ %-10s │ %10s │ %10s\n"
-SEP="-----┼--------------------------┼------------------┼----------------┼----------------------┼--------┼------------┼------------┼------------"
+# Tabla en ASCII puro para evitar problemas de ancho con caracteres Unicode
+# HS_ago: ancho 9; RX/TX: ancho 9, todo bien alineado a la derecha
+FMT="%-5s | %-24.24s | %-18s | %-16s | %-21s | %-6s | %-9s | %9s | %9s\n"
+SEP="------+--------------------------+--------------------+------------------+-----------------------+--------+-----------+-----------+--------------"
 
 # cabecera
 printf "$FMT" "IFACE" "NOMBRE" "IP" "PUBKEY(16)" "ENDPOINT" "EST" "HS_ago" "RX" "TX"
@@ -63,19 +64,19 @@ for i in "${IFACES[@]}"; do
 
       # HS: calcular diferencia y texto "hace X"
       if (hs==0) {
-	ago="—";
-  	status="NONE";
-      } else {
-        d=now-hs;
-        if (d<60)          ago=d "s";
-        else if (d<3600)   {m=int(d/60); s=d%60; ago=m "m " s "s";}
-        else if (d<86400)  {h=int(d/3600); m=int((d%3600)/60); ago=h "h " m "m";}
-        else               {days=int(d/86400); h=int((d%86400)/3600); ago=days "d " h "h";}
+        ago="-";
+        status="NONE";
+        } else {
+          d=now-hs;
+          if (d<60)          ago=d "s";
+          else if (d<3600)   {m=int(d/60); s=d%60; ago=m "m " s "s";}
+          else if (d<86400)  {h=int(d/3600); m=int((d%3600)/60); ago=h "h " m "m";}
+          else               {days=int(d/86400); h=int((d%86400)/3600); ago=days "d " h "h";}
 
-        if (d <= 600)        status="OK";    # hasta 10 min
-        else if (d <= 3600)  status="WARN";  # 10–60 min
-        else                 status="OLD";   # >60 min
-      }
+          if (d <= 600)        status="OK";    # hasta 10 min
+          else if (d <= 3600)  status="WARN";  # 10–60 min
+          else                 status="OLD";   # >60 min
+        }
 
       rxh=human(rx);
       txh=human(tx);
@@ -100,6 +101,9 @@ for i in "${IFACES[@]}"; do
         name="${NAME[$pub]:--}"
         [[ "$name" = "-" && "$ips" != "-" ]] && name="${ips%%,*}"
 
-        printf "$FMT" "$ifc" "$name" "$ips" "$short" "$ep" "$status" "$ago" "$rx" "$tx"
+        # Para la tabla, transliterar alias a ASCII (á->a, ó->o, –->-...) para que el ancho cuadre
+        name_ascii="$(printf '%s' "$name" | iconv -f UTF-8 -t ASCII//TRANSLIT 2>/dev/null || printf '%s' "$name")"
+
+        printf "$FMT" "$ifc" "$name_ascii" "$ips" "$short" "$ep" "$status" "$ago" "$rx" "$tx"
     done
 done
