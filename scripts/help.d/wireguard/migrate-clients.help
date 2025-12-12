@@ -1,0 +1,17 @@
+wireguard migrate-clients
+Binario real: wg-migrate-clients
+
+Uso:
+  wg-migrate-clients        # solo migración + backup .tar.gz
+  wg-migrate-clients --zip  # además crea ZIP cifrado interactivo
+
+Descripción:
+  Reorganiza los ficheros de clientes de WireGuard:
+
+   1) crea un backup de /etc/wireguard/clients/ en
+      /root/wireguard-clients-backup-<fecha>.tar.gz,
+   2) para cada peer con ficheros planos (clientX.conf/png/key/pub, etc.)
+      crea la carpeta /etc/wireguard/clients/<peer>/ y mueve ahí sus archivos.
+
+  Con --zip además genera un ZIP cifrado con todo /etc/wireguard/clients/,
+  pensado para copiarlo de forma segura al móvil u otro dispositivo.

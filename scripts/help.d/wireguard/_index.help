@@ -1,10 +1,13 @@
 WireGuard — CHEATSHEET (comandos personalizados)
 
-Objetivo: operaciones habituales sin exponer claves.
-Convención: IP/32 = IP interna WG del peer. Nombres ↔ IP/32 en scripts/wg-peers.byip
+Objetivo: gestionar peers sin editar wg0.conf ni tocar claves a mano.
+Convención: IP/32 = IP interna WG del peer. Alias ↔ clave pública en /etc/wireguard/names.tsv.
+Clientes: cada peer tiene su carpeta en /etc/wireguard/clients/<NOMBRE>/ con .conf, QR y claves.
 
 Subcomandos:
-  list-peers         → Lista peers con NOMBRE, IP/32, HS(min), RX/TX, estado (🟢/🟡/⚫)
-  add-peer <NOMBRE>  → Alta de peer nuevo (IP/32, claves, conf cliente, QR opcional)
-  del-peer <NOMBRE>  → Baja de peer (elimina su IP/32)
-  repair             → Repara wg0 (unidad, permisos, rutas)
+  list-peers               → Tabla con NOMBRE, IP/32, HS_ago, estado (OK/WARN/OLD/NONE) y RX/TX.
+  add-peer <NOMBRE>        → Alta de peer nuevo (IP libre + carpeta cliente + .conf + QR).
+  del-peer <NOMBRE>        → Baja de peer (wg0 + borra carpeta /etc/wireguard/clients/<NOMBRE>/).
+  set-name <peer> <alias>  → Asigna/actualiza alias legible en /etc/wireguard/names.tsv.
+  migrate-clients [--zip]  → Migra ficheros planos a carpetas y genera backup opcional.
+  repair                   → Diagnóstico/reparación básica de wg0 (servicio, rutas, ip_forward).

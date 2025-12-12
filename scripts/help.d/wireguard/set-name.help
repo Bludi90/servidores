@@ -1,0 +1,12 @@
+wireguard set-name
+Binario real: wg-set-name
+
+Uso:
+  wg-set-name <peer> "<Alias descriptivo>"
+
+Descripción:
+  Asigna o actualiza un alias para un peer de WireGuard:
+   - obtiene la clave pública del peer desde /etc/wireguard/clients/<peer>/,
+   - guarda el par <clave pública> ↔ <alias> en /etc/wireguard/names.tsv.
+
+  Los alias definidos aquí son los que aparecen en la columna NOMBRE de 'wg list-peers'.

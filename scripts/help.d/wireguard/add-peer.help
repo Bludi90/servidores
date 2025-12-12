@@ -1,14 +1,18 @@
 wireguard add-peer
+Binario real: wg-add-peer
+
 Uso:
-  wg-add-peer <NOMBRE> [--ip 10.8.0.X/32] [--qr] [--out ./client.conf]
+  wg-add-peer <NOMBRE> [AllowedIPs] [DNS]
 
 Descripción:
-  Da de alta un peer:
-   1) busca IP/32 libre (o usa --ip),
-   2) genera claves del cliente,
-   3) añade el peer a wg0 y recarga,
-   4) guarda el .conf del cliente (y QR si --qr).
+  Da de alta un peer en wg0:
+   1) calcula una IP/32 libre en la red del servidor (p.ej. 10.8.0.X/32),
+   2) genera las claves del cliente,
+   3) añade el peer a wg0.conf y aplica cambios,
+   4) crea /etc/wireguard/clients/<NOMBRE>/ con:
+        - <NOMBRE>.conf  (config del cliente con Endpoint, AllowedIPs y DNS),
+        - <NOMBRE>.png y <NOMBRE>.qr.txt  (QR del .conf).
 
-Archivos implicados:
-  scripts/wg-peers.byip         # mapeo IP/32 ↔ NOMBRE
-  /etc/wireguard/wg0.conf       # configuración del servidor (aplicación con wg-quick)
+Notas:
+  - AllowedIPs por defecto: 10.8.0.0/24,192.168.1.0/24
+  - DNS por defecto: 10.8.0.1 (IP del servidor por wg0)

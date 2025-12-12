@@ -2,10 +2,19 @@ wireguard list-peers
 Binario real: wg-list-peers (usable como 'wg list-peers')
 
 Uso:
-  wg list-peers [-h] [IFACE]     # ayuda con -h
-  wg list-peers                   # ejecuta listado
-  wg-peer-list [IFACE]            # alias (si existe)
+  wg list-peers [-h] [IFACE]
+  wg list-peers          # wg0 por defecto
+  wg list-peers all      # todas las interfaces
 
 Descripción:
-  Lista peers con NOMBRE, IP/32, minutos desde último HS, RX/TX y estado:
-   - 🟢 HS ≤ 10 min, 🟡 10–60 min, ⚫ > 60 min o sin HS.
+  Muestra una tabla con:
+    - NOMBRE (alias desde /etc/wireguard/names.tsv),
+    - IP/32 interna del peer,
+    - clave pública (16 primeros caracteres),
+    - endpoint, HS_ago y tráfico RX/TX en formato humano.
+
+  Estado (columna EST):
+    - OK   → HS ≤ 10 min
+    - WARN → 10–60 min
+    - OLD  → > 60 min
+    - NONE → sin handshake aún

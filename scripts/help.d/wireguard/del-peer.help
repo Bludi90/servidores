@@ -1,7 +1,13 @@
 wireguard del-peer
+Binario real: wg-del-peer
+
 Uso:
   wg-del-peer <NOMBRE>
 
 Descripción:
-  Da de baja un peer, quita su IP/32 y lo elimina del wg0.
-  Mantiene copia de seguridad del bloque eliminado.
+  Da de baja un peer:
+   - localiza su clave pública a partir de /etc/wireguard/clients/<NOMBRE>/,
+   - lo elimina de la interfaz wg0 y de /etc/wireguard/wg0.conf,
+   - borra la carpeta /etc/wireguard/clients/<NOMBRE>/ (conf, claves y QR).
+
+  Deja una copia de seguridad de wg0.conf con sufijo .bak.<fecha>.
