@@ -9,10 +9,12 @@ list_subcmds(){ ls "$H/$1"/*.help 2>/dev/null | xargs -I{} basename {} .help | s
 
 avail_wireguard(){
   case "${1:-}" in
-    list-peers) command -v wg-list-peers >/dev/null 2>&1 && echo "Sí ($(command -v wg-list-peers))" || echo "No";;
-    add-peer)   command -v wg-add-peer   >/dev/null 2>&1 && echo "Sí ($(command -v wg-add-peer))"   || echo "No";;
-    del-peer)   command -v wg-del-peer   >/dev/null 2>&1 && echo "Sí ($(command -v wg-del-peer))"   || echo "No";;
-    repair)     command -v wg-repair     >/dev/null 2>&1 && echo "Sí ($(command -v wg-repair))"     || echo "No";;
+    list-peers)		command -v wg-list-peers 	>/dev/null 2>&1 && echo "Sí ($(command -v wg-list-peers))" || echo "No";;
+    add-peer)          	command -v wg-add-peer   	>/dev/null 2>&1 && echo "Sí ($(command -v wg-add-peer))"   || echo "No";;
+    del-peer)		command -v wg-del-peer   	>/dev/null 2>&1 && echo "Sí ($(command -v wg-del-peer))"   || echo "No";;
+    migrate-clients)  	command -v wg-migrate-clients 	>/dev/null 2>&1 && echo "Sí ($(command -v wg-list-peers))" || echo "No";;
+    set-name)   	command -v wg-set-name   	>/dev/null 2>&1 && echo "Sí ($(command -v wg-list-peers))" || echo "No";;
+    repair)     	command -v wg-repair     	>/dev/null 2>&1 && echo "Sí ($(command -v wg-repair))"     || echo "No";;
     *) echo ""; ;;
   esac
 }
