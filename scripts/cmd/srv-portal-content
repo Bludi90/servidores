@@ -3,48 +3,105 @@ set -euo pipefail
 
 TARGET_JSON="/srv/storage/services/portal/data/content.json"
 
-# Rutas base (ajustá si hace falta)
+# Rutas base Jellyfin
 JELLY_MOVIES_DIR="/srv/storage/media/N_normal/peliculas"
 JELLY_SERIES_DIR="/srv/storage/media/N_normal/series"
-IMMICH_LIBRARY_DIR="/srv/storage/services/immich/library"  # ↩️ ajustá según tu docker-compose
 
-# --- helpers seguros ---
+# Rutas posibles de la librería de Immich en el host
+IMMICH_DIRS=(
+  "/srv/storage/services/immich/library"
+  "/srv/storage/services/immich/upload"
+  "/srv/storage/services/immich/photos"
+  "/srv/storage/media/C_critico/Immich"
+)
+
+# ---------- helpers ----------
+
+to_gib() {
+  local bytes="$1"
+  # Forzamos locale C para que use punto decimal en lugar de coma
+  LC_ALL=C awk -v b="$bytes" 'BEGIN { printf "%.1f", b / (1024*1024*1024) }'
+}
+
+size_bytes() {
+  local dir="$1"
+  if [[ -d "$dir" ]]; then
+    du -bs "$dir" 2>/dev/null | awk '{print $1}'
+  else
+    echo 0
+  fi
+}
+
+size_gib() {
+  local dir="$1"
+  local bytes
+  bytes="$(size_bytes "$dir")"
+  to_gib "$bytes"
+}
 
 count_dirs() {
-    local dir="$1"
-    if [[ -d "$dir" ]]; then
-        find "$dir" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l
-    else
-        echo 0
-    fi
+  local dir="$1"
+  if [[ -d "$dir" ]]; then
+    find "$dir" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l
+  else
+    echo 0
+  fi
 }
 
 count_photos() {
-    local dir="$1"
-    if [[ -d "$dir" ]]; then
-        find "$dir" -type f \
-            \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \
-               -iname '*.heic' -o -iname '*.heif' -o -iname '*.webp' \) \
-            2>/dev/null | wc -l
-    else
-        echo 0
+  local total=0
+  local d n
+  for d in "${IMMICH_DIRS[@]}"; do
+    if [[ -d "$d" ]]; then
+      n=$(find "$d" -type f \
+        \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \
+           -o -iname '*.heic' -o -iname '*.heif' -o -iname '*.webp' \) \
+        2>/dev/null | wc -l)
+      total=$((total + n))
     fi
+  done
+  echo "$total"
 }
+
+photos_size_gib() {
+  local total_bytes=0
+  local d b
+  for d in "${IMMICH_DIRS[@]}"; do
+    if [[ -d "$d" ]]; then
+      b="$(size_bytes "$d")"
+      total_bytes=$((total_bytes + b))
+    fi
+  done
+  to_gib "$total_bytes"
+}
+
+# ---------- cálculos ----------
 
 movies=$(count_dirs "$JELLY_MOVIES_DIR")
 series=$(count_dirs "$JELLY_SERIES_DIR")
-photos=$(count_photos "$IMMICH_LIBRARY_DIR")
+
+movies_gib=$(size_gib "$JELLY_MOVIES_DIR")
+series_gib=$(size_gib "$JELLY_SERIES_DIR")
+
+photos=$(count_photos)
+photos_gib=$(photos_size_gib)
+
 generated_at="$(date --iso-8601=seconds)"
+
+# ---------- JSON ----------
 
 tmp="$(mktemp)"
 
 {
-    printf '{\n'
-    printf '  "movies": %s,\n' "$movies"
-    printf '  "series": %s,\n' "$series"
-    printf '  "photos": %s,\n' "$photos"
-    printf '  "generated_at": "%s"\n' "$generated_at"
-    printf '}\n'
+  printf '{\n'
+  printf '  "movies": %s,\n' "$movies"
+  printf '  "movies_gib": %s,\n' "$movies_gib"
+  printf '  "series": %s,\n' "$series"
+  printf '  "series_gib": %s,\n' "$series_gib"
+  printf '  "photos": %s,\n' "$photos"
+  printf '  "photos_gib": %s,\n' "$photos_gib"
+  printf '  "generated_at": "%s"\n' "$generated_at"
+  printf '}\n'
 } >"$tmp"
 
 mv "$tmp" "$TARGET_JSON"

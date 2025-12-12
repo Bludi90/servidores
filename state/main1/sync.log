@@ -9840,3 +9840,21 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M state/main1/urls-proxy.md
 ?? scripts/cmd/srv-portal-content
 ?? state/main1/2025-12-12_0000-state.md
+[main ee3023d] auto: snapshot main1 2025-12-12 00:00
+ 9 files changed, 421 insertions(+), 13 deletions(-)
+ create mode 100755 scripts/cmd/srv-portal-content
+ create mode 100644 state/main1/2025-12-12_0000-state.md
+[2025-12-12 00:00:01] Commit creado: auto: snapshot main1 2025-12-12 00:00
+[2025-12-12 00:00:03] git push OK.
+[2025-12-12 00:00:03] === Fin commit-and-push ===
+[2025-12-12 01:00:02] === Inicio commit-and-push ===
+[2025-12-12 01:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M scripts/cmd/srv-portal-content
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2025-12-12_0100-state.md
