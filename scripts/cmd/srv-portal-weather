@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 022    # los ficheros se crean como 644, legibles por nginx
+
+TARGET_JSON="/srv/storage/services/portal/data/weather.json"
+
+# Coordenadas de Mallorca aprox.
+LAT="39.57"
+LON="2.65"
+
+# API de Open-Meteo: tiempo actual + previsión diaria de hoy
+API_URL="https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto"
+
+raw="$(curl -fsS "$API_URL")" || {
+  echo "ERROR: no se pudo obtener la previsión de Open-Meteo" >&2
+  exit 1
+}
+
+temp_now="$(jq '.current_weather.temperature' <<<"$raw")"
+tmax="$(jq '.daily.temperature_2m_max[0]' <<<"$raw")"
+tmin="$(jq '.daily.temperature_2m_min[0]' <<<"$raw")"
+rain_prob="$(jq '.daily.precipitation_probability_max[0]' <<<"$raw")"
+
+generated_at="$(date --iso-8601=seconds)"
+
+tmp="$(mktemp)"
+
+cat >"$tmp" <<EOF
+{
+  "temp_now_c": $temp_now,
+  "temp_max_c": $tmax,
+  "temp_min_c": $tmin,
+  "rain_prob_pct": $rain_prob,
+  "generated_at": "$generated_at"
+}
+EOF
+
+mv "$tmp" "$TARGET_JSON"

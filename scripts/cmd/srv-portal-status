@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+umask 022    # los ficheros se crean como 644, legibles por nginx
 
 # Dónde escribe el JSON que usa portal.srv
 TARGET_JSON="/srv/storage/services/portal/data/status.json"
