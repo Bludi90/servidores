@@ -40,6 +40,11 @@ services:
       HOMEPAGE_ALLOWED_HOSTS: "portal.srv,localhost,127.0.0.1"
       HOMEPAGE_BASE_URL: "https://portal.srv"
 
+    extra_hosts:
+      - "qbittorrent.internal:192.168.1.116"
+      - "radarr.internal:192.168.1.116"
+      - "pihole.internal:192.168.1.116"
+
   portal-api:
     image: nginx:alpine
     container_name: portal-api
