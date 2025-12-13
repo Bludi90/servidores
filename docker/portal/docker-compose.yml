@@ -6,9 +6,11 @@ services:
     container_name: homepage
     restart: unless-stopped
 
+    network_mode: host
+
     # Puerto que usará Caddy para llegar a Homepage
-    ports:
-      - "3000:3000"
+    # ports:
+    #  - "3000:3000"
 
     volumes:
       # Configuración de Homepage (settings.yaml, widgets.yaml, services.yaml…)
@@ -46,6 +48,11 @@ services:
     # Sirve directamente los JSON desde /srv/storage/services/portal/data
     volumes:
       - /srv/storage/services/portal/data:/usr/share/nginx/html:ro
+
+    # Además de 'expose', vamos a publicar un puerto del host
+    # para que homepage (que ahora está en host) pueda entrar.
+    ports:
+      - "3001:80"
 
     # Sólo hace falta que sea accesible desde otros contenedores del mismo stack
     expose:
