@@ -10511,3 +10511,14 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
 [2025-12-13 17:00:02] Commit creado: auto: snapshot main1 2025-12-13 17:00
 [2025-12-13 17:00:04] git push OK.
 [2025-12-13 17:00:04] === Fin commit-and-push ===
+[2025-12-13 18:00:02] === Inicio commit-and-push ===
+[2025-12-13 18:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zpool_list.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2025-12-13_1800-state.md
