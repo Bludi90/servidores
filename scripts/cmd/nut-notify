@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+EVENT="${1:-UNKNOWN}"
+UPS_NAME="${2:-cyberpower}"
+HOST="$(hostname -s)"
+
+# Secrets (no van en el repo)
+# Formato esperado:
+#   BOT_TOKEN=...
+#   CHAT_ID=...
+SECRETS="/etc/nut/telegram.env"
+if [[ -r "$SECRETS" ]]; then
+  # shellcheck disable=SC1091
+  source "$SECRETS"
+fi
+
+UPSC="/usr/bin/upsc"
+[[ -x "$UPSC" ]] || UPSC="upsc"
+
+# Datos del UPS (si responde)
+UPS_STATUS="$($UPSC "${UPS_NAME}@localhost" ups.status 2>/dev/null || true)"
+BATT_CHARGE="$($UPSC "${UPS_NAME}@localhost" battery.charge 2>/dev/null || true)"
+BATT_RUNTIME="$($UPSC "${UPS_NAME}@localhost" battery.runtime 2>/dev/null || true)"
+UPS_LOAD="$($UPSC "${UPS_NAME}@localhost" ups.load 2>/dev/null || true)"
+INPUT_VOLT="$($UPSC "${UPS_NAME}@localhost" input.voltage 2>/dev/null || true)"
+
+MSG="[UPS] ${HOST}: ${EVENT}"
+[[ -n "$UPS_STATUS" ]] && MSG="${MSG} | status=${UPS_STATUS}"
+[[ -n "$BATT_CHARGE" ]] && MSG="${MSG} | batt=${BATT_CHARGE}%"
+[[ -n "$BATT_RUNTIME" ]] && MSG="${MSG} | runtime=${BATT_RUNTIME}s"
+[[ -n "$UPS_LOAD" ]] && MSG="${MSG} | load=${UPS_LOAD}%"
+[[ -n "$INPUT_VOLT" ]] && MSG="${MSG} | in=${INPUT_VOLT}V"
+
+logger -t nut-notify -- "$MSG"
+
+# Telegram (si está configurado)
+if [[ -n "${BOT_TOKEN:-}" && -n "${CHAT_ID:-}" && "${BOT_TOKEN}" != "CAMBIA_ESTO" ]]; then
+  curl -fsS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+    -d "chat_id=${CHAT_ID}" \
+    --data-urlencode "text=${MSG}" \
+    >/dev/null || true
+fi
