@@ -6,6 +6,9 @@ services:
     container_name: homepage
     restart: unless-stopped
 
+    networks:
+      - default
+      - media_net
     # network_mode: host
 
     # Regla DNS configurada en PiHole
@@ -65,3 +68,8 @@ services:
     # Sólo hace falta que sea accesible desde otros contenedores del mismo stack
     expose:
       - "80"
+
+networks:
+  media_net:
+    external: true
+    name: media_media
