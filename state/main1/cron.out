@@ -11305,3 +11305,25 @@ Escrito: /home/alejandro/servidores/state/main1/2025-12-14_1300-state.md
  M state/main1/urls-proxy.md
 ?? scripts/cmd/nut-notify
 ?? state/main1/2025-12-14_1300-state.md
+[main d7efa23] auto: snapshot main1 2025-12-14 13:00
+ 13 files changed, 432 insertions(+), 28 deletions(-)
+ create mode 100755 scripts/cmd/nut-notify
+ create mode 100644 state/main1/2025-12-14_1300-state.md
+[2025-12-14 13:00:02] Commit creado: auto: snapshot main1 2025-12-14 13:00
+To github.com:Bludi90/servidores.git
+   651ff93..d7efa23  main -> main
+[2025-12-14 13:00:04] git push OK.
+[2025-12-14 13:00:04] === Fin commit-and-push ===
+Escrito: /home/alejandro/servidores/state/main1/2025-12-14_1400-state.md
+[2025-12-14 14:00:01] === Inicio commit-and-push ===
+[2025-12-14 14:00:01] Cambios detectados:
+ M docker/portal/docker-compose.yml
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M scripts/cmd/nut-notify
+ M scripts/install-commands.sh
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2025-12-14_1400-state.md

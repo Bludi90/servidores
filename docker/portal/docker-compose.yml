@@ -8,6 +8,10 @@ services:
 
     # network_mode: host
 
+    # Regla DNS configurada en PiHole
+    #dns:
+    #  - 10.8.0.1
+
     # Puerto que usará Caddy para llegar a Homepage
     ports:
       - "3000:3000"
@@ -41,10 +45,8 @@ services:
       HOMEPAGE_BASE_URL: "https://portal.srv"
 
     extra_hosts:
-      - "qbittorrent.internal:192.168.1.116"
-      - "radarr.internal:192.168.1.116"
-      - "pihole.internal:192.168.1.116"
-      - "host.docker.interal:host-gateway"
+      - "main1.srv:host-gateway"
+      - "host.docker.internal:host-gateway"
 
   portal-api:
     image: nginx:alpine

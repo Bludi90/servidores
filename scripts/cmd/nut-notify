@@ -36,7 +36,7 @@ logger -t nut-notify -- "$MSG"
 
 # Telegram (si está configurado)
 if [[ -n "${BOT_TOKEN:-}" && -n "${CHAT_ID:-}" && "${BOT_TOKEN}" != "CAMBIA_ESTO" ]]; then
-  curl -fsS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+  curl -fsS -X POST "https://api.telegram.org/bot${BOT_TOKEN#bot}/sendMessage" \
     -d "chat_id=${CHAT_ID}" \
     --data-urlencode "text=${MSG}" \
     >/dev/null || true

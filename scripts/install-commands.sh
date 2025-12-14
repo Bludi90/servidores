@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Directorio raíz del repo (scripts/ → repo)
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 BIN_DIR="/usr/local/bin"
@@ -29,6 +28,9 @@ if [[ -d "$REPO_DIR/scripts/cmd" ]]; then
     [[ -f "$f" && -x "$f" ]] || continue
     cmd="$(basename "$f")"
 
+    # Evitar instalar backups accidentales si están marcados como ejecutables
+    [[ "$cmd" == *.bak.* || "$cmd" == *.bak ]] && continue
+
     if is_in_list "$cmd" "${SBIN_CMDS[@]}"; then
       target="$SBIN_DIR/$cmd"
       rm -f "$BIN_DIR/$cmd" 2>/dev/null || true
@@ -41,7 +43,13 @@ if [[ -d "$REPO_DIR/scripts/cmd" ]]; then
       echo "  [*] Reemplazando $target"
       rm -f "$target"
     fi
-    ln -s "$f" "$target"
+
+    if is_in_list "$cmd" "${SBIN_CMDS[@]}"; then
+      install -m 755 -o root -g root "$f" "$target"
+    else
+      ln -s "$f" "$target"
+    fi
+
     echo "  [+] $cmd -> $target"
   done
 fi
@@ -50,14 +58,13 @@ fi
 for name in srv-health-weekly smart-weekly-report; do
   f="$REPO_DIR/scripts/$name"
   if [[ -f "$f" && -x "$f" ]]; then
-    cmd="$name"
-    target="$SBIN_DIR/$cmd"
+    target="$SBIN_DIR/$name"
     if [[ -L "$target" || -f "$target" ]]; then
       echo "  [*] Reemplazando $target"
       rm -f "$target"
     fi
     ln -s "$f" "$target"
-    echo "  [+] $cmd -> $target"
+    echo "  [+] $name -> $target"
   fi
 done
 
