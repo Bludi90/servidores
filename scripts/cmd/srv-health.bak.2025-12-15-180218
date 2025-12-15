@@ -133,63 +133,56 @@ for unit in "${CRIT_UNITS[@]}"; do
   fi
 done
 
-# ---------------- UPS (NUT) ----------------
+# ---------------- UPS (NUT) - SAI ------------------
+
 section "UPS (NUT)"
 
-UPS_REF="cyberpower@127.0.0.1"
+UPS_NAME="cyberpower@127.0.0.1"
 
-nut_driver="inactive"
-systemctl --no-pager --quiet is-active nut-driver@cyberpower.service 2>/dev/null && nut_driver="active"
+# Servicios NUT (solo para componer el mensaje)
+drv="inactive"; srv="inactive"; mon="inactive"
+systemctl --no-pager --quiet is-active nut-driver@cyberpower.service 2>/dev/null && drv="active"
+systemctl --no-pager --quiet is-active nut-server.service            2>/dev/null && srv="active"
+systemctl --no-pager --quiet is-active nut-monitor.service           2>/dev/null && mon="active"
 
-nut_server="inactive"
-systemctl --no-pager --quiet is-active nut-server.service 2>/dev/null && nut_server="active"
-
-nut_monitor="inactive"
-systemctl --no-pager --quiet is-active nut-monitor.service 2>/dev/null && nut_monitor="active"
-
-armed="NOT ARMED"
+armed="NOT_ARMED"
 [[ -f /etc/nut/enable-shutdown ]] && armed="ARMED"
 
-ups_level="OK"
-
-# Servicios NUT: si algo no está active, WARN
-if [[ "$nut_driver" != "active" || "$nut_server" != "active" || "$nut_monitor" != "active" ]]; then
-  ups_level="WARN"
-fi
-
-# Armado: si no está armado, WARN (en producción lo querés ARMED)
-if [[ "$armed" != "ARMED" ]]; then
-  ups_level="WARN"
-fi
-
-if command -v upsc >/dev/null 2>&1 && upsc "$UPS_REF" ups.status >/dev/null 2>&1; then
-  ups_status="$(upsc "$UPS_REF" ups.status 2>/dev/null | tr -d '\r')"
-  batt_charge="$(upsc "$UPS_REF" battery.charge 2>/dev/null | tr -d '\r' || true)"
-  batt_runtime="$(upsc "$UPS_REF" battery.runtime 2>/dev/null | tr -d '\r' || true)"
-  ups_load="$(upsc "$UPS_REF" ups.load 2>/dev/null | tr -d '\r' || true)"
-  input_v="$(upsc "$UPS_REF" input.voltage 2>/dev/null | tr -d '\r' || true)"
-
-  # Estado eléctrico: en batería => WARN; FSD/LOWBATT => FAIL
-  if [[ "$ups_status" == *FSD* || "$ups_status" == *LB* || "$ups_status" == *LOWBATT* ]]; then
-    ups_level="FAIL"
-  elif [[ "$ups_status" == *OB* || "$ups_status" == *DISCHRG* ]]; then
-    [[ "$ups_level" == "OK" ]] && ups_level="WARN"
+# Lectura UPS (resumen)
+upsc_ok=0
+ups_status="UNKNOWN"; batt="?"; runtime="?"; load="?"; vin="?"
+if command -v upsc >/dev/null 2>&1; then
+  if upsc "$UPS_NAME" ups.status >/dev/null 2>&1; then
+    upsc_ok=1
+    ups_status="$(upsc "$UPS_NAME" ups.status 2>/dev/null | tr -d '\r')"
+    batt="$(upsc "$UPS_NAME" battery.charge 2>/dev/null | tr -d '\r')"
+    runtime="$(upsc "$UPS_NAME" battery.runtime 2>/dev/null | tr -d '\r')"
+    load="$(upsc "$UPS_NAME" ups.load 2>/dev/null | tr -d '\r')"
+    vin="$(upsc "$UPS_NAME" input.voltage 2>/dev/null | tr -d '\r')"
   fi
-
-  msg="UPS: ${armed} | status=${ups_status} | batt=${batt_charge}% | runtime=${batt_runtime}s | load=${ups_load}% | in=${input_v}V | nut(driver=${nut_driver} server=${nut_server} monitor=${nut_monitor})"
-else
-  ups_level="FAIL"
-  msg="UPS: ${armed} | upsc: FAIL (${UPS_REF} no responde) | nut(driver=${nut_driver} server=${nut_server} monitor=${nut_monitor})"
 fi
 
-status_line "$ups_level" "$msg"
+UPS_LEVEL="OK"
 
-# Último evento: solo si hay WARN/FAIL (y no estás en --short)
-if [[ "$SHORT" -eq 0 && "$ups_level" != "OK" ]]; then
-  last="$(journalctl -t nut-notify -n 1 --no-pager 2>/dev/null \
-    | sed -E 's/^.*nut-notify\[[0-9]+\]: //; s/^\[UPS\] [^:]+: //')"
-  [[ -n "$last" ]] && echo "      last: $last"
+# Si faltan servicios o no responde upsc => FAIL
+if [[ "$drv" != "active" || "$srv" != "active" || "$mon" != "active" || "$upsc_ok" -ne 1 ]]; then
+  UPS_LEVEL="FAIL"
 fi
+
+# En batería => WARN; si LB/FSD => FAIL
+if [[ "$ups_status" == *"OB"* ]]; then UPS_LEVEL="WARN"; fi
+if [[ "$ups_status" == *"LB"* || "$ups_status" == *"FSD"* ]]; then UPS_LEVEL="FAIL"; fi
+
+# No armado en producción => WARN (si lo demás está OK)
+if [[ "$armed" != "ARMED" && "$UPS_LEVEL" == "OK" ]]; then
+  UPS_LEVEL="WARN"
+fi
+
+status_line "$UPS_LEVEL" "UPS: $armed | status=$ups_status | batt=${batt}% | runtime=${runtime}s | load=${load}% | in=${vin}V | nut(driver=$drv server=$srv monitor=$mon)"
+
+# Último evento útil (no contable)
+last_notify="$(journalctl -t nut-notify -n 30 --no-pager 2>/dev/null | grep -v '^-- Boot' | tail -n 1 | sed 's/^.*: //')"
+[[ -n "$last_notify" ]] && echo "      last: $last_notify"
 
 # ---------------- WireGuard ----------------
 section "WireGuard (wg0)"
@@ -252,90 +245,48 @@ fi
 # ---------------- DNS (Pi-hole + Unbound) ----------------
 section "DNS (Pi-hole + Unbound)"
 
-PIHOLE_CONT="pihole-pihole-1"
-UNBOUND_CONT="unbound-unbound-1"
-DNS_NAME="google.es"
-PIHOLE_SERVER="10.8.0.1"
+if command -v docker >/dev/null 2>&1 && command -v nslookup >/dev/null 2>&1; then
+  PIHOLE_CONT="pihole-pihole-1"
+  UNBOUND_CONT="unbound-unbound-1"
 
-pihole_stat="$(docker ps --filter "name=^/${PIHOLE_CONT}$" --format '{{.Status}}' 2>/dev/null | head -n1)"
-unbound_stat="$(docker ps --filter "name=^/${UNBOUND_CONT}$" --format '{{.Status}}' 2>/dev/null | head -n1)"
-
-unbound_ip="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$UNBOUND_CONT" 2>/dev/null | awk '{print $1}')"
-[[ -n "$unbound_ip" ]] || unbound_ip="172.18.0.2"
-
-dns_query_ok() {
-  local server="$1" name="$2"
-  if command -v dig >/dev/null 2>&1; then
-    timeout 2 dig +time=1 +tries=1 @"$server" "$name" A +short 2>/dev/null \
-      | head -n1 | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'
+  # Estado de Pi-hole
+  PIHOLE_LINE="$(docker ps --format '{{.Names}} {{.Status}}' 2>/dev/null | awk '$1=="'"$PIHOLE_CONT"'"{$1=""; sub(/^ /," "); print}' || true)"
+  if [ -z "$PIHOLE_LINE" ]; then
+    status_line WARN "Pi-hole: contenedor ${PIHOLE_CONT} no está en ejecución"
+  elif echo "$PIHOLE_LINE" | grep -qi "healthy"; then
+    status_line OK "Pi-hole: ${PIHOLE_CONT} (${PIHOLE_LINE})"
   else
-    timeout 2 nslookup "$name" "$server" 2>/dev/null \
-      | awk 'BEGIN{ok=0} /^Address: / { if ($2 !~ /#53$/) ok=1 } END{ exit ok?0:1 }'
+    status_line WARN "Pi-hole: ${PIHOLE_CONT} estado = ${PIHOLE_LINE}"
   fi
-}
 
-pihole_dns_ok=0
-dns_query_ok "$PIHOLE_SERVER" "$DNS_NAME" && pihole_dns_ok=1
+  # Estado de Unbound
+  UNBOUND_LINE="$(docker ps --format '{{.Names}} {{.Status}}' 2>/dev/null | awk '$1=="'"$UNBOUND_CONT"'"{$1=""; sub(/^ /," "); print}' || true)"
+  if [ -z "$UNBOUND_LINE" ]; then
+    status_line WARN "Unbound: contenedor ${UNBOUND_CONT} no está en ejecución"
+  elif echo "$UNBOUND_LINE" | grep -qi "healthy"; then
+    status_line OK "Unbound: ${UNBOUND_CONT} (${UNBOUND_LINE})"
+  else
+    status_line WARN "Unbound: ${UNBOUND_CONT} estado = ${UNBOUND_LINE}"
+  fi
 
-unbound_dns_ok=0
-dns_query_ok "$unbound_ip" "$DNS_NAME" && unbound_dns_ok=1
+  # Test DNS Pi-hole (10.8.0.1)
+  if timeout 3 nslookup google.es 10.8.0.1 >/dev/null 2>&1; then
+    status_line OK "DNS Pi-hole: 10.8.0.1 responde para google.es"
+  else
+    status_line WARN "DNS Pi-hole: 10.8.0.1 NO responde correctamente (nslookup google.es)"
+  fi
 
-pihole_starting=0
-if [[ -n "$pihole_stat" && "$pihole_stat" == *"(health: starting)"* ]]; then
-  pihole_starting=1
-fi
-
-# Línea estado Pi-hole (sin WARN si ya resuelve)
-if [[ -z "$pihole_stat" ]]; then
-  status_line FAIL "Pi-hole: ${PIHOLE_CONT} no está corriendo"
-else
-  if [[ "$pihole_stat" == *"(healthy)"* ]]; then
-    status_line OK "Pi-hole: ${PIHOLE_CONT} ( ${pihole_stat} )"
-  elif [[ "$pihole_stat" == *"(health: starting)"* ]]; then
-    if [[ "$pihole_dns_ok" -eq 1 ]]; then
-      status_line OK "Pi-hole: ${PIHOLE_CONT} ( ${pihole_stat}, DNS OK )"
+  # Test DNS Unbound directo
+  UNBOUND_IP="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$UNBOUND_CONT" 2>/dev/null || echo "")"
+  if [ -n "$UNBOUND_IP" ]; then
+    if timeout 3 nslookup google.es "$UNBOUND_IP" >/dev/null 2>&1; then
+      status_line OK "DNS Unbound: ${UNBOUND_IP} responde para google.es"
     else
-      status_line WARN "Pi-hole: ${PIHOLE_CONT} ( ${pihole_stat} )"
+      status_line WARN "DNS Unbound: ${UNBOUND_IP} NO responde correctamente (nslookup google.es)"
     fi
-  elif [[ "$pihole_stat" == *"unhealthy"* ]]; then
-    status_line WARN "Pi-hole: ${PIHOLE_CONT} ( ${pihole_stat} )"
-  else
-    status_line OK "Pi-hole: ${PIHOLE_CONT} ( ${pihole_stat} )"
   fi
-fi
-
-# Línea estado Unbound
-if [[ -z "$unbound_stat" ]]; then
-  status_line FAIL "Unbound: ${UNBOUND_CONT} no está corriendo"
 else
-  if [[ "$unbound_stat" == *"(healthy)"* ]]; then
-    status_line OK "Unbound: ${UNBOUND_CONT} ( ${unbound_stat} )"
-  elif [[ "$unbound_stat" == *"(health: starting)"* ]]; then
-    if [[ "$unbound_dns_ok" -eq 1 ]]; then
-      status_line OK "Unbound: ${UNBOUND_CONT} ( ${unbound_stat}, DNS OK )"
-    else
-      status_line WARN "Unbound: ${UNBOUND_CONT} ( ${unbound_stat} )"
-    fi
-  else
-    status_line WARN "Unbound: ${UNBOUND_CONT} ( ${unbound_stat} )"
-  fi
-fi
-
-# Tests DNS
-if [[ "$pihole_dns_ok" -eq 1 ]]; then
-  status_line OK "DNS Pi-hole: ${PIHOLE_SERVER} responde para ${DNS_NAME}"
-else
-  if [[ "$pihole_starting" -eq 1 ]]; then
-    status_line WARN "DNS Pi-hole: ${PIHOLE_SERVER} aún no responde (arrancando)"
-  else
-    status_line FAIL "DNS Pi-hole: ${PIHOLE_SERVER} no responde para ${DNS_NAME}"
-  fi
-fi
-
-if [[ "$unbound_dns_ok" -eq 1 ]]; then
-  status_line OK "DNS Unbound: ${unbound_ip} responde para ${DNS_NAME}"
-else
-  status_line FAIL "DNS Unbound: ${unbound_ip} no responde para ${DNS_NAME}"
+  status_line WARN "DNS: no se pudieron probar Pi-hole/Unbound (faltan docker o nslookup)"
 fi
 
 # ---------------- Systemd: unidades fallidas ----------------
