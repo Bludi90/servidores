@@ -135,36 +135,54 @@ done
 
 # ---------------- UPS (NUT) - SAI ------------------
 
-echo ""
-echo "=== UPS (NUT) ==="
+section "UPS (NUT)"
 
-# Estado servicios NUT
-systemctl --no-pager --quiet is-active nut-driver@cyberpower.service 2>/dev/null && echo "nut-driver@cyberpower: active" || echo "nut-driver@cyberpower: NOT active"
-systemctl --no-pager --quiet is-active nut-server.service 2>/dev/null && echo "nut-server: active" || echo "nut-server: NOT active"
-systemctl --no-pager --quiet is-active nut-monitor.service 2>/dev/null && echo "nut-monitor: active" || echo "nut-monitor: NOT active"
+UPS_NAME="cyberpower@127.0.0.1"
 
-# Armado / desarmado para apagado real
-if [[ -f /etc/nut/enable-shutdown ]]; then
-  echo "shutdown: ARMED (/etc/nut/enable-shutdown present)"
-else
-  echo "shutdown: NOT ARMED (missing /etc/nut/enable-shutdown)"
-fi
+# Servicios NUT (solo para componer el mensaje)
+drv="inactive"; srv="inactive"; mon="inactive"
+systemctl --no-pager --quiet is-active nut-driver@cyberpower.service 2>/dev/null && drv="active"
+systemctl --no-pager --quiet is-active nut-server.service            2>/dev/null && srv="active"
+systemctl --no-pager --quiet is-active nut-monitor.service           2>/dev/null && mon="active"
 
-# Lectura rápida del UPS
+armed="NOT_ARMED"
+[[ -f /etc/nut/enable-shutdown ]] && armed="ARMED"
+
+# Lectura UPS (resumen)
+upsc_ok=0
+ups_status="UNKNOWN"; batt="?"; runtime="?"; load="?"; vin="?"
 if command -v upsc >/dev/null 2>&1; then
-  if upsc cyberpower@127.0.0.1 ups.status >/dev/null 2>&1; then
-    upsc cyberpower@127.0.0.1 2>/dev/null | egrep -i '^(ups\.status|battery\.charge|battery\.runtime|ups\.load|input\.voltage):' || true
-  else
-    echo "upsc: FAIL (cyberpower@127.0.0.1 not responding)"
+  if upsc "$UPS_NAME" ups.status >/dev/null 2>&1; then
+    upsc_ok=1
+    ups_status="$(upsc "$UPS_NAME" ups.status 2>/dev/null | tr -d '\r')"
+    batt="$(upsc "$UPS_NAME" battery.charge 2>/dev/null | tr -d '\r')"
+    runtime="$(upsc "$UPS_NAME" battery.runtime 2>/dev/null | tr -d '\r')"
+    load="$(upsc "$UPS_NAME" ups.load 2>/dev/null | tr -d '\r')"
+    vin="$(upsc "$UPS_NAME" input.voltage 2>/dev/null | tr -d '\r')"
   fi
-else
-  echo "upsc: missing"
 fi
 
-# Últimos eventos relevantes (sin spamear)
-journalctl -t nut-upssched -n 5 --no-pager 2>/dev/null | sed 's/^/nut-upssched: /' || true
-journalctl -t nut-notify   -n 5 --no-pager 2>/dev/null | sed 's/^/nut-notify:   /' || true
+UPS_LEVEL="OK"
 
+# Si faltan servicios o no responde upsc => FAIL
+if [[ "$drv" != "active" || "$srv" != "active" || "$mon" != "active" || "$upsc_ok" -ne 1 ]]; then
+  UPS_LEVEL="FAIL"
+fi
+
+# En batería => WARN; si LB/FSD => FAIL
+if [[ "$ups_status" == *"OB"* ]]; then UPS_LEVEL="WARN"; fi
+if [[ "$ups_status" == *"LB"* || "$ups_status" == *"FSD"* ]]; then UPS_LEVEL="FAIL"; fi
+
+# No armado en producción => WARN (si lo demás está OK)
+if [[ "$armed" != "ARMED" && "$UPS_LEVEL" == "OK" ]]; then
+  UPS_LEVEL="WARN"
+fi
+
+status_line "$UPS_LEVEL" "UPS: $armed | status=$ups_status | batt=${batt}% | runtime=${runtime}s | load=${load}% | in=${vin}V | nut(driver=$drv server=$srv monitor=$mon)"
+
+# Último evento útil (no contable)
+last_notify="$(journalctl -t nut-notify -n 30 --no-pager 2>/dev/null | grep -v '^-- Boot' | tail -n 1 | sed 's/^.*: //')"
+[[ -n "$last_notify" ]] && echo "      last: $last_notify"
 
 # ---------------- WireGuard ----------------
 section "WireGuard (wg0)"
