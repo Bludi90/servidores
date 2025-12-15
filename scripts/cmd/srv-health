@@ -133,6 +133,39 @@ for unit in "${CRIT_UNITS[@]}"; do
   fi
 done
 
+# ---------------- UPS (NUT) - SAI ------------------
+
+echo ""
+echo "=== UPS (NUT) ==="
+
+# Estado servicios NUT
+systemctl --no-pager --quiet is-active nut-driver@cyberpower.service 2>/dev/null && echo "nut-driver@cyberpower: active" || echo "nut-driver@cyberpower: NOT active"
+systemctl --no-pager --quiet is-active nut-server.service 2>/dev/null && echo "nut-server: active" || echo "nut-server: NOT active"
+systemctl --no-pager --quiet is-active nut-monitor.service 2>/dev/null && echo "nut-monitor: active" || echo "nut-monitor: NOT active"
+
+# Armado / desarmado para apagado real
+if [[ -f /etc/nut/enable-shutdown ]]; then
+  echo "shutdown: ARMED (/etc/nut/enable-shutdown present)"
+else
+  echo "shutdown: NOT ARMED (missing /etc/nut/enable-shutdown)"
+fi
+
+# Lectura rápida del UPS
+if command -v upsc >/dev/null 2>&1; then
+  if upsc cyberpower@127.0.0.1 ups.status >/dev/null 2>&1; then
+    upsc cyberpower@127.0.0.1 2>/dev/null | egrep -i '^(ups\.status|battery\.charge|battery\.runtime|ups\.load|input\.voltage):' || true
+  else
+    echo "upsc: FAIL (cyberpower@127.0.0.1 not responding)"
+  fi
+else
+  echo "upsc: missing"
+fi
+
+# Últimos eventos relevantes (sin spamear)
+journalctl -t nut-upssched -n 5 --no-pager 2>/dev/null | sed 's/^/nut-upssched: /' || true
+journalctl -t nut-notify   -n 5 --no-pager 2>/dev/null | sed 's/^/nut-notify:   /' || true
+
+
 # ---------------- WireGuard ----------------
 section "WireGuard (wg0)"
 
