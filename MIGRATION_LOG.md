@@ -53,3 +53,30 @@
   - En el contenedor `big-bear-nextcloud-ls`:
     - Actualizada la lista de `trusted_domains` para incluir `nextcloud.srv` vía `occ`.
     - Verificado que ya no aparece aviso de dominio no confiable.
+
+2025-12-11 – Despliegue de Immich (backup de fotos del móvil)
+
+- Instalado y configurado Immich en main1 como servicio Docker, accesible únicamente desde la LAN/VPN.
+- Creado usuario principal y verificada la conexión desde la app móvil oficial (Android) apuntando al servidor self-hosted.
+- Configurada la copia de seguridad automática de fotos y vídeos del móvil: subida solo por Wi-Fi y preferentemente cuando el dispositivo está cargando.
+- Organizados los álbumes de WhatsApp: las fotos de distintos álbumes de origen se agrupan en un único álbum "WhatsApp" en Immich; se valora desactivar la opción de "Sincronizar álbumes" en la app para evitar la proliferación de álbumes automáticos.
+- Pendiente: integrar Immich en el dominio/DNS interno (*.srv) y en el reverse proxy (Caddy), y definir la política de almacenamiento y backups para el dataset de fotos de Immich dentro de /srv/storage/media (nivel C_critico) y su futura réplica en el servidor de backups.
+
+2025-12-11 – Despliegue de Immich (backup de fotos del móvil)
+
+- Instalado y configurado Immich en main1 como servicio Docker, accesible únicamente desde la LAN/VPN.
+- Creado usuario principal y verificada la conexión desde la app móvil oficial (Android) apuntando al servidor self-hosted.
+- Configurada la copia de seguridad automática de fotos y vídeos del móvil: subida solo por Wi-Fi y preferentemente cuando el dispositivo está cargando.
+- Organizados los álbumes de WhatsApp: las fotos de distintos álbumes de origen se agrupan en un único álbum "WhatsApp" en Immich; se valora desactivar la opción de "Sincronizar álbumes" en la app para evitar la proliferación de álbumes automáticos.
+- Pendiente: integrar Immich en el dominio/DNS interno (*.srv) y en el reverse proxy (Caddy), y definir la política de almacenamiento y backups para el dataset de fotos de Immich dentro de /srv/storage/media (nivel C_critico) y su futura réplica en el servidor de backups.
+
+## 2025-12-14 — Portal.srv (Homepage) + widgets + red media_media
+
+- Portal de usuarios desplegado con Homepage (`ghcr.io/gethomepage/homepage`) bajo `portal.srv`, accesible por DNS interno *.srv.
+- Stack `docker/portal`: contenedor `homepage` (UI) + `portal-api` (nginx) sirviendo JSON desde `/srv/storage/services/portal/data/`.
+- Config de Homepage en `/srv/storage/services/portal/homepage` (services/settings/layout/bookmarks/widgets). Iconos personalizados montados desde `/srv/storage/services/portal/assets/services`.
+- Widgets CustomAPI operativos: `status.json` (estado/resumen), `resources.json` (CPU/RAM/ZFS) y `updates.json` (historial/últimos cambios). Contadores/uso para Jellyfin/Immich/Nextcloud vía `content.json`/`apps-usage.json`.
+- Para que los widgets nativos de Radarr/qBittorrent funcionen sin timeouts: `homepage` unido a la red Docker externa `media_media` y acceso por hostname de contenedor.
+- Cron: generación periódica de JSON (recursos/actualizaciones) y meteorología (OpenWeather). Ajustes de permisos en `/srv/storage/services/portal/data/` para lectura estable desde el portal.
+- Nota: Firefly III quedó pendiente (servicio caído / revisión posterior).
+
