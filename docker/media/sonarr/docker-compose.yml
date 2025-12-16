@@ -1,0 +1,21 @@
+services:
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - TZ=Europe/Madrid
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - /srv/storage/services/sonarr/config:/config
+      - /srv/storage/services/downloads:/downloads
+      - /srv/storage/media/N_normal/series:/tv
+    ports:
+      - "8989:8989"
+    restart: unless-stopped
+    networks:
+      - media_media
+
+networks:
+  media_media:
+    external: true
