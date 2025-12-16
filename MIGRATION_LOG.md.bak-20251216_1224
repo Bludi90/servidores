@@ -14,7 +14,7 @@
 - Acceso probado desde la Xiaomi TV Box Por WireGuard y reproducción correcta de vídeos de prueba
 - Las bibliotecas de Jellyfin se replicarán en el servidor de backups futuro
 
-## 2025-12-02 – Cockpit + DNS interno (Pi-hole + Unbound) en main1
+2025-12-02 – Cockpit + DNS interno (Pi-hole + Unbound) en main1
 
 - Instalado y habilitado Cockpit como panel web del servidor:
   - Paquete `cockpit` desde los repos de Debian.
@@ -54,13 +54,7 @@
     - Actualizada la lista de `trusted_domains` para incluir `nextcloud.srv` vía `occ`.
     - Verificado que ya no aparece aviso de dominio no confiable.
 
-## 2025-12-10 – WireGuard en main1: reorganización de clientes y wg-migrate-cli>
-
-- Entre el 10 y el 16 de diciembre se completa el troubleshooting de WireGuard >
-- Creado el comando personalizado wg-migrate-clients para reorganizar todos los>
-- wg-migrate-clients, sin parámetros extra, mueve cada cliente a su carpeta cor>
-
-## 2025-12-11 – Despliegue de Immich (backup de fotos del móvil)
+2025-12-11 – Despliegue de Immich (backup de fotos del móvil)
 
 - Instalado y configurado Immich en main1 como servicio Docker, accesible únicamente desde la LAN/VPN.
 - Creado usuario principal y verificada la conexión desde la app móvil oficial (Android) apuntando al servidor self-hosted.
@@ -68,28 +62,10 @@
 - Organizados los álbumes de WhatsApp: las fotos de distintos álbumes de origen se agrupan en un único álbum "WhatsApp" en Immich; se valora desactivar la opción de "Sincronizar álbumes" en la app para evitar la proliferación de álbumes automáticos.
 - Pendiente: integrar Immich en el dominio/DNS interno (*.srv) y en el reverse proxy (Caddy), y definir la política de almacenamiento y backups para el dataset de fotos de Immich dentro de /srv/storage/media (nivel C_critico) y su futura réplica en el servidor de backups.
 
-## 2025-12-13 — Portal.srv (Homepage) + widgets + red media_media
+2025-12-11 – Despliegue de Immich (backup de fotos del móvil)
 
-- Portal de usuarios desplegado con Homepage (`ghcr.io/gethomepage/homepage`) bajo `portal.srv`, accesible por DNS interno *.srv.
-- Stack `docker/portal`: contenedor `homepage` (UI) + `portal-api` (nginx) sirviendo JSON desde `/srv/storage/services/portal/data/`.
-- Config de Homepage en `/srv/storage/services/portal/homepage` (services/settings/layout/bookmarks/widgets). Iconos personalizados montados desde `/srv/storage/services/portal/assets/services`.
-- Widgets CustomAPI operativos: `status.json` (estado/resumen), `resources.json` (CPU/RAM/ZFS) y `updates.json` (historial/últimos cambios). Contadores/uso para Jellyfin/Immich/Nextcloud vía `content.json`/`apps-usage.json`.
-- Para que los widgets nativos de Radarr/qBittorrent funcionen sin timeouts: `homepage` unido a la red Docker externa `media_media` y acceso por hostname de contenedor.
-- Cron: generación periódica de JSON (recursos/actualizaciones) y meteorología (OpenWeather). Ajustes de permisos en `/srv/storage/services/portal/data/` para lectura estable desde el portal.
-- Nota: Firefly III quedó pendiente (servicio caído / revisión posterior).
-
-
-## 2025-12-14 – main1 – SAI/UPS (CyberPower) con NUT + apagado controlado
-
-- Configurado NUT con el UPS (CyberPower) y verificados servicios: `nut-driver@cyberpower`, `nut-server`, `nut-monitor`.
-- Integradas notificaciones a Telegram mediante `nut-notify` + `upssched` (NOTIFYCMD en `/etc/nut/upsmon.conf`).
-- `upssched.conf`: eventos ONBATT (30s, 60s) y lógica de apagado (FSD) con ventana objetivo de ~8 minutos (timer `fsd_120s` a 480s).
-- Armado/desarmado del apagado real controlado con flag `/etc/nut/enable-shutdown` (ARMED). En modo desarmado se generan eventos `FSD_NOT_ARMED` para validar sin apagar.
-- Pruebas verificadas con `journalctl -t nut-notify` y `journalctl -t nut-upssched` (mensajes ONBATT/ONLINE llegan a Telegram).
-
-## 2025-12-15 – main1 – srv-health (UPS) + estabilización DNS Pi-hole/Unbound
-
-- `srv-health`: añadida sección UPS (NUT) en formato compacto con `[OK]/[WARN]/[FAIL]`, mostrando estado ARMED, métricas clave (status/carga/autonomía/voltaje/batería) y estado de servicios NUT.
-- DNS: validada resolución por Pi-hole (en 10.8.0.1) y por Unbound (IP interna Docker) tras reinicios/pruebas.
-- Nota de implementación: en esta versión de Pi-hole no existe `/etc/pihole/setupVars.conf`; la configuración relevante está en `/etc/pihole/pihole.toml` y `/etc/pihole/dnsmasq.conf` (upstream a Unbound `172.18.0.2#53`).
-- `srv-health`: el estado “health: starting” de Pi-hole puede aparecer durante segundos tras `docker restart`; el chequeo se basa también en la respuesta DNS para evitar falsos WARN transitorios.
+- Instalado y configurado Immich en main1 como servicio Docker, accesible únicamente desde la LAN/VPN.
+- Creado usuario principal y verificada la conexión desde la app móvil oficial (Android) apuntando al servidor self-hosted.
+- Configurada la copia de seguridad automática de fotos y vídeos del móvil: subida solo por Wi-Fi y preferentemente cuando el dispositivo está cargando.
+- Organizados los álbumes de WhatsApp: las fotos de distintos álbumes de origen se agrupan en un único álbum "WhatsApp" en Immich; se valora desactivar la opción de "Sincronizar álbumes" en la app para evitar la proliferación de álbumes automáticos.
+- Pendiente: integrar Immich en el dominio/DNS interno (*.srv) y en el reverse proxy (Caddy), y definir la política de almacenamiento y backups para el dataset de fotos de Immich dentro de /srv/storage/media (nivel C_critico) y su futura réplica en el servidor de backups.
