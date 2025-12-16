@@ -16,6 +16,14 @@ Los datos de usuario viven en `/srv/storage` sobre ZFS (`tank`); aquí **no** ha
 
 ---
 
+### Servicios en producción (main1)
+
+- 🧭 **Portal**: `portal.srv` (Homepage + `portal-api`).
+- 🌐 **DNS interno**: Pi-hole + Unbound (resolver para `*.srv`; pensado para clientes LAN y WireGuard).
+- 🔒 **Reverse proxy**: Caddy en Docker (TLS interno para servicios `*.srv`).
+- 🔌 **SAI/UPS**: NUT operativo con notificaciones a Telegram y apagado controlado (armado mediante `/etc/nut/enable-shutdown`).
+
+
 ## Estructura del repositorio (resumen)
 
 - `docs/` – Documentación.
@@ -31,8 +39,9 @@ Los datos de usuario viven en `/srv/storage` sobre ZFS (`tank`); aquí **no** ha
   - `commit-and-push.sh` → sube cambios a GitHub.
   - Otros scripts de apoyo (informes SMART/ZFS, generación de docs, etc.).
 
-- `bin/` – Scripts preparados para instalarse como comandos del sistema  
-  (por ejemplo `srv-health`, `wol`, `lan-scan`, etc.).
+- `scripts/cmd/` – Comandos del ecosistema (se instalan como *symlinks* en el sistema).
+  - Instalar/actualizar: `sudo ./scripts/install-commands.sh`
+  - Destinos: `/usr/local/bin` y `/usr/local/sbin` (por ejemplo `srv-health`, `wol`, `lan-scan`, etc.).
 
 - `state/` – Snapshots generados periódicamente.
   - `state/main1/` → snapshots, `current-state.md` y logs del host `main1`.
@@ -80,5 +89,9 @@ Desde la raíz del repo (`~/servidores`):
 # Ver resumen rápido del estado del servidor (ZFS, servicios, WG, etc.)
 srv-health
 
+
+# (Re)instalar comandos del ecosistema en /usr/local/bin y /usr/local/sbin
+sudo ./scripts/install-commands.sh
 # Ver actividad reciente del sistema de snapshots/commits
 tail -40 state/main1/sync.log
+```
