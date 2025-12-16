@@ -9,7 +9,7 @@ services:
     volumes:
       - /srv/storage/services/sonarr/config:/config
       - /srv/storage/services/downloads:/downloads
-      - /srv/storage/media/N_normal/series:/series
+      - /srv/storage/media/N_normal/series:/tv
     ports:
       - "8989:8989"
     restart: unless-stopped

@@ -11,10 +11,15 @@ services:
       - UN_START_DELAY=1m
       - UN_RADARR_0_URL=http://radarr:7878
       - UN_RADARR_0_API_KEY=filepath:/etc/secrets/radarr_api_key.txt
+      - UN_SONARR_0_URL=http://sonarr:8989
+      - UN_SONARR_0_API_KEY=filepath:/etc/secrets/sonarr_api_key.txt
+      - UN_SONARR_0_PATHS_0=/downloads
+      - UN_SONARR_0_PROTOCOLS=torrent
     volumes:
       - /srv/storage/services/downloads:/downloads
       - /srv/storage/services/unpackerr/config:/config
       - /srv/storage/services/secrets/unpackerr/radarr_api_key.txt:/etc/secrets/radarr_api_key.txt:ro
+      - /srv/storage/services/secrets/unpackerr/sonarr_api_key.txt:/etc/secrets/sonarr_api_key.txt:ro
     networks:
       - media_media
 
