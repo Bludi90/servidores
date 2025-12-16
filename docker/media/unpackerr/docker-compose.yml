@@ -1,0 +1,23 @@
+services:
+  unpackerr:
+    image: ghcr.io/unpackerr/unpackerr:latest
+    container_name: unpackerr
+    user: "1000:1000"
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Madrid
+      - UN_LOG_FILE=/downloads/unpackerr.log
+      - UN_INTERVAL=2m
+      - UN_START_DELAY=1m
+      - UN_RADARR_0_URL=http://radarr:7878
+      - UN_RADARR_0_API_KEY=filepath:/etc/secrets/radarr_api_key.txt
+    volumes:
+      - /srv/storage/services/downloads:/downloads
+      - /srv/storage/services/unpackerr/config:/config
+      - /srv/storage/services/secrets/unpackerr/radarr_api_key.txt:/etc/secrets/radarr_api_key.txt:ro
+    networks:
+      - media_media
+
+networks:
+  media_media:
+    external: true

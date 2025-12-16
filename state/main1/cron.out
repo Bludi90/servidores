@@ -12177,3 +12177,25 @@ Escrito: /home/alejandro/servidores/state/main1/2025-12-16_1300-state.md
  M state/main1/sync.log
  M state/main1/urls-proxy.md
 ?? state/main1/2025-12-16_1300-state.md
+[main bcbc5ee] auto: snapshot main1 2025-12-16 13:00
+ 8 files changed, 353 insertions(+), 99 deletions(-)
+ delete mode 100644 MIGRATION_LOG.md.bak-20251216_1224
+ create mode 100644 state/main1/2025-12-16_1300-state.md
+[2025-12-16 13:00:02] Commit creado: auto: snapshot main1 2025-12-16 13:00
+To github.com:Bludi90/servidores.git
+   697ef7a..bcbc5ee  main -> main
+[2025-12-16 13:00:03] git push OK.
+[2025-12-16 13:00:03] === Fin commit-and-push ===
+Escrito: /home/alejandro/servidores/state/main1/2025-12-16_1400-state.md
+[2025-12-16 14:00:02] === Inicio commit-and-push ===
+[2025-12-16 14:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zpool_list.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? docker/media/unpackerr/
+?? state/main1/2025-12-16_1400-state.md
