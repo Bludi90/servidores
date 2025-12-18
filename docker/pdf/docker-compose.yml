@@ -1,0 +1,14 @@
+services:
+  stirling-pdf:
+    image: stirlingtools/stirling-pdf:latest
+    container_name: stirling-pdf
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Madrid
+    ports:
+      - "127.0.0.1:18080:8080"
+    volumes:
+      - /srv/storage/services/pdf/configs:/configs
+      - /srv/storage/services/pdf/logs:/logs
+      - /srv/storage/services/pdf/customFiles:/customFiles
+      - /srv/storage/services/pdf/pipeline:/pipeline
