@@ -5,6 +5,9 @@ services:
     restart: unless-stopped
     environment:
       - TZ=Europe/Madrid
+      - TZ=Europe/Madrid
+      - SECURITY_ENABLELOGIN=false
+
     ports:
       - "127.0.0.1:18080:8080"
     volumes:
