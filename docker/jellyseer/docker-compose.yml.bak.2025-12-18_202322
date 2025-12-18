@@ -11,6 +11,3 @@ services:
       - "127.0.0.1:15055:5055"
     volumes:
       - /srv/storage/services/jellyseer/config:/app/config
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-

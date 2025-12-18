@@ -8,6 +8,12 @@ services:
             resources:
                 limits:
                     memory: "16024338432"
+                reservations:
+                    devices:
+                        - driver: nvidia
+                          count: all
+                          capabilities: [gpu]
+        gpus: all
         environment:
             PGID: "1000"
             PUID: "1000"
@@ -16,6 +22,9 @@ services:
             NVIDIA_DRIVER_CAPABILITIES: compute,video,utility
         hostname: jellyfin
         image: lscr.io/linuxserver/jellyfin:latest
+        runtime: nvidia
+        group_add:
+            - "video"
         labels:
             icon: https://icon.casaos.io/main/all/jellyfin.png
         network_mode: bridge
