@@ -1,2 +1,2 @@
 NAME   SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP    HEALTH  ALTROOT
-tank  7.25T  1.52T  5.73T        -         -     1%    21%  1.00x    ONLINE  -
+tank  7.25T  1.53T  5.72T        -         -     1%    21%  1.00x    ONLINE  -
