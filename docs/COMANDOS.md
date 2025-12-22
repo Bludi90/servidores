@@ -1,16 +1,23 @@
 # Comandos y scripts (resumen)
 
-_Generado: 2025-12-02 18:21_
+_Generado: 2025-12-22 16:58_
 
 Este documento es un **índice** para consulta rápida. Las guías completas están enlazadas.
 
 ## Índice
 
+- [DR WireGuard wg0 (main1 -> backup1)](comandos/dr-wg0-promote.md)
 - [import-peli](comandos/import-peli.md)
 - [LAN-Scan — Guía rápida](comandos/lan-scan.md)
 - [Server-Health — Chequeo rápido del servidor - Cheatsheet](comandos/srv-health.md)
 - [WireGuard — Cheatsheet](comandos/wireguard.md)
 - [Wake-on-LAN — Cheatsheet](comandos/wol.md)
+
+## DR WireGuard wg0 (main1 -> backup1)
+
+Failover de emergencia del WireGuard principal (wg0) desde main1 a backup1. Si main1 cae: entrar por wgr0 (rescue), conmutar el port-forward UDP/51820 al backup1 y ejecutar `dr-wg0-promote --force`. Para volver atrás: devolver el port-forward a main1 y ejecutar `dr-wg0-demote`.
+
+[→ Abrir guía completa](comandos/dr-wg0-promote.md)
 
 ## import-peli
 

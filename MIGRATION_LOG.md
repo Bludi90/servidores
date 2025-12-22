@@ -93,3 +93,22 @@
 - DNS: validada resolución por Pi-hole (en 10.8.0.1) y por Unbound (IP interna Docker) tras reinicios/pruebas.
 - Nota de implementación: en esta versión de Pi-hole no existe `/etc/pihole/setupVars.conf`; la configuración relevante está en `/etc/pihole/pihole.toml` y `/etc/pihole/dnsmasq.conf` (upstream a Unbound `172.18.0.2#53`).
 - `srv-health`: el estado “health: starting” de Pi-hole puede aparecer durante segundos tras `docker restart`; el chequeo se basa también en la respuesta DNS para evitar falsos WARN transitorios.
+
+## 2025-12-22 — backup1: réplica + WireGuard rescue + DR de wg0
+
+- backup1 instalado (Debian) y accesible por LAN; DHCP reservation en el router (IP fija).
+- Réplica periódica main1 → backup1 configurada:
+  - usuario `replica` con key restringida (from=IP main1 + sin PTY/forwarding) y sudo NOPASSWD solo para `/usr/bin/rsync`
+  - script en main1: `/usr/local/sbin/replicate-main1-to-backup1`
+  - cron: `0 7 * * * root flock -n /var/lock/replicate-backup1.lock /usr/local/sbin/replicate-main1-to-backup1 >> /var/log/replicate-backup1.log 2>&1`
+  - log: `/var/log/replicate-backup1.log` + logrotate
+- WireGuard “rescue” en backup1 (`wgr0`) operativo como túnel secundario de emergencia:
+  - puerto UDP 51821 con port-forward en router hacia backup1
+  - UFW permite 51821/udp y SSH desde `10.81.0.0/24`
+  - perfiles en `/etc/wireguard/clients-rescue/`
+- DR (failover) del WireGuard principal de main1 (`wg0`) preparado en backup1:
+  - scripts: `/usr/local/sbin/dr-wg0-promote` y `/usr/local/sbin/dr-wg0-demote`
+  - `dr-wg0-promote --force` usa staging `/etc/wireguard/dr-main1`, parchea PostUp/PostDown al interfaz WAN real (ej. `eno1`),
+    habilita forwarding IPv4 y levanta `wg0`.
+  - `dr-wg0-demote` apaga y enmascara `wg0`.
+  - Nota: el DR evita tocar `wgr0` y `clients-rescue` (no se sincroniza todo `/etc/wireguard` para no borrar rescue).

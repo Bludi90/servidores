@@ -1,0 +1,54 @@
+#!/bin/bash
+set -euo pipefail
+cd /
+
+SRC="/srv/replica/main1/etc-wireguard"
+STAGE="/etc/wireguard/dr-main1"
+WGCONF="/etc/wireguard/wg0.conf"
+TS="$(date +%F_%H%M%S)"
+WAN_IF="$(ip route | awk '/default/ {print $5; exit}')"
+
+if [ "${1:-}" != "--force" ]; then
+  echo "Uso: sudo dr-wg0-promote --force"
+  echo "Activa DR de wg0 usando $SRC. No toca wgr0 ni /etc/wireguard/clients-rescue."
+  exit 2
+fi
+
+test -f "$SRC/wg0.conf" || { echo "ERROR: falta $SRC/wg0.conf"; exit 1; }
+
+mkdir -p /etc/wireguard "$STAGE"
+chmod 700 "$STAGE"
+
+echo "[*] Sync $SRC -> $STAGE (staging seguro)"
+rsync -a --delete "$SRC"/ "$STAGE"/
+
+echo "[*] Backup wg0.conf actual (si existe)"
+if [ -f "$WGCONF" ]; then
+  cp -a "$WGCONF" "${WGCONF}.bak.${TS}"
+fi
+
+echo "[*] Parcheando interfaz WAN en PostUp/PostDown -> $WAN_IF (si aplica)"
+if grep -qE 'Post(Up|Down).* -o [^ ]+' "$STAGE/wg0.conf"; then
+  cp -a "$STAGE/wg0.conf" "$STAGE/wg0.conf.bak.${TS}"
+  sed -i -E "s/(Post(Up|Down)=.* -o )[^ ]+/\1${WAN_IF}/g" "$STAGE/wg0.conf"
+fi
+
+echo "[*] Instalando wg0.conf"
+cp -a "$STAGE/wg0.conf" "$WGCONF"
+chmod 600 "$WGCONF"
+
+echo "[*] Forwarding IPv4 (requisito DR)"
+tee /etc/sysctl.d/99-wireguard-forward.conf >/dev/null <<'EOT'
+net.ipv4.ip_forward=1
+EOT
+sysctl --system >/dev/null || true
+
+echo "[*] UFW (DR): permitir 51820/udp"
+ufw allow 51820/udp comment 'WireGuard wg0 (DR)' >/dev/null || true
+
+echo "[*] Activando wg0..."
+systemctl unmask wg-quick@wg0 >/dev/null 2>&1 || true
+systemctl enable --now wg-quick@wg0
+
+echo "[*] Estado wg0:"
+wg show wg0 | sed -n '1,160p'

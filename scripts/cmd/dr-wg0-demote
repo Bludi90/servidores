@@ -1,0 +1,7 @@
+#!/bin/bash
+set -euo pipefail
+cd /
+systemctl disable --now wg-quick@wg0 >/dev/null 2>&1 || true
+systemctl mask wg-quick@wg0 >/dev/null 2>&1 || true
+ip link del wg0 2>/dev/null || true
+echo "OK: wg0 apagado y enmascarado (DR desactivado)."
