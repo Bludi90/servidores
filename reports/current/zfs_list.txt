@@ -6,5 +6,5 @@ tank/appdata/docker    22.1G  5.33T  22.1G  /srv/storage/appdata/docker
 tank/media             1.27T  5.33T  1.27T  /srv/storage/media
 tank/nextcloud         45.2G  5.33T   264M  /srv/storage/nextcloud
 tank/nextcloud/config   643M  5.33T   643M  /srv/storage/nextcloud/config
-tank/nextcloud/data    44.1G  5.33T  33.5G  /srv/storage/nextcloud/data
-tank/nextcloud/db       272M  5.33T   272M  /srv/storage/nextcloud/db
+tank/nextcloud/data    44.1G  5.33T  33.6G  /srv/storage/nextcloud/data
+tank/nextcloud/db       273M  5.33T   273M  /srv/storage/nextcloud/db
