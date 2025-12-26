@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+# Autosudo al inicio
+if [ "$(id -u)" -ne 0 ]; then
+  exec sudo -E "$0" "$@"
+fi
+
 IF="${WG_IF:-wg0}"
 OLD="${1:-}"; NEW="${2:-}"
 [ -n "$OLD" ] && [ -n "$NEW" ] || { echo "Uso: wg-rename-peer <antiguo> <nuevo>"; exit 1; }
@@ -30,6 +36,12 @@ fi
 if [ -d "$DIR_NEW" ] || [ -f "${DIR_NEW}/${NEW}.pub" ] || [ -f "${FLAT_NEW}.pub" ]; then
   echo "Ya existe ${NEW} en ${CLIENT_ROOT}."
   exit 3
+fi
+
+# Antes de renombrar: validación 
+if [[ "$NEW" =~ [[:space:]] ]]; then
+  echo "ERROR: el nuevo ID no puede contener espacios. Usá un id tipo: nuria-tv-figueres"
+  exit 1
 fi
 
 # Renombrar según el modo

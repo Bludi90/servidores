@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+IF="${WG_IF:-wg0}"
+ID="${1:-}"
+NAME="${2:-}"
+
+[ -n "$ID" ] && [ -n "$NAME" ] || { echo 'Uso: wg-set-peer-name <id_tecnico> "<Nombre visible>"'; exit 1; }
+
+# Auto-sudo para evitar problemas de permisos
+if [ "$(id -u)" -ne 0 ]; then
+  exec sudo -E "$0" "$@"
+fi
+
+CLIENT_ROOT="/etc/wireguard/clients"
+NAMES="/etc/wireguard/names.tsv"
+
+PUB=""
+if [ -f "${CLIENT_ROOT}/${ID}/${ID}.pub" ]; then
+  PUB="$(cat "${CLIENT_ROOT}/${ID}/${ID}.pub")"
+elif [ -f "${CLIENT_ROOT}/${ID}.pub" ]; then
+  PUB="$(cat "${CLIENT_ROOT}/${ID}.pub")"
+else
+  echo "ERROR: no encuentro la clave pública para '${ID}' en ${CLIENT_ROOT}."
+  exit 2
+fi
+
+# Sanidad: la pubkey WireGuard suele terminar en '='. No lo forzamos, pero validamos mínima.
+if [ "${#PUB}" -lt 20 ]; then
+  echo "ERROR: clave pública demasiado corta. Archivo .pub corrupto?"
+  exit 3
+fi
+
+# Backup y actualización atómica
+install -d -m 700 /etc/wireguard
+if [ -f "$NAMES" ]; then
+  cp -a "$NAMES" "${NAMES}.bak.$(date +%F_%H%M%S)"
+else
+  : > "$NAMES"
+  chmod 644 "$NAMES"
+fi
+
+tmp="$(mktemp)"
+# Reescribe: si existe PUB como primer campo, reemplaza; si no existe, añade al final.
+awk -v pub="$PUB" -v name="$NAME" '
+BEGIN{found=0}
+{
+  # primer campo = clave
+  if ($1 == pub) {
+    printf "%s\t%s\n", pub, name
+    found=1
+  } else {
+    print $0
+  }
+}
+END{
+  if (!found) printf "%s\t%s\n", pub, name
+}
+' "$NAMES" > "$tmp"
+
+# Preservar owner/mode razonablemente
+chown --reference="$NAMES" "$tmp" 2>/dev/null || true
+chmod --reference="$NAMES" "$tmp" 2>/dev/null || chmod 644 "$tmp"
+mv "$tmp" "$NAMES"
+
+echo "OK: nombre asignado para ${ID} -> ${NAME}"
