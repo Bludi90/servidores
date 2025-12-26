@@ -70,3 +70,19 @@ _Disponible: Sí (`/usr/local/sbin/wg-repair`)_
     Descripción:
       Revisa servicio wg-quick@wg0, ip_forward, socket UDP 51820 y estado de wg.
       Si hay sudo sin contraseña, puede relanzar el servicio (sin tocar claves).
+
+## migrate-clients
+
+_Disponible: Sí (`/usr/local/sbin/wg-migrate-clients`)_
+    wireguard miragte-clients
+    Binario real: wg-migrate-clients
+    Objetivo: normalizar estructura (carpeta por cliente) y generar un .tgz en /tmp para copiar a otro servidor.
+
+    Uso:
+      sudo wg-migrate-clients
+      ls -lh /tmp | grep -E 'wg|wireguard|clients' || true
+
+    Descripción:
+      Esto empaqueta clientes/perfiles, pero para DR completo también hay que conservar:
+     /etc/wireguard/wg0.conf
+     y las claves del servidor (según tu estructura actual: server.key/server.pub o /etc/wireguard/keys/)
