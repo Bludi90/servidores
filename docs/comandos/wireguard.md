@@ -58,10 +58,13 @@ _Disponible: Sí (`/usr/local/sbin/wg-add-peer`)_
 
 _Disponible: Sí (`/usr/local/sbin/wg-del-peer`)_
     wireguard del-peer
-    Uso:
-      wg-del-peer <NOMBRE>
+
+   **Uso:**
+   ```bash
+   wg-del-peer <NOMBRE>
+   ```
     
-    Descripción:
+   **Descripción:**
       Da de baja un peer, quita su IP/32 y lo elimina del wg0.
       Mantiene copia de seguridad del bloque eliminado.
 
