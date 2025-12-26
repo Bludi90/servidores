@@ -13,6 +13,14 @@ _Generado: 2025-11-09 21:41_
       del-peer <NOMBRE>  → Baja de peer (elimina su IP/32)
       repair             → Repara wg0 (unidad, permisos, rutas)
 
+## Convenciones de nombres (importante)
+
+- **ID técnico (sin espacios):** se usa para rutas y archivos en `/etc/wireguard/clients/<id>/...`.
+  - Recomendado: minúsculas + guiones, p.ej. `nuria-tv-figueres`.
+- **Nombre visible (con espacios):** se muestra en `wg-list-peers` y UIs.
+  - Se gestiona en `/etc/wireguard/names.tsv` mediante el mapeo **PublicKey → Nombre visible**.
+  - Ejemplo: `Nuria - TV Figueres`.
+
 ## list-peers
 
 _Disponible: Sí (`/usr/bin/wg-list-peers`)_
@@ -33,7 +41,7 @@ _Disponible: Sí (`/usr/bin/wg-list-peers`)_
 _Disponible: Sí (`/usr/local/sbin/wg-add-peer`)_
     wireguard add-peer
     Uso:
-      wg-add-peer <NOMBRE> [--ip 10.8.0.X/32] [--qr] [--out ./client.conf]
+      wg-add-peer <id_tecnico> [--ip 10.8.0.X/32] [--qr] [--out ./client.conf]
     
     Descripción:
       Da de alta un peer:
@@ -56,6 +64,51 @@ _Disponible: Sí (`/usr/local/sbin/wg-del-peer`)_
     Descripción:
       Da de baja un peer, quita su IP/32 y lo elimina del wg0.
       Mantiene copia de seguridad del bloque eliminado.
+
+## wg-set-peer-name — asignar nombre visible (PublicKey → Nombre)
+
+Asigna o actualiza el nombre visible que muestra `wg-list-peers`, sin tocar claves manualmente.
+El comando obtiene automáticamente la **PublicKey** desde:
+- `/etc/wireguard/clients/<id>/<id>.pub` (esquema carpeta), o
+- `/etc/wireguard/clients/<id>.pub` (esquema plano antiguo),
+
+y escribe/actualiza `/etc/wireguard/names.tsv` en formato `PUBKEY  <Nombre visible>`.
+
+**Uso:**
+```bash
+sudo wg-set-peer-name <id_tecnico> "Nombre visible con espacios"
+```
+
+**Ejemplo:**
+```bash
+sudo wg-set-peer-name nuria-tv-figueres "Nuria - TV Figueres"
+```
+
+**Verificación**
+```bash
+wg-list-peers | grep -i "Nuria - TV Figueres" || true
+```
+
+## wg-rename-peer — renombrar ID técnico (archivos de cliente)
+
+Renombra el **ID técnico** del cliente (carpeta/archivos en `/etc/wireguard/clients`).
+Soporta:
+- esquema nuevo: `/etc/wireguard/clients/<id>/<id>.*`
+- esquema viejo: `/etc/wireguard/clients/<id>.*`
+
+**Importante:** el nuevo ID debe ser **sin espacios**. Para el nombre visible con espacios usar `wg-set-peer-name`.
+
+**Uso:**
+```bash
+sudo wg-rename-peer <id_antiguo> <id_nuevo_sin_espacios>
+```
+
+**Ejemplo (recomendado):**
+```bash
+sudo wg-rename-peer tv-nuria nuria-tv-figueres
+sudo wg-set-peer-name nuria-tv-figueres "Nuria - TV Figueres"
+```
+
 
 ## repair
 
