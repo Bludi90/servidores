@@ -70,6 +70,7 @@ _Disponible: Sí (`/usr/local/sbin/wg-del-peer`)_
 
 ## wg-set-peer-name — asignar nombre visible (PublicKey → Nombre)
 
+_Disponible: Sí (`/usr/local/sbin/wg-set-peer-name`)_
 Asigna o actualiza el nombre visible que muestra `wg-list-peers`, sin tocar claves manualmente.
 El comando obtiene automáticamente la **PublicKey** desde:
 - `/etc/wireguard/clients/<id>/<id>.pub` (esquema carpeta), o
@@ -132,13 +133,15 @@ _Disponible: Sí (`/usr/local/sbin/wg-repair`)_
 _Disponible: Sí (`/usr/local/sbin/wg-migrate-clients`)_
     wireguard miragte-clients
     Binario real: wg-migrate-clients
-    Objetivo: normalizar estructura (carpeta por cliente) y generar un .tgz en /tmp para copiar a otro servidor.
 
-    Uso:
+   **Objetivo:**
+      normalizar estructura (carpeta por cliente) y generar un .tgz en /tmp para copiar a otro servidor.
+
+   **Uso:**
       sudo wg-migrate-clients
       ls -lh /tmp | grep -E 'wg|wireguard|clients' || true
 
-    Descripción:
+   **Descripción:**
       Esto empaqueta clientes/perfiles, pero para DR completo también hay que conservar:
      /etc/wireguard/wg0.conf
      y las claves del servidor (según tu estructura actual: server.key/server.pub o /etc/wireguard/keys/)

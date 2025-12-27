@@ -15531,3 +15531,20 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M docs/comandos/wireguard.md
  M state/main1/cron.out
  M state/main1/sync.log
+[main 9daabbb] auto: snapshot main1 2025-12-27 00:04
+ 3 files changed, 25 insertions(+), 3 deletions(-)
+[2025-12-27 00:04:00] Commit creado: auto: snapshot main1 2025-12-27 00:04
+[2025-12-27 00:04:01] git push OK.
+[2025-12-27 00:04:01] === Fin commit-and-push ===
+[2025-12-27 01:00:03] === Inicio commit-and-push ===
+[2025-12-27 01:00:03] Cambios detectados:
+ M docs/ESTADO.md
+ M docs/comandos/wireguard.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zpool_list.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2025-12-27_0100-state.md

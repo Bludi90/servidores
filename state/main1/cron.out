@@ -16868,3 +16868,16 @@ To github.com:Bludi90/servidores.git
    f0f740c..2aac2ad  main -> main
 [2025-12-27 00:00:04] git push OK.
 [2025-12-27 00:00:04] === Fin commit-and-push ===
+Escrito: /home/alejandro/servidores/state/main1/2025-12-27_0100-state.md
+[2025-12-27 01:00:03] === Inicio commit-and-push ===
+[2025-12-27 01:00:03] Cambios detectados:
+ M docs/ESTADO.md
+ M docs/comandos/wireguard.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zpool_list.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2025-12-27_0100-state.md
