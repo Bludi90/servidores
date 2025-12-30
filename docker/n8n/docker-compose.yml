@@ -1,0 +1,23 @@
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Madrid
+      - N8N_ENCRYPTION_KEY=20de6f166e931eb59eee397b9f0665f7231978720785edee81fa3494cb41ca16
+      - N8N_HOST=n8n.srv
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://n8n.srv/
+      - N8N_EDITOR_BASE_URL=https://n8n.srv/
+      - N8N_DIAGNOSTICS_ENABLED=false
+    ports:
+      - "127.0.0.1:5678:5678"
+    volumes:
+      - /srv/storage/services/n8n/data:/home/node/.n8n
+#    networks:
+#      - reverse-proxy
+
+#networks:
+#  reverse-proxy:
+#    external: true
