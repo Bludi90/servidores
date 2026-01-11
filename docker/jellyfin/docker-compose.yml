@@ -52,6 +52,10 @@ services:
             - type: bind
               source: /srv/storage/media
               target: /media
+            - type: bind
+              source: /srv/storage/services/jellyfin/custom-cont-init.d
+              target: /custom-cont-init.d
+              read_only: true
 networks:
     default:
         name: sparkling_martin_default
