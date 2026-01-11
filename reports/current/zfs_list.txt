@@ -1,5 +1,5 @@
 NAME                    USED  AVAIL  REFER  MOUNTPOINT
-tank                   2.48T  4.87T   869G  /srv/storage
+tank                   2.49T  4.87T   871G  /srv/storage
 tank/appdata           22.9G  4.87T   104K  /srv/storage/appdata
 tank/appdata/casaos     304K  4.87T   304K  /srv/storage/appdata/casaos
 tank/appdata/docker    22.9G  4.87T  22.9G  /srv/storage/appdata/docker
@@ -7,4 +7,4 @@ tank/media             1.57T  4.87T  1.57T  /srv/storage/media
 tank/nextcloud         45.4G  4.87T   264M  /srv/storage/nextcloud
 tank/nextcloud/config   643M  4.87T   643M  /srv/storage/nextcloud/config
 tank/nextcloud/data    44.1G  4.87T  33.6G  /srv/storage/nextcloud/data
-tank/nextcloud/db       363M  4.87T   363M  /srv/storage/nextcloud/db
+tank/nextcloud/db       364M  4.87T   364M  /srv/storage/nextcloud/db

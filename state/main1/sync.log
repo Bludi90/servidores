@@ -21357,3 +21357,22 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
 ?? scripts/cmd/n8n-remediate-digest
 ?? scripts/cmd/n8n-remediate.bak.20260111-161201
 ?? state/main1/2026-01-11_1700-state.md
+[main be2d947] auto: snapshot main1 2026-01-11 17:00
+ 10 files changed, 662 insertions(+), 11 deletions(-)
+ create mode 100755 scripts/cmd/n8n-remediate-digest
+ create mode 100755 scripts/cmd/n8n-remediate.bak.20260111-161201
+ create mode 100644 state/main1/2026-01-11_1700-state.md
+[2026-01-11 17:00:02] Commit creado: auto: snapshot main1 2026-01-11 17:00
+[2026-01-11 17:00:04] git push OK.
+[2026-01-11 17:00:04] === Fin commit-and-push ===
+[2026-01-11 18:00:02] === Inicio commit-and-push ===
+[2026-01-11 18:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zpool_list.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2026-01-11_1800-state.md
