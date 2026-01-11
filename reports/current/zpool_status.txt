@@ -1,8 +1,8 @@
   pool: tank
  state: ONLINE
   scan: scrub in progress since Sun Jan 11 00:24:02 2026
-	2.41T / 2.25T scanned at 270M/s, 1.73T / 2.25T issued at 193M/s
-	0B repaired, 76.61% done, 00:47:37 to go
+	2.48T / 2.25T scanned, 2.35T / 2.25T issued at 327M/s
+	0B repaired, 104.35% done, no estimated completion time
 config:
 
 	NAME                                                                STATE     READ WRITE CKSUM
