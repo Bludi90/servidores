@@ -147,12 +147,8 @@ fi
 # 1) WireGuard
 if ! svc_active "$WG_UNIT"; then
   if cooldown_ok wg; then
-    log "[AUTO] wg inactive -> wg-repair"
-    if [[ -x /usr/local/bin/wg-repair ]]; then
-      /usr/local/bin/wg-repair >> "$LOG_FILE" 2>&1 || true
-    else
-      restart_service "$WG_UNIT" || true
-    fi
+    log "[AUTO] wg inactive -> restart $WG_UNIT"
+    restart_service "$WG_UNIT" || true
     sleep 2
     state_set "wg_last" "$(now)"
     if svc_active "$WG_UNIT"; then

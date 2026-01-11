@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+LOG_FILE="${LOG_FILE:-/var/log/servidores/n8n-remediate.log}"
+TZ="${TZ:-Europe/Madrid}"
+
+# Ventana: desde ayer 22:00 hasta hoy 14:00 (hora Madrid)
+start="$(TZ="$TZ" date -d 'yesterday 22:00' '+%Y-%m-%d %H:%M:%S')"
+end="$(TZ="$TZ" date -d 'today 14:00' '+%Y-%m-%d %H:%M:%S')"
+
+# Si no existe log, no hay nada que reportar
+[[ -f "$LOG_FILE" ]] || exit 0
+
+# Filtramos eventos relevantes: AUTO (acciones), FAIL/ALERT
+# El log tiene prefijo "YYYY-MM-DD HH:MM:SS ..."
+# Seleccionamos por rango con awk y luego filtramos keywords.
+out="$(
+  awk -v s="$start" -v e="$end" '
+    {
+      ts = substr($0,1,19)
+      if (ts >= s && ts < e) print $0
+    }
+  ' "$LOG_FILE" \
+  | grep -E '\[(AUTO|ALERT|FAIL|OK)\]' || true
+)"
+
+# Si no hubo nada, no imprimir
+[[ -n "$out" ]] || exit 0
+
+echo "[DIGEST] n8n-remediate (fuera de horario) $start → $end"
+echo
+echo "$out"

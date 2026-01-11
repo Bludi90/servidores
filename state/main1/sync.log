@@ -21338,3 +21338,22 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M state/main1/urls-proxy.md
 ?? scripts/cmd/n8n-remediate
 ?? state/main1/2026-01-11_1600-state.md
+[main bca2480] auto: snapshot main1 2026-01-11 16:00
+ 8 files changed, 618 insertions(+), 11 deletions(-)
+ create mode 100755 scripts/cmd/n8n-remediate
+ create mode 100644 state/main1/2026-01-11_1600-state.md
+[2026-01-11 16:00:02] Commit creado: auto: snapshot main1 2026-01-11 16:00
+[2026-01-11 16:00:04] git push OK.
+[2026-01-11 16:00:04] === Fin commit-and-push ===
+[2026-01-11 17:00:02] === Inicio commit-and-push ===
+[2026-01-11 17:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M scripts/cmd/n8n-remediate
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? scripts/cmd/n8n-remediate-digest
+?? scripts/cmd/n8n-remediate.bak.20260111-161201
+?? state/main1/2026-01-11_1700-state.md
