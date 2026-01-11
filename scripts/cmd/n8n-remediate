@@ -1,0 +1,253 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# --- Config (ajustable por env si algún nombre difiere) ---
+DNS_SERVER_IP="${DNS_SERVER_IP:-10.8.0.1}"
+DNS_TEST_NAME="${DNS_TEST_NAME:-google.es}"
+
+CADDY_CONTAINER="${CADDY_CONTAINER:-caddy}"
+PIHOLE_CONTAINER="${PIHOLE_CONTAINER:-pihole-pihole-1}"
+UNBOUND_CONTAINER="${UNBOUND_CONTAINER:-unbound-unbound-1}"
+JELLYFIN_CONTAINER="${JELLYFIN_CONTAINER:-jellyfin}"
+
+WG_UNIT="${WG_UNIT:-wg-quick@wg0}"
+DOCKER_UNIT="${DOCKER_UNIT:-docker}"
+
+COOLDOWN_SEC="${COOLDOWN_SEC:-1800}"          # 30 min
+MAX_ACTIONS_PER_RUN="${MAX_ACTIONS_PER_RUN:-1}"
+
+STATE_FILE="${STATE_FILE:-/var/tmp/n8n-remediate.state}"   # key=value
+LOCK_FILE="${LOCK_FILE:-/var/lock/n8n-remediate.lock}"
+LOG_FILE="/var/log/servidores/n8n-remediate.log"
+
+# --- Helpers ---
+now() { date +%s; }
+ts()  { date '+%Y-%m-%d %H:%M:%S'; }
+
+log() {
+  local msg="$1"
+  printf "%s %s\n" "$(ts)" "$msg" >> "$LOG_FILE" 2>/dev/null || true
+}
+
+state_get() {
+  local key="$1"
+  [[ -f "$STATE_FILE" ]] || return 1
+  grep -E "^${key}=" "$STATE_FILE" 2>/dev/null | tail -n 1 | sed -E "s/^${key}=//"
+}
+
+state_set() {
+  local key="$1" val="$2"
+  mkdir -p "$(dirname "$STATE_FILE")" 2>/dev/null || true
+  touch "$STATE_FILE" 2>/dev/null || true
+  # Remove old key lines, append new
+  grep -v -E "^${key}=" "$STATE_FILE" 2>/dev/null > "${STATE_FILE}.tmp" || true
+  printf "%s=%s\n" "$key" "$val" >> "${STATE_FILE}.tmp"
+  mv "${STATE_FILE}.tmp" "$STATE_FILE"
+}
+
+cooldown_ok() {
+  local action="$1"
+  local last
+  last="$(state_get "${action}_last" || echo 0)"
+  local n; n="$(now)"
+  if [[ "$last" =~ ^[0-9]+$ ]] && (( n - last < COOLDOWN_SEC )); then
+    echo "cooldown"
+    return 1
+  fi
+  return 0
+}
+
+docker_running() {
+  docker inspect -f '{{.State.Status}}' "$1" 2>/dev/null | grep -qx "running"
+}
+
+svc_active() {
+  systemctl is-active --quiet "$1"
+}
+
+probe_dns() {
+  if command -v dig >/dev/null 2>&1; then
+    timeout 6 dig +time=2 +tries=1 @"$DNS_SERVER_IP" "$DNS_TEST_NAME" A >/dev/null 2>&1
+  elif command -v nslookup >/dev/null 2>&1; then
+    timeout 6 nslookup -timeout=2 "$DNS_TEST_NAME" "$DNS_SERVER_IP" >/dev/null 2>&1
+  else
+    return 2
+  fi
+}
+
+restart_service() {
+  local unit="$1"
+  systemctl restart "$unit"
+}
+
+restart_container() {
+  local name="$1"
+  docker restart "$name" >/dev/null
+}
+
+require_root() {
+  if [[ "$(id -u)" -ne 0 ]]; then
+    echo "[ERR] n8n-remediate must run as root (use sudo)"
+    exit 2
+  fi
+}
+
+usage() {
+  cat <<USAGE
+Usage:
+  n8n-remediate auto
+USAGE
+}
+
+# --- Main ---
+cmd="${1:-}"
+if [[ "$cmd" != "auto" ]]; then
+  usage
+  exit 2
+fi
+
+require_root
+
+# Lock: si ya hay una ejecución en curso, no hacemos nada (evita carreras).
+mkdir -p "$(dirname "$LOCK_FILE")" 2>/dev/null || true
+exec 9>"$LOCK_FILE"
+if ! flock -n 9; then
+  exit 0
+fi
+
+actions=0
+out=""
+
+# 0) Docker service (si Docker está caído, lo demás no sirve)
+if ! svc_active "$DOCKER_UNIT"; then
+  if cooldown_ok docker; then
+    log "[AUTO] docker inactive -> restart $DOCKER_UNIT"
+    restart_service "$DOCKER_UNIT" || true
+    sleep 3
+    state_set "docker_last" "$(now)"
+    if svc_active "$DOCKER_UNIT"; then
+      out+="[AUTO-FIX] Docker: reiniciado $DOCKER_UNIT -> OK\n"
+      log "[OK] docker restarted"
+    else
+      out+="[ALERT] Docker: intenté reiniciar $DOCKER_UNIT pero sigue DOWN\n"
+      log "[FAIL] docker still down"
+    fi
+    actions=$((actions+1))
+  else
+    out+="[INFO] Docker: DOWN pero en cooldown (no reintento todavía)\n"
+  fi
+fi
+
+# Si ya hicimos la acción máxima, salimos.
+if (( actions >= MAX_ACTIONS_PER_RUN )); then
+  [[ -n "$out" ]] && printf "%b" "$out"
+  exit 0
+fi
+
+# 1) WireGuard
+if ! svc_active "$WG_UNIT"; then
+  if cooldown_ok wg; then
+    log "[AUTO] wg inactive -> restart $WG_UNIT"
+    restart_service "$WG_UNIT" || true
+    sleep 2
+    state_set "wg_last" "$(now)"
+    if svc_active "$WG_UNIT"; then
+      out+="[AUTO-FIX] WireGuard: reiniciado $WG_UNIT -> OK\n"
+      log "[OK] wg restarted"
+    else
+      out+="[ALERT] WireGuard: intenté reiniciar $WG_UNIT pero sigue DOWN\n"
+      log "[FAIL] wg still down"
+    fi
+    actions=$((actions+1))
+  else
+    out+="[INFO] WireGuard: DOWN pero en cooldown\n"
+  fi
+fi
+
+if (( actions >= MAX_ACTIONS_PER_RUN )); then
+  [[ -n "$out" ]] && printf "%b" "$out"
+  exit 0
+fi
+
+# 2) DNS via Pi-hole (10.8.0.1) + Unbound
+dns_probe_rc=0
+if ! probe_dns; then
+  dns_probe_rc=$?
+  if [[ "$dns_probe_rc" -eq 2 ]]; then
+    out+="[ALERT] DNS: no encuentro dig/nslookup para testear (instalá dnsutils o bind9-dnsutils)\n"
+  else
+    if cooldown_ok dns; then
+      log "[AUTO] DNS probe failed -> restart $UNBOUND_CONTAINER and $PIHOLE_CONTAINER"
+      # Reinicio ambos; si falta alguno, docker restart fallará y lo reflejamos en recheck.
+      restart_container "$UNBOUND_CONTAINER" || true
+      restart_container "$PIHOLE_CONTAINER" || true
+      sleep 4
+      state_set "dns_last" "$(now)"
+      if probe_dns; then
+        out+="[AUTO-FIX] DNS: reinicié ${UNBOUND_CONTAINER}, ${PIHOLE_CONTAINER} -> OK\n"
+        log "[OK] dns recovered"
+      else
+        out+="[ALERT] DNS: reinicié ${UNBOUND_CONTAINER}, ${PIHOLE_CONTAINER} pero sigue FAIL (no resuelve via ${DNS_SERVER_IP})\n"
+        log "[FAIL] dns still failing"
+      fi
+      actions=$((actions+1))
+    else
+      out+="[INFO] DNS: FAIL pero en cooldown\n"
+    fi
+  fi
+fi
+
+if (( actions >= MAX_ACTIONS_PER_RUN )); then
+  [[ -n "$out" ]] && printf "%b" "$out"
+  exit 0
+fi
+
+# 3) Caddy container (solo si no está running)
+if ! docker_running "$CADDY_CONTAINER"; then
+  if cooldown_ok caddy; then
+    log "[AUTO] caddy not running -> restart $CADDY_CONTAINER"
+    restart_container "$CADDY_CONTAINER" || true
+    sleep 2
+    state_set "caddy_last" "$(now)"
+    if docker_running "$CADDY_CONTAINER"; then
+      out+="[AUTO-FIX] Caddy: reiniciado contenedor ${CADDY_CONTAINER} -> OK\n"
+      log "[OK] caddy restarted"
+    else
+      out+="[ALERT] Caddy: intenté reiniciar ${CADDY_CONTAINER} pero sigue DOWN\n"
+      log "[FAIL] caddy still down"
+    fi
+    actions=$((actions+1))
+  else
+    out+="[INFO] Caddy: DOWN pero en cooldown\n"
+  fi
+fi
+
+if (( actions >= MAX_ACTIONS_PER_RUN )); then
+  [[ -n "$out" ]] && printf "%b" "$out"
+  exit 0
+fi
+
+# 4) Jellyfin container (solo si no está running)
+if ! docker_running "$JELLYFIN_CONTAINER"; then
+  if cooldown_ok jellyfin; then
+    log "[AUTO] jellyfin not running -> restart $JELLYFIN_CONTAINER"
+    restart_container "$JELLYFIN_CONTAINER" || true
+    sleep 3
+    state_set "jellyfin_last" "$(now)"
+    if docker_running "$JELLYFIN_CONTAINER"; then
+      out+="[AUTO-FIX] Jellyfin: reiniciado contenedor ${JELLYFIN_CONTAINER} -> OK\n"
+      log "[OK] jellyfin restarted"
+    else
+      out+="[ALERT] Jellyfin: intenté reiniciar ${JELLYFIN_CONTAINER} pero sigue DOWN\n"
+      log "[FAIL] jellyfin still down"
+    fi
+    actions=$((actions+1))
+  else
+    out+="[INFO] Jellyfin: DOWN pero en cooldown\n"
+  fi
+fi
+
+# Si no hubo nada que hacer, no imprimimos nada (para no spamear).
+[[ -n "$out" ]] && printf "%b" "$out"
+
+exit 0
