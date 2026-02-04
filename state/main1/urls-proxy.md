@@ -1,6 +1,6 @@
 # URLs internas del reverse proxy – main1
 
-_Generado automáticamente por snapshot-urls.sh el 2026-02-04 11:00:02_
+_Generado automáticamente por snapshot-urls.sh el 2026-02-04 12:00:01_
 
 | ID | Host | URL externa | Backend | Contenedor | Estado | Descripción |
 |----|------|------------|---------|------------|--------|-------------|
