@@ -1,6 +1,8 @@
   pool: tank
  state: ONLINE
-  scan: scrub repaired 0B in 03:42:38 with 0 errors on Sun Feb  8 04:06:39 2026
+  scan: scrub in progress since Sun Mar  1 00:00:01 2026
+	24K / 2.55T scanned at 24K/s, 0B / 2.55T issued
+	0B repaired, 0.00% done, no estimated completion time
 config:
 
 	NAME                                                                STATE     READ WRITE CKSUM
