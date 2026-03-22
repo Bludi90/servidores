@@ -1,0 +1,20 @@
+name: nextcloud-db
+
+services:
+  mariadb:
+    image: linuxserver/mariadb:11.4.5
+    container_name: mariadb
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - /srv/storage/nextcloud/db:/config
+    networks:
+      nextcloud_net:
+        aliases:
+          - mariadb
+
+networks:
+  nextcloud_net:
+    external: true
+    name: big-bear-nextcloud-ls_default
