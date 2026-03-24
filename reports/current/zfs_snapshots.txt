@@ -1,6 +1,6 @@
 NAME                                            CREATION                 USED  REFER
 tank/nextcloud/data@pre-delete-subida-20251210  mié dic 10 19:25 2025  10.5G  35.2G
-tank@replica-inicial-20260322                   dom mar 22 12:44 2026   70.6M  1.02T
+tank@replica-inicial-20260322                   dom mar 22 12:44 2026   71.5M  1.02T
 tank/appdata@replica-inicial-20260322           dom mar 22 12:44 2026      0B   104K
 tank/appdata/casaos@replica-inicial-20260322    dom mar 22 12:44 2026      0B   304K
 tank/appdata/docker@replica-inicial-20260322    dom mar 22 12:44 2026   28.3M  23.2G
@@ -8,4 +8,4 @@ tank/media@replica-inicial-20260322             dom mar 22 12:44 2026   90.6M  1
 tank/nextcloud@replica-inicial-20260322         dom mar 22 12:44 2026      0B   264M
 tank/nextcloud/config@replica-inicial-20260322  dom mar 22 12:44 2026    156K   643M
 tank/nextcloud/data@replica-inicial-20260322    dom mar 22 12:44 2026   1.87M  33.6G
-tank/nextcloud/db@replica-inicial-20260322      dom mar 22 12:44 2026   17.9M   560M
+tank/nextcloud/db@replica-inicial-20260322      dom mar 22 12:44 2026   18.2M   560M
