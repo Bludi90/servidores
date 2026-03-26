@@ -8,4 +8,4 @@ tank/media@replica-inicial-20260322             dom mar 22 12:44 2026    181M  1
 tank/nextcloud@replica-inicial-20260322         dom mar 22 12:44 2026      0B   264M
 tank/nextcloud/config@replica-inicial-20260322  dom mar 22 12:44 2026    156K   643M
 tank/nextcloud/data@replica-inicial-20260322    dom mar 22 12:44 2026   2.04M  33.6G
-tank/nextcloud/db@replica-inicial-20260322      dom mar 22 12:44 2026   38.2M   560M
+tank/nextcloud/db@replica-inicial-20260322      dom mar 22 12:44 2026   38.6M   560M
