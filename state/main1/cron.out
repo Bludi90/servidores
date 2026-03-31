@@ -58693,3 +58693,29 @@ Escrito: /home/alejandro/servidores/state/main1/2026-03-31_1900-state.md
 ?? state/main1/2026-03-31_1900-state.md
 ?? state/main1/zfs-repl-backup1.last_common
 ?? state/main1/zfs-repl-backup1.log
+[main ac42d671] auto: snapshot main1 2026-03-31 19:00
+ 13 files changed, 782 insertions(+), 15 deletions(-)
+ create mode 100755 scripts/cmd/zfs-repl-backup1
+ create mode 100755 scripts/cmd/zfs-repl-backup1.bak.2026-03-31-185445
+ create mode 100644 state/main1/2026-03-31_1900-state.md
+ create mode 100644 state/main1/zfs-repl-backup1.last_common
+ create mode 100644 state/main1/zfs-repl-backup1.log
+[2026-03-31 19:00:02] Commit creado: auto: snapshot main1 2026-03-31 19:00
+To github.com:Bludi90/servidores.git
+   d2700e1d..ac42d671  main -> main
+[2026-03-31 19:00:05] git push OK.
+[2026-03-31 19:00:05] === Fin commit-and-push ===
+Escrito: /home/alejandro/servidores/state/main1/2026-03-31_2000-state.md
+[2026-03-31 20:00:02] === Inicio commit-and-push ===
+[2026-03-31 20:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/ufw.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zfs_snapshots.txt
+ M scripts/cmd/zfs-repl-backup1
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+ M state/main1/zfs-repl-backup1.log
+?? state/main1/2026-03-31_2000-state.md

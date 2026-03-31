@@ -3,6 +3,11 @@
 set -Eeuo pipefail
 
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+
+# Si no somos root, relanzar el script completo con sudo
+if (( EUID != 0 )); then
+  exec sudo "$SCRIPT_PATH" "$@"
+fi
 SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 

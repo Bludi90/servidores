@@ -9,3 +9,8 @@
 [2026-03-31 18:57:11] Réplica completada correctamente
 [2026-03-31 18:57:11] Nuevo snapshot base común: tank@replica-20260331-185657
 [2026-03-31 18:57:11] Estado guardado en: /home/alejandro/servidores/state/main1/zfs-repl-backup1.last_common
+[2026-03-31 19:24:37] Origen:  tank
+[2026-03-31 19:24:37] Destino: alejandro@backup1:backup/replicas/main1/tank
+[2026-03-31 19:24:37] Base común: tank@replica-20260331-185657
+[2026-03-31 19:24:37] Nuevo snapshot: tank@replica-20260331-192437
+[2026-03-31 19:24:38] ERROR: No hay SSH funcional hacia backup1
