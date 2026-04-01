@@ -56,3 +56,21 @@
 [2026-04-01 18:35:40] Tamaño estimado en bytes: 9950986
 [2026-04-01 18:35:40] Dry-run: borrando snapshot temporal tank@replica-20260401-183539
 [2026-04-01 18:35:40] Dry-run solicitado: no se enviará nada
+[2026-04-01 19:10:33] ERROR: Opción no reconocida: [--from
+[2026-04-01 19:10:33] Origen:  tank
+[2026-04-01 19:10:33] Destino: alejandro@backup1:backup/replicas/main1/tank
+[2026-04-01 19:10:33] Base común: tank@replica-20260401-182242
+[2026-04-01 19:10:33] Nuevo snapshot: tank@replica-20260401-191033
+[2026-04-01 19:10:33] Creando snapshot recursivo: tank@replica-20260401-191033
+[2026-04-01 19:10:33] Estimando tamaño del incremental...
+[2026-04-01 19:10:34] Tamaño estimado total: 30.9M
+[2026-04-01 19:10:34] Tamaño estimado en bytes: 32400998
+[2026-04-01 19:14:03] ERROR: Opción no reconocida: [--from
+[2026-04-01 19:14:03] Origen:  tank
+[2026-04-01 19:14:03] Destino: alejandro@backup1:backup/replicas/main1/tank
+[2026-04-01 19:14:03] Base común: tank@replica-20260401-182242
+[2026-04-01 19:14:03] Nuevo snapshot: tank@replica-20260401-191403
+[2026-04-01 19:14:04] Creando snapshot recursivo: tank@replica-20260401-191403
+[2026-04-01 19:14:04] Estimando tamaño del incremental...
+[2026-04-01 19:14:04] Tamaño estimado total: 34.7M
+[2026-04-01 19:14:04] Tamaño estimado en bytes: 36385587
