@@ -1,6 +1,6 @@
 # Comandos y scripts (resumen)
 
-_Generado: 2025-12-22 16:58_
+_Generado: 2026-04-01 19:21_
 
 Este documento es un **índice** para consulta rápida. Las guías completas están enlazadas.
 
@@ -12,6 +12,7 @@ Este documento es un **índice** para consulta rápida. Las guías completas est
 - [Server-Health — Chequeo rápido del servidor - Cheatsheet](comandos/srv-health.md)
 - [WireGuard — Cheatsheet](comandos/wireguard.md)
 - [Wake-on-LAN — Cheatsheet](comandos/wol.md)
+- [zfs-repl-backup1](comandos/zfs-repl-backup1.md)
 
 ## DR WireGuard wg0 (main1 -> backup1)
 
@@ -87,4 +88,10 @@ Donde "nombre-host" es el NAME definido en el fichero de hosts (por ejemplo,
 un pc-sobremesa o un pt-lenovo).
 
 [→ Abrir guía completa](comandos/wol.md)
+
+## zfs-repl-backup1
+
+Comando manual para replicar incrementalmente el pool `tank` de `main1` hacia `backup1` usando ZFS (`zfs send | zfs receive`). Mantiene en un fichero de estado el último snapshot común, permite `--dry-run`, muestra estimación previa y, si `pv` está instalado, enseña una línea viva de progreso con bytes, velocidad, porcentaje y ETA aproximada.
+
+[→ Abrir guía completa](comandos/zfs-repl-backup1.md)
 
