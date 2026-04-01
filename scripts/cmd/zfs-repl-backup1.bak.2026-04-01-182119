@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# zfs-repl-backup1 - Réplica manual incremental de tank -> backup1 (v2)
+# zfs-repl-backup1 - Réplica manual incremental de tank -> backup1
 set -Eeuo pipefail
 
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
@@ -8,7 +8,6 @@ SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 if (( EUID != 0 )); then
   exec sudo "$SCRIPT_PATH" "$@"
 fi
-
 SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
@@ -23,25 +22,21 @@ DEST_HOST="backup1"
 DEST_USER="alejandro"
 DEST_DATASET="backup/replicas/main1/tank"
 
-LOCAL_RUN_USER="${SUDO_USER:-alejandro}"
-
 SSH_BIN="${SSH_BIN:-/usr/bin/ssh}"
 ZFS_BIN="${ZFS_BIN:-/usr/bin/zfs}"
 SUDO_BIN="${SUDO_BIN:-/usr/bin/sudo}"
 PV_BIN="$(command -v pv || true)"
-PYTHON_BIN="$(command -v python3 || true)"
+SSH_RUN_USER="${SUDO_USER:-alejandro}"
 
 FROM_SNAP=""
 TO_SNAP=""
 ASSUME_YES=0
 NO_PROGRESS=0
-DRY_RUN=0
-CREATED_NEW_SNAPSHOT=0
 
 usage() {
-  cat <<'EOH'
+  cat <<'EOF'
 Uso:
-  zfs-repl-backup1 [--from SNAP] [--to SNAP] [--yes] [--no-progress] [--dry-run]
+  zfs-repl-backup1 [--from SNAP] [--to SNAP] [--yes] [--no-progress]
 
 Opciones:
   --from SNAP       Snapshot base común. Si no se indica, se lee de:
@@ -50,25 +45,18 @@ Opciones:
                     replica-YYYYMMDD-HHMMSS
   --yes             No pedir confirmación interactiva
   --no-progress     No usar pv aunque esté instalado
-  --dry-run         Crear snapshot + estimar, pero no enviar
   -h, --help        Mostrar ayuda
 
-Notas:
-  - La v2 usa pv con tamaño total estimado para mostrar % y ETA en una sola línea.
-  - El snapshot base común se guarda en:
-    ~/servidores/state/main1/zfs-repl-backup1.last_common
-EOH
-}
-
-ensure_state_dir() {
-  mkdir -p "$STATE_DIR"
-  chown "$LOCAL_RUN_USER:$LOCAL_RUN_USER" "$STATE_DIR" 2>/dev/null || true
+Ejemplos:
+  zfs-repl-backup1 --from replica-20260331a
+  zfs-repl-backup1
+  zfs-repl-backup1 --to replica-20260401-090000
+EOF
 }
 
 log() {
-  ensure_state_dir
+  mkdir -p "$STATE_DIR"
   printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "$LOG_FILE" >&2
-  chown "$LOCAL_RUN_USER:$LOCAL_RUN_USER" "$LOG_FILE" 2>/dev/null || true
 }
 
 die() {
@@ -84,43 +72,6 @@ normalize_snap_name() {
 
 need_cmd() {
   command -v "$1" >/dev/null 2>&1 || die "No encuentro el comando: $1"
-}
-
-ssh_as_user() {
-  sudo -u "$LOCAL_RUN_USER" "$SSH_BIN" "${DEST_USER}@${DEST_HOST}" "$@"
-}
-
-parse_estimated_size_to_bytes() {
-  local human="${1:-}"
-  [[ -n "$human" ]] || return 1
-  [[ -n "$PYTHON_BIN" ]] || return 1
-
-  "$PYTHON_BIN" - "$human" <<'PY'
-import re
-import sys
-
-s = sys.argv[1].strip()
-
-m = re.fullmatch(r'([0-9]+(?:\.[0-9]+)?)([KMGTPE]?)(?:i?B?)?', s, re.IGNORECASE)
-if not m:
-    sys.exit(1)
-
-num = float(m.group(1))
-suffix = m.group(2).upper()
-
-powers = {
-    '': 0,
-    'K': 1,
-    'M': 2,
-    'G': 3,
-    'T': 4,
-    'P': 5,
-    'E': 6,
-}
-
-mult = 1024 ** powers[suffix]
-print(int(num * mult))
-PY
 }
 
 while (( $# )); do
@@ -141,9 +92,6 @@ while (( $# )); do
     --no-progress)
       NO_PROGRESS=1
       ;;
-    --dry-run)
-      DRY_RUN=1
-      ;;
     -h|--help)
       usage
       exit 0
@@ -162,7 +110,7 @@ need_cmd "$SUDO_BIN"
 HOST_NOW="$(hostname || true)"
 [[ "$HOST_NOW" == "$SRC_HOST_EXPECTED" ]] || die "Este script debe ejecutarse en $SRC_HOST_EXPECTED; host actual: $HOST_NOW"
 
-ensure_state_dir
+mkdir -p "$STATE_DIR"
 
 if [[ -z "$FROM_SNAP" ]]; then
   [[ -f "$STATE_FILE" ]] || die "No existe $STATE_FILE. Usa --from SNAP la primera vez."
@@ -184,13 +132,16 @@ log "Destino: ${DEST_USER}@${DEST_HOST}:${DEST_DATASET}"
 log "Base común: $SRC_FROM"
 log "Nuevo snapshot: $SRC_TO"
 
-$ZFS_BIN list -H "$SRC_DATASET" >/dev/null || die "No existe el dataset origen: $SRC_DATASET"
-$ZFS_BIN list -H -t snapshot "$SRC_FROM" >/dev/null || die "No existe el snapshot base común: $SRC_FROM"
+# Validaciones locales
+$SUDO_BIN "$ZFS_BIN" list -H "$SRC_DATASET" >/dev/null || die "No existe el dataset origen: $SRC_DATASET"
+$SUDO_BIN "$ZFS_BIN" list -H -t snapshot "$SRC_FROM" >/dev/null || die "No existe el snapshot base común: $SRC_FROM"
 
-ssh_as_user 'hostname' >/dev/null || die "No hay SSH funcional hacia ${DEST_HOST}"
+# Validación SSH
+sudo -u "$SSH_RUN_USER" "$SSH_BIN" "${DEST_USER}@${DEST_HOST}" 'hostname' >/dev/null || die "No hay SSH funcional hacia ${DEST_HOST}"
 
+# Validación remota del sudoers para zfs receive
 REMOTE_PROBE_OUT="$(
-  sudo -u "$LOCAL_RUN_USER" "$SSH_BIN" "${DEST_USER}@${DEST_HOST}" \
+  sudo -u "$SSH_RUN_USER" "$SSH_BIN" "${DEST_USER}@${DEST_HOST}" \
     "sudo -n /usr/bin/zfs receive -u ${DEST_DATASET}/.__probe__" \
     </dev/null 2>&1 || true
 )"
@@ -199,34 +150,17 @@ if grep -qi 'password is required' <<<"$REMOTE_PROBE_OUT"; then
   die "En ${DEST_HOST}, sudo sigue pidiendo contraseña para zfs receive"
 fi
 
-if $ZFS_BIN list -H -t snapshot "$SRC_TO" >/dev/null 2>&1; then
-  log "El snapshot $SRC_TO ya existía; no se recrea"
-else
-  log "Creando snapshot recursivo: $SRC_TO"
-  $ZFS_BIN snapshot -r "$SRC_TO"
-  CREATED_NEW_SNAPSHOT=1
-fi
+# Crear snapshot nuevo
+log "Creando snapshot recursivo: $SRC_TO"
+$SUDO_BIN "$ZFS_BIN" snapshot -r "$SRC_TO"
 
+# Estimación
 log "Estimando tamaño del incremental..."
-ESTIMATE_OUT="$($ZFS_BIN send -n -v -R -I "$SRC_FROM" "$SRC_TO" 2>&1)" || die "Falló la estimación"
+ESTIMATE_OUT="$($SUDO_BIN "$ZFS_BIN" send -n -v -R -I "$SRC_FROM" "$SRC_TO" 2>&1)" || die "Falló la estimación"
 echo "$ESTIMATE_OUT"
 
 TOTAL_EST="$(grep -E 'total estimated size is ' <<<"$ESTIMATE_OUT" | tail -n1 | sed 's/.*total estimated size is //')"
-TOTAL_BYTES=""
-if [[ -n "$TOTAL_EST" ]]; then
-  TOTAL_BYTES="$(parse_estimated_size_to_bytes "$TOTAL_EST" 2>/dev/null || true)"
-  log "Tamaño estimado total: $TOTAL_EST"
-  [[ -n "$TOTAL_BYTES" ]] && log "Tamaño estimado en bytes: $TOTAL_BYTES"
-fi
-
-if (( DRY_RUN == 1 )); then
-  if (( CREATED_NEW_SNAPSHOT == 1 )); then
-    log "Dry-run: borrando snapshot temporal $SRC_TO"
-    $ZFS_BIN destroy -r "$SRC_TO"
-  fi
-  log "Dry-run solicitado: no se enviará nada"
-  exit 0
-fi
+[[ -n "$TOTAL_EST" ]] && log "Tamaño estimado total: $TOTAL_EST"
 
 if (( ASSUME_YES == 0 )); then
   echo
@@ -237,26 +171,21 @@ fi
 log "Iniciando réplica incremental..."
 
 if [[ -n "$PV_BIN" && "$NO_PROGRESS" -eq 0 && -t 2 ]]; then
-  if [[ -n "$TOTAL_BYTES" ]]; then
-    $ZFS_BIN send -R -I "$SRC_FROM" "$SRC_TO" \
-      | "$PV_BIN" -f -p -t -e -r -b -s "$TOTAL_BYTES" -N zfs-repl-backup1 \
-      | sudo -u "$LOCAL_RUN_USER" "$SSH_BIN" "${DEST_USER}@${DEST_HOST}" "sudo -n /usr/bin/zfs receive -u -F ${DEST_DATASET}"
-  else
-    $ZFS_BIN send -R -I "$SRC_FROM" "$SRC_TO" \
-      | "$PV_BIN" -f -p -t -r -b -N zfs-repl-backup1 \
-      | sudo -u "$LOCAL_RUN_USER" "$SSH_BIN" "${DEST_USER}@${DEST_HOST}" "sudo -n /usr/bin/zfs receive -u -F ${DEST_DATASET}"
-  fi
+  $SUDO_BIN "$ZFS_BIN" send -R -I "$SRC_FROM" "$SRC_TO" \
+    | "$PV_BIN" -p -t -r -b -N zfs-repl-backup1 \
+    | sudo -u "$SSH_RUN_USER" "$SSH_BIN" "${DEST_USER}@${DEST_HOST}" "sudo -n /usr/bin/zfs receive -u -F ${DEST_DATASET}"
 else
-  $ZFS_BIN send -R -I "$SRC_FROM" "$SRC_TO" \
-    | sudo -u "$LOCAL_RUN_USER" "$SSH_BIN" "${DEST_USER}@${DEST_HOST}" "sudo -n /usr/bin/zfs receive -u -F ${DEST_DATASET}"
+  $SUDO_BIN "$ZFS_BIN" send -R -I "$SRC_FROM" "$SRC_TO" \
+    | sudo -u "$SSH_RUN_USER" "$SSH_BIN" "${DEST_USER}@${DEST_HOST}" "sudo -n /usr/bin/zfs receive -u -F ${DEST_DATASET}"
 fi
 
-sudo -u "$LOCAL_RUN_USER" "$SSH_BIN" "${DEST_USER}@${DEST_HOST}" \
-  "/usr/bin/zfs list -H -t snapshot -o name ${DEST_DATASET}@${TO_SNAP} >/dev/null" \
+# Verificación remota mínima
+sudo -u "$SSH_RUN_USER" "$SSH_BIN" "${DEST_USER}@${DEST_HOST}" \
+  "$ZFS_BIN list -H -t snapshot -o name ${DEST_DATASET}@${TO_SNAP} >/dev/null" \
   || die "La verificación remota del snapshot recibido falló"
 
+# Persistir nuevo snapshot base común
 printf '%s\n' "$TO_SNAP" > "$STATE_FILE"
-chown "$LOCAL_RUN_USER:$LOCAL_RUN_USER" "$STATE_FILE" 2>/dev/null || true
 
 log "Réplica completada correctamente"
 log "Nuevo snapshot base común: ${SRC_DATASET}@${TO_SNAP}"

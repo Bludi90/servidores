@@ -14,3 +14,45 @@
 [2026-03-31 19:24:37] Base común: tank@replica-20260331-185657
 [2026-03-31 19:24:37] Nuevo snapshot: tank@replica-20260331-192437
 [2026-03-31 19:24:38] ERROR: No hay SSH funcional hacia backup1
+[2026-04-01 18:06:17] Origen:  tank
+[2026-04-01 18:06:17] Destino: alejandro@backup1:backup/replicas/main1/tank
+[2026-04-01 18:06:17] Base común: tank@replica-20260331-185657
+[2026-04-01 18:06:17] Nuevo snapshot: tank@replica-20260401-180617
+[2026-04-01 18:06:18] Creando snapshot recursivo: tank@replica-20260401-180617
+[2026-04-01 18:06:18] Estimando tamaño del incremental...
+[2026-04-01 18:06:18] Tamaño estimado total: 530M
+[2026-04-01 18:06:18] Iniciando réplica incremental...
+[2026-04-01 18:06:36] Réplica completada correctamente
+[2026-04-01 18:06:36] Nuevo snapshot base común: tank@replica-20260401-180617
+[2026-04-01 18:06:36] Estado guardado en: /home/alejandro/servidores/state/main1/zfs-repl-backup1.last_common
+[2026-04-01 18:21:52] Origen:  tank
+[2026-04-01 18:21:52] Destino: alejandro@backup1:backup/replicas/main1/tank
+[2026-04-01 18:21:52] Base común: tank@replica-20260401-180617
+[2026-04-01 18:21:52] Nuevo snapshot: tank@replica-20260401-182152
+[2026-04-01 18:21:52] Creando snapshot recursivo: tank@replica-20260401-182152
+[2026-04-01 18:21:53] Estimando tamaño del incremental...
+[2026-04-01 18:21:53] Tamaño estimado total: 11.7M
+[2026-04-01 18:21:53] Tamaño estimado en bytes: 12268339
+[2026-04-01 18:21:53] Dry-run solicitado: no se enviará nada
+[2026-04-01 18:22:42] Origen:  tank
+[2026-04-01 18:22:42] Destino: alejandro@backup1:backup/replicas/main1/tank
+[2026-04-01 18:22:42] Base común: tank@replica-20260401-180617
+[2026-04-01 18:22:42] Nuevo snapshot: tank@replica-20260401-182242
+[2026-04-01 18:22:42] Creando snapshot recursivo: tank@replica-20260401-182242
+[2026-04-01 18:22:42] Estimando tamaño del incremental...
+[2026-04-01 18:22:42] Tamaño estimado total: 14.2M
+[2026-04-01 18:22:42] Tamaño estimado en bytes: 14889779
+[2026-04-01 18:22:42] Iniciando réplica incremental...
+[2026-04-01 18:22:49] Réplica completada correctamente
+[2026-04-01 18:22:49] Nuevo snapshot base común: tank@replica-20260401-182242
+[2026-04-01 18:22:49] Estado guardado en: /home/alejandro/servidores/state/main1/zfs-repl-backup1.last_common
+[2026-04-01 18:35:39] Origen:  tank
+[2026-04-01 18:35:39] Destino: alejandro@backup1:backup/replicas/main1/tank
+[2026-04-01 18:35:39] Base común: tank@replica-20260401-182242
+[2026-04-01 18:35:39] Nuevo snapshot: tank@replica-20260401-183539
+[2026-04-01 18:35:39] Creando snapshot recursivo: tank@replica-20260401-183539
+[2026-04-01 18:35:39] Estimando tamaño del incremental...
+[2026-04-01 18:35:40] Tamaño estimado total: 9.49M
+[2026-04-01 18:35:40] Tamaño estimado en bytes: 9950986
+[2026-04-01 18:35:40] Dry-run: borrando snapshot temporal tank@replica-20260401-183539
+[2026-04-01 18:35:40] Dry-run solicitado: no se enviará nada
