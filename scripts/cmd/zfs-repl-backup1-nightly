@@ -2,8 +2,189 @@
 set -Eeuo pipefail
 
 LOG="/home/alejandro/servidores/state/main1/zfs-repl-backup1-nightly.log"
+HOST_WOL="sv-backup1"
+HOST_IP="192.168.1.122"
+HOST_SSH="backup1"
+SSH_LOCAL_USER="alejandro"
+
+REPL_CMD="/usr/local/bin/zfs-repl-backup1"
+REMOTE_POWEROFF_CHECK="sudo -n /usr/local/sbin/backup1-safe-poweroff --check"
+REMOTE_POWEROFF_REAL="sudo -n /usr/local/sbin/backup1-safe-poweroff"
+
+PING_WAIT_UP=300
+SSH_WAIT_UP=300
+DOWN_WAIT=180
+POST_DOWN_GRACE=30
+WOL_RETRIES=3
+WOL_RETRY_SLEEP=10
 
 ts() { date '+%F %T'; }
+log() { echo "[$(ts)] $*" | tee -a "$LOG" ; }
 
-echo "[$(ts)] INFO  zfs-repl-backup1-nightly: wrapper base cargado; todavía sin WOL/réplica real" >> "$LOG"
-exit 0
+usage() {
+  cat <<'USAGE'
+Uso:
+  zfs-repl-backup1-nightly --check
+  zfs-repl-backup1-nightly
+USAGE
+}
+
+ssh_run() {
+  sudo -u "$SSH_LOCAL_USER" -H ssh -o BatchMode=yes -o ConnectTimeout=3 "$HOST_SSH" "$@"
+}
+
+ping_ok() {
+  ping -c 1 -W 1 "$HOST_IP" >/dev/null 2>&1
+}
+
+ssh_ok() {
+  ssh_run 'echo ok' >/dev/null 2>&1
+}
+
+wait_until_down() {
+  local timeout="$1" elapsed=0
+  while (( elapsed < timeout )); do
+    if ! ping_ok && ! ssh_ok; then
+      return 0
+    fi
+    sleep 2
+    elapsed=$((elapsed + 2))
+  done
+  return 1
+}
+
+wait_for_ping_up() {
+  local timeout="$1" elapsed=0
+  while (( elapsed < timeout )); do
+    if ping_ok; then
+      return 0
+    fi
+    sleep 2
+    elapsed=$((elapsed + 2))
+  done
+  return 1
+}
+
+wait_for_ssh_up() {
+  local timeout="$1" elapsed=0
+  while (( elapsed < timeout )); do
+    if ssh_ok; then
+      return 0
+    fi
+    sleep 2
+    elapsed=$((elapsed + 2))
+  done
+  return 1
+}
+
+run_checks() {
+  log "INFO  check: iniciando comprobaciones previas"
+
+  command -v wol >/dev/null
+  log "OK    check: comando wol encontrado"
+
+  command -v wolctl >/dev/null
+  log "OK    check: comando wolctl encontrado"
+
+  test -x "$REPL_CMD"
+  log "OK    check: comando de réplica encontrado: $REPL_CMD"
+
+  sudo wolctl show "$HOST_WOL" >/dev/null
+  log "OK    check: host WOL registrado: $HOST_WOL"
+
+  if ping_ok; then
+    log "OK    check: ping a $HOST_IP responde"
+  else
+    log "WARN  check: ping a $HOST_IP no responde"
+  fi
+
+  if ssh_ok; then
+    log "OK    check: SSH a $HOST_SSH responde"
+  else
+    log "WARN  check: SSH a $HOST_SSH no responde"
+  fi
+
+  ssh_run "$REMOTE_POWEROFF_CHECK" >/dev/null
+  log "OK    check: poweroff remoto no interactivo validado"
+
+  log "INFO  check: todas las comprobaciones críticas pasaron"
+}
+
+wake_host() {
+  local i
+  log "INFO  wake: enviando magic packet a $HOST_WOL"
+  for ((i=1; i<=WOL_RETRIES; i++)); do
+    sudo wol "$HOST_WOL" >/dev/null
+    log "INFO  wake: intento $i/$WOL_RETRIES enviado"
+    if (( i < WOL_RETRIES )); then
+      sleep "$WOL_RETRY_SLEEP"
+    fi
+  done
+
+  log "INFO  wake: esperando ping hasta ${PING_WAIT_UP}s"
+  wait_for_ping_up "$PING_WAIT_UP"
+  log "OK    wake: ping recuperado"
+
+  log "INFO  wake: esperando SSH hasta ${SSH_WAIT_UP}s"
+  wait_for_ssh_up "$SSH_WAIT_UP"
+  log "OK    wake: SSH recuperado"
+}
+
+shutdown_host() {
+  log "INFO  shutdown: ordenando apagado remoto"
+  ssh_run "$REMOTE_POWEROFF_REAL" >/dev/null || true
+
+  log "INFO  shutdown: esperando caída completa hasta ${DOWN_WAIT}s"
+  wait_until_down "$DOWN_WAIT"
+  log "OK    shutdown: host apagado"
+
+  log "INFO  shutdown: fin del ciclo"
+}
+
+run_real() {
+  local started_by_wrapper=0
+
+  run_checks
+
+  if ping_ok || ssh_ok; then
+    log "INFO  main: $HOST_WOL ya estaba encendido; no se enviará WOL"
+    started_by_wrapper=0
+  else
+    log "INFO  main: $HOST_WOL estaba apagado; se iniciará por WOL"
+    started_by_wrapper=1
+    wake_host
+  fi
+
+  log "INFO  repl: lanzando réplica real"
+  "$REPL_CMD" --yes
+  log "OK    repl: réplica finalizada"
+
+  if (( started_by_wrapper == 1 )); then
+    log "INFO  main: el host fue encendido por este wrapper; se apagará al final"
+    shutdown_host
+  else
+    log "INFO  main: el host ya estaba encendido al inicio; se deja encendido"
+  fi
+
+  log "INFO  main: flujo completado correctamente"
+}
+
+main() {
+  case "${1-}" in
+    --check)
+      run_checks
+      ;;
+    "" )
+      run_real
+      ;;
+    -h|--help)
+      usage
+      ;;
+    *)
+      usage >&2
+      exit 2
+      ;;
+  esac
+}
+
+main "${1-}"

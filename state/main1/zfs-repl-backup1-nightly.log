@@ -1,1 +1,51 @@
 [2026-04-03 19:26:28] INFO  zfs-repl-backup1-nightly: wrapper base cargado; todavía sin WOL/réplica real
+[2026-04-03 20:42:44] INFO  check: iniciando comprobaciones previas
+[2026-04-03 20:42:44] OK    check: comando wol encontrado
+[2026-04-03 20:42:44] OK    check: comando wolctl encontrado
+[2026-04-03 20:42:44] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-03 20:42:44] OK    check: host WOL registrado: sv-backup1
+[2026-04-03 20:42:44] OK    check: ping a 192.168.1.122 responde
+[2026-04-03 20:42:44] WARN  check: SSH a backup1 no responde
+[2026-04-03 20:44:54] INFO  check: iniciando comprobaciones previas
+[2026-04-03 20:44:54] OK    check: comando wol encontrado
+[2026-04-03 20:44:54] OK    check: comando wolctl encontrado
+[2026-04-03 20:44:54] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-03 20:44:54] OK    check: host WOL registrado: sv-backup1
+[2026-04-03 20:44:54] OK    check: ping a 192.168.1.122 responde
+[2026-04-03 20:44:55] OK    check: SSH a backup1 responde
+[2026-04-03 20:44:55] OK    check: poweroff remoto no interactivo validado
+[2026-04-03 20:44:55] INFO  check: todas las comprobaciones críticas pasaron
+[2026-04-03 20:51:24] INFO  check: iniciando comprobaciones previas
+[2026-04-03 20:51:24] OK    check: comando wol encontrado
+[2026-04-03 20:51:24] OK    check: comando wolctl encontrado
+[2026-04-03 20:51:24] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-03 20:51:24] OK    check: host WOL registrado: sv-backup1
+[2026-04-03 20:51:24] OK    check: ping a 192.168.1.122 responde
+[2026-04-03 20:51:25] OK    check: SSH a backup1 responde
+[2026-04-03 20:51:25] OK    check: poweroff remoto no interactivo validado
+[2026-04-03 20:51:25] INFO  check: todas las comprobaciones críticas pasaron
+[2026-04-03 20:51:41] INFO  check: iniciando comprobaciones previas
+[2026-04-03 20:51:41] OK    check: comando wol encontrado
+[2026-04-03 20:51:41] OK    check: comando wolctl encontrado
+[2026-04-03 20:51:41] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-03 20:51:41] OK    check: host WOL registrado: sv-backup1
+[2026-04-03 20:51:41] OK    check: ping a 192.168.1.122 responde
+[2026-04-03 20:51:42] OK    check: SSH a backup1 responde
+[2026-04-03 20:51:42] OK    check: poweroff remoto no interactivo validado
+[2026-04-03 20:51:42] INFO  check: todas las comprobaciones críticas pasaron
+[2026-04-03 20:51:42] INFO  main: sv-backup1 ya estaba encendido; no se enviará WOL
+[2026-04-03 20:51:42] INFO  repl: lanzando réplica real
+[2026-04-03 20:53:12] INFO  check: iniciando comprobaciones previas
+[2026-04-03 20:53:12] OK    check: comando wol encontrado
+[2026-04-03 20:53:12] OK    check: comando wolctl encontrado
+[2026-04-03 20:53:12] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-03 20:53:12] OK    check: host WOL registrado: sv-backup1
+[2026-04-03 20:53:12] OK    check: ping a 192.168.1.122 responde
+[2026-04-03 20:53:13] OK    check: SSH a backup1 responde
+[2026-04-03 20:53:13] OK    check: poweroff remoto no interactivo validado
+[2026-04-03 20:53:13] INFO  check: todas las comprobaciones críticas pasaron
+[2026-04-03 20:53:13] INFO  main: sv-backup1 ya estaba encendido; no se enviará WOL
+[2026-04-03 20:53:13] INFO  repl: lanzando réplica real
+[2026-04-03 20:59:58] OK    repl: réplica finalizada
+[2026-04-03 20:59:58] INFO  main: el host ya estaba encendido al inicio; se deja encendido
+[2026-04-03 20:59:58] INFO  main: flujo completado correctamente
