@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+LOG="/home/alejandro/servidores/state/main1/zfs-repl-backup1-nightly.log"
+
+ts() { date '+%F %T'; }
+
+echo "[$(ts)] INFO  zfs-repl-backup1-nightly: wrapper base cargado; todavía sin WOL/réplica real" >> "$LOG"
+exit 0
