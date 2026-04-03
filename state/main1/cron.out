@@ -60173,3 +60173,25 @@ Escrito: /home/alejandro/servidores/state/main1/2026-04-03_2300-state.md
 ?? state/main1/2026-04-03_2300-state.md
 ?? state/main1/zfs-repl-backup1-runs.tsv
 ?? state/main1/zfs-repl-backup1-runs.tsv.broken-2026-04-03-220541
+[main 5c7e5f45] auto: snapshot main1 2026-04-03 23:00
+ 13 files changed, 650 insertions(+), 345 deletions(-)
+ create mode 100644 state/main1/2026-04-03_2300-state.md
+ mode change 100644 => 120000 state/main1/current-state.md
+ create mode 100644 state/main1/zfs-repl-backup1-runs.tsv
+ create mode 100644 state/main1/zfs-repl-backup1-runs.tsv.broken-2026-04-03-220541
+[2026-04-03 23:00:03] Commit creado: auto: snapshot main1 2026-04-03 23:00
+To github.com:Bludi90/servidores.git
+   76f24e25..5c7e5f45  main -> main
+[2026-04-03 23:00:06] git push OK.
+[2026-04-03 23:00:06] === Fin commit-and-push ===
+Escrito: /home/alejandro/servidores/state/main1/2026-04-04_0000-state.md
+[2026-04-04 00:00:03] === Inicio commit-and-push ===
+[2026-04-04 00:00:03] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/zfs_list.txt
+ M reports/current/zfs_snapshots.txt
+ M state/main1/cron.out
+ T state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2026-04-04_0000-state.md
