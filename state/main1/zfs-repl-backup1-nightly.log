@@ -134,3 +134,21 @@
 [2026-04-03 21:28:25] INFO  shutdown: margen post-apagado 30s
 [2026-04-03 21:28:55] INFO  shutdown: fin del ciclo
 [2026-04-03 21:28:55] INFO  main: flujo completado correctamente
+[2026-04-03 22:01:43] INFO  check: iniciando comprobaciones comunes
+[2026-04-03 22:01:43] OK    check: comando wol encontrado
+[2026-04-03 22:01:43] OK    check: comando wolctl encontrado
+[2026-04-03 22:01:43] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-03 22:01:43] OK    check: host WOL registrado: sv-backup1
+[2026-04-03 22:01:43] INFO  check: iniciando comprobaciones online
+[2026-04-03 22:01:44] ERROR check: ping a 192.168.1.122 no responde
+[2026-04-03 22:06:19] INFO  check: iniciando comprobaciones comunes
+[2026-04-03 22:06:19] OK    check: comando wol encontrado
+[2026-04-03 22:06:19] OK    check: comando wolctl encontrado
+[2026-04-03 22:06:19] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-03 22:06:19] OK    check: host WOL registrado: sv-backup1
+[2026-04-03 22:06:19] INFO  check: iniciando comprobaciones online
+[2026-04-03 22:06:19] OK    check: ping a 192.168.1.122 responde
+[2026-04-03 22:06:19] OK    check: SSH a backup1 responde
+[2026-04-03 22:06:20] OK    check: poweroff remoto no interactivo validado
+[2026-04-03 22:06:20] INFO  check: comprobaciones online OK
+[2026-04-03 22:06:20] INFO  check: todas las comprobaciones críticas pasaron

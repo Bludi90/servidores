@@ -2,6 +2,9 @@
 set -Eeuo pipefail
 
 LOG="/home/alejandro/servidores/state/main1/zfs-repl-backup1-nightly.log"
+RUNS_FILE="/home/alejandro/servidores/state/main1/zfs-repl-backup1-runs.tsv"
+STATE_FILE="/home/alejandro/servidores/state/main1/zfs-repl-backup1.last_common"
+
 HOST_WOL="sv-backup1"
 HOST_IP="192.168.1.122"
 HOST_SSH="backup1"
@@ -19,6 +22,20 @@ DOWN_WAIT=180
 POST_DOWN_GRACE=30
 WOL_RETRIES=3
 WOL_RETRY_SLEEP=10
+
+START_EPOCH="$(date +%s)"
+START_ISO="$(date -Iseconds)"
+
+MODE="unknown"
+PHASE="init"
+RESULT="FAIL"
+NOTE=""
+HOST_STARTED="no"
+WAKE_OK="no"
+REPL_OK="no"
+SHUTDOWN_OK="no"
+BASE_COMMON_PRE=""
+BASE_COMMON_POST=""
 
 ts() { date '+%F %T'; }
 log() { echo "[$(ts)] $*" | tee -a "$LOG" ; }
@@ -42,6 +59,74 @@ ping_ok() {
 ssh_ok() {
   ssh_run 'echo ok' >/dev/null 2>&1
 }
+
+read_base_common() {
+  [[ -r "$STATE_FILE" ]] && cat "$STATE_FILE" || true
+}
+
+ensure_runs_file() {
+  mkdir -p "$(dirname "$RUNS_FILE")"
+  if [[ ! -e "$RUNS_FILE" ]]; then
+    awk 'BEGIN{
+      OFS="	";
+      print "start_iso","end_iso","mode","rc","result","phase","host_started","wake_ok","repl_ok","shutdown_ok","base_common_pre","base_common_post","duration_s","note"
+    }' > "$RUNS_FILE"
+  fi
+}
+
+sanitize_tsv() {
+  local s="${1-}"
+  s="${s//$'\t'/ }"
+  s="${s//$'\n'/ }"
+  printf '%s' "$s"
+}
+
+append_run_record() {
+  local rc="$1"
+  local end_epoch end_iso duration
+
+  end_epoch="$(date +%s)"
+  end_iso="$(date -Iseconds)"
+  duration=$(( end_epoch - START_EPOCH ))
+
+  ensure_runs_file
+
+  awk \
+    -v a="$START_ISO" \
+    -v b="$end_iso" \
+    -v c="$MODE" \
+    -v d="$rc" \
+    -v e="$RESULT" \
+    -v f="$PHASE" \
+    -v g="$HOST_STARTED" \
+    -v h="$WAKE_OK" \
+    -v i="$REPL_OK" \
+    -v j="$SHUTDOWN_OK" \
+    -v k="$(sanitize_tsv "$BASE_COMMON_PRE")" \
+    -v l="$(sanitize_tsv "$BASE_COMMON_POST")" \
+    -v m="$duration" \
+    -v n="$(sanitize_tsv "$NOTE")" \
+    'BEGIN{
+      OFS="	";
+      print a,b,c,d,e,f,g,h,i,j,k,l,m,n
+    }' >> "$RUNS_FILE"
+}
+
+on_exit() {
+  local rc=$?
+
+  case "$MODE" in
+    check|real)
+      if [[ "$RESULT" != "OK" && "$RESULT" != "LOCKED" ]]; then
+        RESULT="FAIL"
+      fi
+      append_run_record "$rc"
+      ;;
+    *)
+      ;;
+  esac
+}
+trap on_exit EXIT
 
 wait_until_down() {
   local timeout="$1" elapsed=0
@@ -80,6 +165,7 @@ wait_for_ssh_up() {
 }
 
 run_common_checks() {
+  PHASE="check-common"
   log "INFO  check: iniciando comprobaciones comunes"
 
   command -v wol >/dev/null
@@ -96,12 +182,14 @@ run_common_checks() {
 }
 
 run_online_checks() {
+  PHASE="check-online"
   log "INFO  check: iniciando comprobaciones online"
 
   if ping_ok; then
     log "OK    check: ping a $HOST_IP responde"
   else
     log "ERROR check: ping a $HOST_IP no responde"
+    NOTE="ping no responde"
     return 1
   fi
 
@@ -109,6 +197,7 @@ run_online_checks() {
     log "OK    check: SSH a $HOST_SSH responde"
   else
     log "ERROR check: SSH a $HOST_SSH no responde"
+    NOTE="ssh no responde"
     return 1
   fi
 
@@ -119,14 +208,23 @@ run_online_checks() {
 }
 
 run_checks() {
+  BASE_COMMON_PRE="$(read_base_common)"
+  BASE_COMMON_POST="$BASE_COMMON_PRE"
+
   run_common_checks
   run_online_checks
+
+  PHASE="done"
+  RESULT="OK"
+  NOTE="check-ok"
   log "INFO  check: todas las comprobaciones críticas pasaron"
 }
 
 wake_host() {
   local i
+  PHASE="wake"
   log "INFO  wake: enviando magic packet a $HOST_WOL"
+
   for ((i=1; i<=WOL_RETRIES; i++)); do
     sudo wol "$HOST_WOL" >/dev/null
     log "INFO  wake: intento $i/$WOL_RETRIES enviado"
@@ -142,15 +240,20 @@ wake_host() {
   log "INFO  wake: esperando SSH hasta ${SSH_WAIT_UP}s"
   wait_for_ssh_up "$SSH_WAIT_UP"
   log "OK    wake: SSH recuperado"
+
+  WAKE_OK="yes"
 }
 
 shutdown_host() {
+  PHASE="shutdown"
   log "INFO  shutdown: ordenando apagado remoto"
   ssh_run "$REMOTE_POWEROFF_REAL" >/dev/null || true
 
   log "INFO  shutdown: esperando caída completa hasta ${DOWN_WAIT}s"
   wait_until_down "$DOWN_WAIT"
   log "OK    shutdown: host apagado"
+
+  SHUTDOWN_OK="yes"
 
   log "INFO  shutdown: margen post-apagado ${POST_DOWN_GRACE}s"
   sleep "$POST_DOWN_GRACE"
@@ -161,21 +264,28 @@ shutdown_host() {
 run_real() {
   local started_by_wrapper=0
 
+  BASE_COMMON_PRE="$(read_base_common)"
+
   run_common_checks
 
   if ping_ok || ssh_ok; then
     log "INFO  main: $HOST_WOL ya estaba encendido; no se enviará WOL"
     started_by_wrapper=0
+    HOST_STARTED="no"
   else
     log "INFO  main: $HOST_WOL estaba apagado; se iniciará por WOL"
     started_by_wrapper=1
+    HOST_STARTED="yes"
     wake_host
   fi
 
   run_online_checks
 
+  PHASE="repl"
   log "INFO  repl: lanzando réplica real"
   "$REPL_CMD" --yes
+  REPL_OK="yes"
+  BASE_COMMON_POST="$(read_base_common)"
   log "OK    repl: réplica finalizada"
 
   if (( started_by_wrapper == 1 )); then
@@ -183,31 +293,48 @@ run_real() {
     shutdown_host
   else
     log "INFO  main: el host ya estaba encendido al inicio; se deja encendido"
+    SHUTDOWN_OK="no"
   fi
 
+  PHASE="done"
+  RESULT="OK"
+  NOTE="real-ok"
   log "INFO  main: flujo completado correctamente"
 }
 
 main() {
-  exec 9> "$LOCK_FILE"
-  if ! flock -n 9; then
-    log "WARN  lock: otra ejecución de zfs-repl-backup1-nightly ya está en curso"
-    exit 1
-  fi
-
   case "${1-}" in
     --check)
-      run_checks
+      MODE="check"
       ;;
-    "" )
-      run_real
+    "")
+      MODE="real"
       ;;
     -h|--help)
       usage
+      exit 0
       ;;
     *)
       usage >&2
       exit 2
+      ;;
+  esac
+
+  exec 9> "$LOCK_FILE"
+  if ! flock -n 9; then
+    RESULT="LOCKED"
+    PHASE="lock"
+    NOTE="otra ejecución en curso"
+    log "WARN  lock: otra ejecución de zfs-repl-backup1-nightly ya está en curso"
+    exit 1
+  fi
+
+  case "$MODE" in
+    check)
+      run_checks
+      ;;
+    real)
+      run_real
       ;;
   esac
 }
