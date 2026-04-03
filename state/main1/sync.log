@@ -51753,3 +51753,22 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M state/main1/zfs-repl-backup1.last_common
  M state/main1/zfs-repl-backup1.log
 ?? state/main1/2026-04-03_2100-state.md
+[main 2fd853ae] auto: snapshot main1 2026-04-03 21:00
+ 13 files changed, 745 insertions(+), 13 deletions(-)
+ create mode 100644 state/main1/2026-04-03_2100-state.md
+[2026-04-03 21:00:03] Commit creado: auto: snapshot main1 2026-04-03 21:00
+[2026-04-03 21:00:05] git push OK.
+[2026-04-03 21:00:05] === Fin commit-and-push ===
+[2026-04-03 22:00:02] === Inicio commit-and-push ===
+[2026-04-03 22:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/zfs_snapshots.txt
+ M scripts/cmd/zfs-repl-backup1-nightly
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+ M state/main1/zfs-repl-backup1-nightly.log
+ M state/main1/zfs-repl-backup1.last_common
+ M state/main1/zfs-repl-backup1.log
+?? state/main1/2026-04-03_2200-state.md

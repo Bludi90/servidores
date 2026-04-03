@@ -11,6 +11,8 @@ REPL_CMD="/usr/local/bin/zfs-repl-backup1"
 REMOTE_POWEROFF_CHECK="sudo -n /usr/local/sbin/backup1-safe-poweroff --check"
 REMOTE_POWEROFF_REAL="sudo -n /usr/local/sbin/backup1-safe-poweroff"
 
+LOCK_FILE="/var/lock/zfs-repl-backup1-nightly.lock"
+
 PING_WAIT_UP=300
 SSH_WAIT_UP=300
 DOWN_WAIT=180
@@ -77,8 +79,8 @@ wait_for_ssh_up() {
   return 1
 }
 
-run_checks() {
-  log "INFO  check: iniciando comprobaciones previas"
+run_common_checks() {
+  log "INFO  check: iniciando comprobaciones comunes"
 
   command -v wol >/dev/null
   log "OK    check: comando wol encontrado"
@@ -91,22 +93,34 @@ run_checks() {
 
   sudo wolctl show "$HOST_WOL" >/dev/null
   log "OK    check: host WOL registrado: $HOST_WOL"
+}
+
+run_online_checks() {
+  log "INFO  check: iniciando comprobaciones online"
 
   if ping_ok; then
     log "OK    check: ping a $HOST_IP responde"
   else
-    log "WARN  check: ping a $HOST_IP no responde"
+    log "ERROR check: ping a $HOST_IP no responde"
+    return 1
   fi
 
   if ssh_ok; then
     log "OK    check: SSH a $HOST_SSH responde"
   else
-    log "WARN  check: SSH a $HOST_SSH no responde"
+    log "ERROR check: SSH a $HOST_SSH no responde"
+    return 1
   fi
 
   ssh_run "$REMOTE_POWEROFF_CHECK" >/dev/null
   log "OK    check: poweroff remoto no interactivo validado"
 
+  log "INFO  check: comprobaciones online OK"
+}
+
+run_checks() {
+  run_common_checks
+  run_online_checks
   log "INFO  check: todas las comprobaciones críticas pasaron"
 }
 
@@ -138,13 +152,16 @@ shutdown_host() {
   wait_until_down "$DOWN_WAIT"
   log "OK    shutdown: host apagado"
 
+  log "INFO  shutdown: margen post-apagado ${POST_DOWN_GRACE}s"
+  sleep "$POST_DOWN_GRACE"
+
   log "INFO  shutdown: fin del ciclo"
 }
 
 run_real() {
   local started_by_wrapper=0
 
-  run_checks
+  run_common_checks
 
   if ping_ok || ssh_ok; then
     log "INFO  main: $HOST_WOL ya estaba encendido; no se enviará WOL"
@@ -154,6 +171,8 @@ run_real() {
     started_by_wrapper=1
     wake_host
   fi
+
+  run_online_checks
 
   log "INFO  repl: lanzando réplica real"
   "$REPL_CMD" --yes
@@ -170,6 +189,12 @@ run_real() {
 }
 
 main() {
+  exec 9> "$LOCK_FILE"
+  if ! flock -n 9; then
+    log "WARN  lock: otra ejecución de zfs-repl-backup1-nightly ya está en curso"
+    exit 1
+  fi
+
   case "${1-}" in
     --check)
       run_checks
