@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+usage() {
+  cat <<'USAGE'
+Uso:
+  zfs-restore-backup1 --ssh-target HOST --dataset DATASET --tag TAG --path SUBPATH --dest DESTINO [--dry-run]
+USAGE
+}
+
+SSH_TARGET=""
+DATASET=""
+TAG=""
+SUBPATH=""
+DEST=""
+DRY_RUN=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --ssh-target) SSH_TARGET="${2:-}"; shift 2 ;;
+    --dataset)    DATASET="${2:-}"; shift 2 ;;
+    --tag)        TAG="${2:-}"; shift 2 ;;
+    --path)       SUBPATH="${2:-}"; shift 2 ;;
+    --dest)       DEST="${2:-}"; shift 2 ;;
+    --dry-run)    DRY_RUN=1; shift ;;
+    -h|--help)    usage; exit 0 ;;
+    *) echo "Argumento no reconocido: $1" >&2; usage >&2; exit 2 ;;
+  esac
+done
+
+[[ -n "$SSH_TARGET" ]] || { echo "Falta --ssh-target" >&2; exit 2; }
+[[ -n "$DATASET"    ]] || { echo "Falta --dataset" >&2; exit 2; }
+[[ -n "$TAG"        ]] || { echo "Falta --tag" >&2; exit 2; }
+[[ -n "$SUBPATH"    ]] || { echo "Falta --path" >&2; exit 2; }
+[[ -n "$DEST"       ]] || { echo "Falta --dest" >&2; exit 2; }
+
+[[ "$DATASET" != /* ]] || { echo "--dataset no debe empezar por /" >&2; exit 2; }
+[[ "$SUBPATH" != /* ]] || { echo "--path no debe empezar por /" >&2; exit 2; }
+
+STAMP="$(date +%Y%m%d-%H%M%S)"
+SAFE_DATASET="${DATASET//\//-}"
+SAFE_SUBPATH="${SUBPATH//\//-}"
+
+REMOTE_DATASET="backup/replicas/main1/tank/${DATASET}"
+REMOTE_SNAPSHOT="${REMOTE_DATASET}@${TAG}"
+REMOTE_CLONE="backup/restore-tests/${SAFE_DATASET}-${STAMP}"
+REMOTE_MOUNT="/mnt/restore-test-${SAFE_DATASET}-${STAMP}"
+REMOTE_TAR="/tmp/zfs-restore-${SAFE_DATASET}-${SAFE_SUBPATH}-${STAMP}.tar"
+LOCAL_TAR="${DEST%/}/zfs-restore-${SAFE_DATASET}-${SAFE_SUBPATH}-${STAMP}.tar"
+LOCAL_EXTRACT_DIR="${DEST%/}"
+
+echo "zfs-restore-backup1 (plan)"
+echo "DRY_RUN=$DRY_RUN"
+echo "SSH_TARGET=$SSH_TARGET"
+echo "REMOTE_DATASET=$REMOTE_DATASET"
+echo "REMOTE_SNAPSHOT=$REMOTE_SNAPSHOT"
+echo "REMOTE_CLONE=$REMOTE_CLONE"
+echo "REMOTE_MOUNT=$REMOTE_MOUNT"
+echo "REMOTE_TAR=$REMOTE_TAR"
+echo "SUBPATH=$SUBPATH"
+echo "LOCAL_TAR=$LOCAL_TAR"
+echo "LOCAL_EXTRACT_DIR=$LOCAL_EXTRACT_DIR"
+
+echo
+echo "[check] Comprobando snapshot remoto..."
+sudo -u alejandro -H ssh "$SSH_TARGET" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper snapshot-exists '$REMOTE_SNAPSHOT'"
+
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  exit 0
+fi
+
+echo
+echo "[run] Creando clone remoto..."
+sudo -u alejandro -H ssh -t "$SSH_TARGET" "sudo zfs create -p -o mountpoint=none -o canmount=off backup/restore-tests 2>/dev/null || true; sudo zfs clone -o readonly=on -o canmount=noauto -o mountpoint='${REMOTE_MOUNT}' '${REMOTE_SNAPSHOT}' '${REMOTE_CLONE}'; sudo zfs mount '${REMOTE_CLONE}'; sudo zfs get -H -o name,property,value mounted,mountpoint '${REMOTE_CLONE}'"
+
+echo
+echo "[run] Creando tar remoto de la subruta..."
+sudo -u alejandro -H ssh -t "$SSH_TARGET" "sudo tar -C '${REMOTE_MOUNT}' -cf '${REMOTE_TAR}' '${SUBPATH}' && sudo chown alejandro:alejandro '${REMOTE_TAR}' && ls -lh '${REMOTE_TAR}'"
+
+echo
+echo "[run] Copiando tar a destino local..."
+mkdir -p "$LOCAL_EXTRACT_DIR"
+sudo -u alejandro -H scp "${SSH_TARGET}:${REMOTE_TAR}" "${LOCAL_TAR}"
+ls -lh "$LOCAL_TAR"
+
+echo
+echo "[run] Limpiando subruta destino previa..."
+sudo rm -rf "${LOCAL_EXTRACT_DIR:?}/${SUBPATH}"
+
+echo
+echo "[run] Extrayendo tar en destino local..."
+tar -C "$LOCAL_EXTRACT_DIR" -xf "$LOCAL_TAR"
+find "${LOCAL_EXTRACT_DIR}/${SUBPATH}" -maxdepth 2 | sed -n "1,40p"
+
+echo
+echo "[run] Limpiando temporales remotos..."
+sudo -u alejandro -H ssh -t "$SSH_TARGET" "sudo zfs unmount '${REMOTE_CLONE}' 2>/dev/null || true; sudo zfs destroy '${REMOTE_CLONE}' 2>/dev/null || true; rm -f '${REMOTE_TAR}'; sudo zfs list -r backup/restore-tests"
+
+echo
+echo "[run] Limpiando tar local..."
+rm -f "$LOCAL_TAR"
+
+echo
+echo "Restore completado."
+echo "REMOTE_CLONE=$REMOTE_CLONE"
+echo "REMOTE_MOUNT=$REMOTE_MOUNT"
+echo "REMOTE_TAR=$REMOTE_TAR"
+echo "LOCAL_TAR=$LOCAL_TAR"
