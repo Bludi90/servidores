@@ -45,9 +45,9 @@ fi
 status_line() {
   local level="$1" msg="$2"
   case "$level" in
-    OK)   printf "[%sOK%s]    %s\n"   "$C_GREEN" "$C_RESET" "$msg"; ((OK++));;
-    WARN) printf "[%sWARN%s]  %s\n"   "$C_YELLOW" "$C_RESET" "$msg"; ((WARN++));;
-    FAIL) printf "[%sFAIL%s]  %s\n"   "$C_RED" "$C_RESET" "$msg"; ((FAIL++));;
+    OK)   printf "[%sOK%s]    %s\n"   "$C_GREEN" "$C_RESET" "$msg"; ((++OK));;
+    WARN) printf "[%sWARN%s]  %s\n"   "$C_YELLOW" "$C_RESET" "$msg"; ((++WARN));;
+    FAIL) printf "[%sFAIL%s]  %s\n"   "$C_RED" "$C_RESET" "$msg"; ((++FAIL));;
     *)    printf "[    ]    %s\n"    "$msg";;
   esac
 }
@@ -117,14 +117,14 @@ fi
 # ---------------- Réplica ZFS backup1 ----------------
 section "Réplica ZFS backup1"
 
-if command -v zfs-repl-backup1-status >/dev/null 2>&1; then
+if command -v zfs-repl-backup1-freshness >/dev/null 2>&1; then
   set +e
-  REPL_STATUS_LINE="$(zfs-repl-backup1-status 7 2>/dev/null)"
+  REPL_STATUS_LINE="$(zfs-repl-backup1-freshness 2>/dev/null)"
   REPL_RC=$?
   set -e
 
   if [ -z "$REPL_STATUS_LINE" ]; then
-    status_line WARN "Snpsht WARN (sin salida de zfs-repl-backup1-status)"
+    status_line WARN "Bak WARN (sin salida de zfs-repl-backup1-freshness)"
   else
     case "$REPL_RC" in
       0) status_line OK   "$REPL_STATUS_LINE" ;;
@@ -133,7 +133,7 @@ if command -v zfs-repl-backup1-status >/dev/null 2>&1; then
     esac
   fi
 else
-  status_line WARN "Snpsht WARN (zfs-repl-backup1-status no disponible)"
+  status_line WARN "Bak WARN (zfs-repl-backup1-freshness no disponible)"
 fi
 
 # ---------------- Servicios críticos ----------------

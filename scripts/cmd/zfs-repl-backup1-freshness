@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+RUNS_FILE="/home/alejandro/servidores/state/main1/zfs-repl-backup1-runs.tsv"
+OK_HOURS=36
+WARN_HOURS=72
+
+fmt_date() {
+  date -d "$1" '+%d/%m/%y %H:%M'
+}
+
+if [[ ! -f "$RUNS_FILE" ]]; then
+  echo "Bak FAIL (últ. --/--/--)"
+  exit 2
+fi
+
+last_ok_iso=""
+last_ok_epoch=0
+
+while IFS=$'\t' read -r start_iso end_iso mode rc result phase host_started wake_ok repl_ok shutdown_ok base_common_pre base_common_post duration_s note; do
+  [[ "$start_iso" == "start_iso" ]] && continue
+  [[ "$mode" != "real" ]] && continue
+  [[ "$result" != "OK" ]] && continue
+
+  row_epoch="$(date -d "$start_iso" +%s 2>/dev/null || echo 0)"
+  if (( row_epoch > last_ok_epoch )); then
+    last_ok_epoch="$row_epoch"
+    last_ok_iso="$start_iso"
+  fi
+done < "$RUNS_FILE"
+
+if [[ -z "$last_ok_iso" || "$last_ok_epoch" -eq 0 ]]; then
+  echo "Bak FAIL (últ. --/--/--)"
+  exit 2
+fi
+
+now_epoch="$(date +%s)"
+age_hours=$(( (now_epoch - last_ok_epoch) / 3600 ))
+
+if (( age_hours <= OK_HOURS )); then
+  echo "Bak OK (últ. $(fmt_date "$last_ok_iso"))"
+  exit 0
+elif (( age_hours <= WARN_HOURS )); then
+  echo "Bak WARN (últ. $(fmt_date "$last_ok_iso"))"
+  exit 1
+else
+  echo "Bak FAIL (últ. $(fmt_date "$last_ok_iso"))"
+  exit 2
+fi

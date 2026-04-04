@@ -87,3 +87,13 @@
 🟡 Estado general: ATENCIÓN (OK=13, WARN=1, FAIL=0)
 💾 ZFS tank (mirror): 36% usado de 7.25T (salud ONLINE)
 
+📅 04/04/2026 12:40:26 CEST
+🟡 Estado general: ATENCIÓN (OK=14, WARN=1, FAIL=0)
+💾 ZFS tank (mirror): 36% usado de 7.25T (salud ONLINE)
+Bak: 1/7 (últ. 04/04/26)
+
+📅 04/04/2026 12:47:35 CEST
+🟡 Estado general: ATENCIÓN (OK=14, WARN=1, FAIL=0)
+💾 ZFS tank (mirror): 36% usado de 7.25T (salud ONLINE)
+📦 Bak: 1/7 (últ. 04/04/26)
+

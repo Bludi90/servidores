@@ -61,6 +61,22 @@ fi
 
 SUMMARY_LINE="${STATUS_ICON} ${STATUS_LINE}"
 
+# ===== Resumen backup semanal =====
+BAK_LINE="📦 Bak: --/7 (últ. --/--/--)"
+
+if command -v zfs-repl-backup1-status >/dev/null 2>&1; then
+  BAK_RAW="$(zfs-repl-backup1-status 7 2>/dev/null || true)"
+  BAK_OK="$(printf '%s
+' "$BAK_RAW" | sed -n 's/.*OK=\([0-9][0-9]*\)\/7.*/\1/p')"
+  BAK_LAST="$(printf '%s
+' "$BAK_RAW" | sed -n 's/.*últ OK: [A-Z]:\([0-9][0-9]\/[0-9][0-9]\/[0-9][0-9]\).*/\1/p')"
+
+  : "${BAK_OK:=0}"
+  : "${BAK_LAST:=--/--/--}"
+
+  BAK_LINE="📦 Bak: ${BAK_OK}/7 (últ. ${BAK_LAST})"
+fi
+
 # ===== Resumen ZFS (tipo / % usado) =====
 ZFS_LINE="💾 ZFS: sin información"
 
@@ -111,16 +127,19 @@ DATE_STR="$(date '+%d/%m/%Y %H:%M:%S %Z')"
 LINE1="📅 ${DATE_STR}"
 LINE2="${SUMMARY_LINE}"
 LINE3="${ZFS_LINE}"
+LINE4="${BAK_LINE}"
 
 MESSAGE="${LINE1}
 ${LINE2}
-${LINE3}"
+${LINE3}
+${LINE4}"
 
 # Guardar en log
 {
   echo "$LINE1"
   echo "$LINE2"
   echo "$LINE3"
+  echo "$LINE4"
   echo
 } >> "$LOG_FILE"
 
