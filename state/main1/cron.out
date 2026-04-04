@@ -60606,3 +60606,25 @@ M  scripts/cmd/srv-portal-status
  M state/main1/urls-proxy.md
 A  state/main1/zfs-restore-backup1.last_test
 ?? state/main1/2026-04-04_2000-state.md
+[main aab220de] auto: snapshot main1 2026-04-04 20:00
+ 10 files changed, 772 insertions(+), 202 deletions(-)
+ create mode 100644 docs/portal/homepage-services.yaml.active
+ create mode 100644 state/main1/2026-04-04_2000-state.md
+ create mode 100644 state/main1/zfs-restore-backup1.last_test
+[2026-04-04 20:00:02] Commit creado: auto: snapshot main1 2026-04-04 20:00
+To github.com:Bludi90/servidores.git
+   6847127b..aab220de  main -> main
+[2026-04-04 20:00:04] git push OK.
+[2026-04-04 20:00:04] === Fin commit-and-push ===
+Escrito: /home/alejandro/servidores/state/main1/2026-04-04_2100-state.md
+[2026-04-04 21:00:02] === Inicio commit-and-push ===
+[2026-04-04 21:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zfs_snapshots.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2026-04-04_2100-state.md
