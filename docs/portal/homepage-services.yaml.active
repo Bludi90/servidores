@@ -1,0 +1,299 @@
+- Uso diario:
+    - Jellyfin:
+        icon: /icons/jellyfin/logo.png
+        href: https://jellyfin.srv
+        description: Películas, series y vídeos caseros
+        widget:
+          type: customapi
+          url: http://portal-api/content.json
+          refreshInterval: 6000     # cada 15 minutos
+          display: list
+          mappings:
+            - field: movies_gib
+              label: Uso
+              format: number
+              suffix: " GiB"
+            - field: movies
+              label: Películas
+              format: number
+            - field: series
+              label: Series
+              format: number
+
+    - Immich:
+        icon: /icons/immich/logo.png
+        href: https://immich.srv
+        description: Sincronización de fotos
+        widget:
+          type: customapi
+          url: http://portal-api/content.json
+          refreshInterval: 6000
+          display: list
+          mappings:
+            - field: photos_gib
+              label: Uso
+              format: number
+              suffix: " GiB"
+            - field: photos
+              label: Fotos
+              format: number
+
+    - Nextcloud:
+        icon: /icons/nextcloud/logo.png
+        href: https://nextcloud.srv
+        description: Nube de archivos y carpeta Família
+        # De momento dejamos solo el uso que ya tenías (GiB del dataset)
+        # Si más adelante querés añadir nº de archivos/carpeta, lo haremos con otro script.
+        widget:
+          type: customapi
+          url: http://portal-api/apps-usage.json
+          refreshInterval: 6000
+          display: list
+          mappings:
+            - field: apps.nextcloud.gib
+              label: Uso
+              format: float
+              suffix: " GiB"
+
+    - Ayuda y FAQ:
+        icon: /icons/faq/logo.png
+        href: https://nextcloud.srv/s/9fbrFWnYANcnKPt
+        description: Guías rápidas y preguntas frecuentes
+
+- Gestión:
+    - Correo:
+#        icon: mdi-email
+#        href: https://outlook.office.com/
+#        description: Acceso rápido al correo
+        - Nextcloud Mail:
+            id: mail-nextcloud
+            icon: si-nextcloud
+            href: https://nextcloud.srv/apps/mail/
+            # si tu Nextcloud va aún por puerto:
+            # href: https://nextcloud.srv:10443/apps/mail/
+
+        - Gmail:
+            id: mail-gmail
+            icon: si-gmail
+            href: https://mail.google.com/
+        - Outlook:
+            id: mail-outlook
+            icon: si-microsoftoutlook
+            href: https://outlook.office.com/mail/
+
+    - Herramientas:
+            - Calendario:
+                icon: mdi-calendar
+                href: https://nextcloud.srv/apps/calendar/
+                description: Agenda familiar y recordatorios
+
+            - Editor PDF:
+                icon: mdi-file-pdf-box
+                href: https://pdf.srv
+                description: Editar y convertir PDFs
+
+            - Jellyseer:
+                icon: /icons/jellyseer/logo.png
+                href: https://jellyseer.srv
+                description: Peticiones de Películas y Series
+
+            - Firefly III:
+                icon: /icons/firefly/logo.png
+                href: https://firefly.srv
+                description: Finanzas personales y del hogar
+
+- Descargas:
+    - qBittorrent:
+        icon: /icons/qbittorrent/logo.png
+        href: http://qbittorrent.srv
+        description: Cliente de descargas
+
+        # Widget nativo de Homepage
+        widget:
+          type: qbittorrent
+          url: http://qbittorrent:8090     # o http://qbittorrent:8080 si usas el nombre del contenedor
+          username: "admin"
+          password: "CuecesAveOEnriqueces2025"
+
+        # Opcional, para ver si está vivo y latencia
+        #siteMonitor: https://192.168.1.116:8090
+        statusStyle: dot
+
+    - Radarr:
+        icon: /icons/radarr/logo.png
+        href: https://radarr.srv
+        description: Gestión automática de películas
+
+        # Widget nativo de Homepage
+        widget:
+          type: radarr
+          url: http://radarr:7878          # o http://radarr:7878 interno
+          key: "d1aa64dd1b004f97a718998c55f87627"         # la sacás de Settings → General → API key en Radarr
+
+        # Opcional, para ver si está vivo y latencia
+        #siteMonitor: https://192.168.1.116:7878
+        statusStyle: dot
+
+    - Sonarr:
+        icon: /icons/sonarr/logo.png
+        href: https://sonarr.srv
+        description: Gestión automática de series
+
+        # Widget nativo de Homepage
+        widget:
+          type: sonarr
+          url: http://sonarr:8989          # o http://sonarr:XXXX interno
+          key: "105a33bd6de642dc8fdf7122432e39c6"         # la sacás de Setting>
+
+        # Opcional, para ver si está vivo y latencia
+        statusStyle: dot
+
+- Panel:
+    - Tiempo en Mallorca:
+        icon: mdi-weather-sunny
+        description: Hoy
+        widget:
+          type: customapi
+          url: http://portal-api/status.json
+          refreshInterval: 900
+          display: grid
+          mappings:
+            - field: temp_now_c
+              label: AHORA
+              format: number
+              decimals: 1
+              suffix: " ºC"
+            - field: temp_max_c
+              label: MÁX
+              format: number
+              decimals: 1
+              suffix: " ºC"
+            - field: temp_min_c
+              label: MIN
+              format: number
+              decimals: 1
+              suffix: " ºC"
+            - field: rain_prob_pct
+              label: PROB. LLUVIA
+              format: number
+              decimals: 0
+              suffix: " %"
+
+    - Pronóstico detallado:
+        icon: /icons/meteo_de_les_illes/logo.png
+        href: https://www.meteodelesilles.com/pronostic
+        description: Pronóstico horario y por días (Meteo de les Illes)
+
+    - Recursos del servidor:
+        icon: mdi-gauge
+        widget:
+          type: customapi
+          url: http://portal-api/resources.json
+          refreshInterval: 60
+          display: grid
+          mappings:
+            - field: cpu_percent
+              label: CPU
+              format: number
+              decimals: 0
+              suffix: " %"
+            - field: mem_percent
+              label: RAM
+              format: number
+              decimals: 0
+              suffix: " %"
+            - field: zfs_percent
+              label: Ocupado
+              format: number
+              decimals: 0
+              suffix: " %"
+
+    - Detalle del servidor:
+        id: svc-status-detail
+        href: https://portal.srv/status
+        description: Backup y estado del sistema
+        icon: mdi-clipboard-text
+        widget:
+          type: customapi
+          url: http://portal-api/status.json
+          refreshInterval: 60
+          display: list
+          mappings:
+            - field: backup_current
+              label: Bak actual
+              format: text
+            - field: backup_weekly_short
+              label: Bak semana
+              format: text
+            - field: backup1_state
+              label: backup1
+              format: text
+            - field: last_restore_test
+              label: Restore test
+              format: text
+            - field: issues_summary
+              label: Incidencias
+              format: text
+            - field: generated_at
+              label: Actualizado
+              format: date
+              locale: es-ES
+          highlight:
+            issues_summary:
+              string:
+                - level: good
+                  when: equals
+                  value: "Todo OK"
+                - level: warn
+                  when: notEquals
+                  value: "Todo OK"
+
+    - Actualizaciones del servidor:
+        id: svc-updates
+        href: https://nextcloud.srv/index.php/apps/files/?dir=/Documentacion/Servidor/>
+        description: Últimos cambios y mantenimiento
+        icon: mdi-update
+        widget:
+          type: customapi
+          url: http://portal-api/updates.json
+          refreshInterval: 3600
+          display: list
+          mappings:
+            - field: last_text
+              label: Último cambio
+              format: text
+            - field: last_date
+              label: Fecha
+              format: date
+              locale: es-ES
+
+- Administrador:
+    - Cockpit (admin):
+        icon: /icons/cockpit/logo.png
+        href: https://cockpit.srv
+        description: Panel del sistema
+
+    - CasaOS (admin):
+        icon: /icons/casaos/logo.svg
+        href: http://casaos.srv
+        description: Gestión de contenedores (Docker)
+
+    - Pi-hole (admin):
+        icon: /icons/pihole/logo.png
+        href: https://pihole.srv/admin
+        description: Bloqueo de publicidad + Resolución de DNS (Unbound)
+
+    - n8n (admin):
+        icon: si-n8n
+        href: https://n8n.srv
+        description: Automatizaciones del servidor
+
+    - Firefly Importer (admin):
+        icon: /icons/firefly-import/logo.svg
+        href: https://firefly.import/token
+        description: Importación de movimientos (solo admin)
+
+    -  GitHub (repo servidores):
+        icon: /icons/github/logo.webp
+        href: https://github.com/Bludi90/servidores
+        description: Código y scripts del servidor

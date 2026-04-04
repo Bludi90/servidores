@@ -1,26 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Dónde escribe el JSON que usa portal.srv
 TARGET_JSON="/srv/storage/services/portal/data/status.json"
-
 SERVER_NAME="$(hostname -s 2>/dev/null || echo 'unknown')"
 
-# -------------------------------
+# --------------------------------
 # 0. Métricas básicas de sistema
-# -------------------------------
+# --------------------------------
 load_1m="null"
 mem_used_pct="null"
 
-# Carga media a 1 minuto
 if [[ -r /proc/loadavg ]]; then
     load_1m="$(awk '{print $1}' /proc/loadavg)"
 fi
 
-# RAM usada en porcentaje
 if grep -q '^MemTotal:' /proc/meminfo && grep -q '^MemAvailable:' /proc/meminfo; then
-    mem_total_kb=$(grep '^MemTotal:' /proc/meminfo | awk '{print $2}')
-    mem_avail_kb=$(grep '^MemAvailable:' /proc/meminfo | awk '{print $2}')
+    mem_total_kb="$(grep '^MemTotal:' /proc/meminfo | awk '{print $2}')"
+    mem_avail_kb="$(grep '^MemAvailable:' /proc/meminfo | awk '{print $2}')"
     if [[ "$mem_total_kb" -gt 0 ]]; then
         mem_used_pct=$(( (mem_total_kb - mem_avail_kb) * 100 / mem_total_kb ))
     fi
@@ -32,10 +28,13 @@ fi
 status="UNKNOWN"
 
 if command -v srv-health >/dev/null 2>&1; then
-    if srv-health --short >/dev/null 2>&1; then
-        status="OK"
-    else
+    srv_out="$(srv-health --short 2>/dev/null || true)"
+    if printf '%s\n' "$srv_out" | grep -q 'Estado general: CRÍTICO'; then
         status="FAIL"
+    elif printf '%s\n' "$srv_out" | grep -q 'Estado general: ATENCIÓN'; then
+        status="WARN"
+    elif printf '%s\n' "$srv_out" | grep -q 'Estado general: OK'; then
+        status="OK"
     fi
 fi
 
@@ -60,58 +59,90 @@ if command -v zpool >/dev/null 2>&1; then
     fi
 fi
 
-# Si ZFS no está ONLINE y por ahora todo era OK, rebajamos a WARN
-if [[ "$zfs_health" != "ONLINE" && "$zfs_health" != "healthy" ]]; then
+if [[ "$zfs_health" != "ONLINE" && "$zfs_health" != "healthy" && "$zfs_health" != "unknown" ]]; then
     if [[ "$status" == "OK" ]]; then
         status="WARN"
     fi
 fi
 
 # --------------------------------
-# 3. Backups (log de restic)
+# 3. Backups ZFS -> backup1
 # --------------------------------
-backup_policy="Copias automáticas 3 noches por semana; conservación semanal y mensual."
-last_backup="unknown"
-backup_status="unknown"
+backup_policy="Réplica ZFS diaria a las 03:30 hacia backup1; restore controlado a staging con zfs-restore-backup1."
+backup_current="unknown"
+backup_current_status="UNKNOWN"
+backup_weekly="unknown"
+backup_weekly_short="unknown"
+backup1_state="unknown"
+last_restore_test="unknown"
 
-log_file="/var/log/backup_restic.log"
+if command -v zfs-repl-backup1-freshness >/dev/null 2>&1; then
+    set +e
+    backup_current="$(zfs-repl-backup1-freshness 2>/dev/null)"
+    rc_fresh=$?
+    set -e
 
-if [[ -f "$log_file" ]]; then
-    # Usamos la fecha de modificación del log como "último backup"
-    ts="$(stat -c '%y' "$log_file" 2>/dev/null || true)"
-    if [[ -n "$ts" ]]; then
-        last_backup="$(date -d "$ts" --iso-8601=seconds 2>/dev/null || echo "$ts")"
-    fi
-
-    # Heurística simple: si hay "error" en las últimas líneas, marcamos FAIL
-    if tail -n 50 "$log_file" 2>/dev/null | grep -qi "error"; then
-        backup_status="FAIL"
-        status="FAIL"
-    else
-        backup_status="OK"
+    if [[ -n "$backup_current" ]]; then
+        case "$rc_fresh" in
+            0) backup_current_status="OK" ;;
+            1) backup_current_status="WARN" ;;
+            *) backup_current_status="FAIL" ;;
+        esac
     fi
 fi
 
-# --------------------------------
-# 4. Tiempo (leer weather.json si existe)
-# --------------------------------
-weather_file="/srv/storage/services/portal/data/weather.json"
+if command -v zfs-repl-backup1-status >/dev/null 2>&1; then
+    set +e
+    backup_weekly="$(zfs-repl-backup1-status 2>/dev/null)"
+    rc_weekly=$?
+    set -e
+    : "${rc_weekly:=2}"
+fi
 
+weekly_ratio="$(printf '%s\n' "$backup_weekly" | sed -n 's/.*OK=\([0-9]\+\/[0-9]\+\).*/\1/p')"
+weekly_last_short="$(printf '%s\n' "$backup_weekly" | sed -n 's/.*últ OK: [A-Z]:\([0-9][0-9]\/[0-9][0-9]\)\/[0-9][0-9].*/\1/p')"
+
+if [[ -n "$weekly_ratio" ]]; then
+    backup_weekly_short="$weekly_ratio"
+    if [[ -n "$weekly_last_short" ]]; then
+        backup_weekly_short="${backup_weekly_short} · ${weekly_last_short}"
+    fi
+fi
+
+if ping -c 1 -W 1 192.168.1.122 >/dev/null 2>&1; then
+    backup1_state="online"
+else
+    if sudo -u alejandro -H ssh -o BatchMode=yes -o ConnectTimeout=2 backup1 'echo ok' >/dev/null 2>&1; then
+        backup1_state="online"
+    else
+        backup1_state="apagado_esperado"
+    fi
+fi
+
+RESTORE_TEST_FILE="/home/alejandro/servidores/state/main1/zfs-restore-backup1.last_test"
+if [[ -r "$RESTORE_TEST_FILE" ]]; then
+    last_restore_test="$(head -n 1 "$RESTORE_TEST_FILE" | tr -d '\r')"
+fi
+
+if [[ "$backup_current_status" == "FAIL" ]]; then
+    status="FAIL"
+elif [[ "$backup_current_status" == "WARN" && "$status" == "OK" ]]; then
+    status="WARN"
+fi
+
+# --------------------------------
+# 4. Tiempo (opcional, desde weather.json)
+# --------------------------------
+WEATHER_JSON="/srv/storage/services/portal/data/weather.json"
 temp_now_c=""
 temp_max_c=""
 temp_min_c=""
 rain_prob_pct=""
 
-extract_number() {
-    local key="$1" file="$2"
-    sed -n 's/.*"'"$key"'":[^0-9-]*\([-0-9.][0-9.]*\).*/\1/p' "$file" | head -n1
-}
-
-if [[ -r "$weather_file" ]]; then
-    temp_now_c="$(extract_number temp_now_c "$weather_file" || true)"
-    temp_max_c="$(extract_number temp_max_c "$weather_file" || true)"
-    temp_min_c="$(extract_number temp_min_c "$weather_file" || true)"
-    rain_prob_pct="$(extract_number rain_prob_pct "$weather_file" || true)"
+if [[ -r "$WEATHER_JSON" ]]; then
+    read -r temp_now_c temp_max_c temp_min_c rain_prob_pct < <(
+        jq -r '[.temp_now_c, .temp_max_c, .temp_min_c, .rain_prob_pct] | @tsv' "$WEATHER_JSON" 2>/dev/null || printf '\t\t\t\n'
+    )
 fi
 
 # --------------------------------
@@ -120,55 +151,54 @@ fi
 issues_summary="Todo OK"
 
 if [[ "$status" == "FAIL" ]]; then
-    issues_summary="Fallo detectado. Revisar srv-health."
+    issues_summary="Fallo detectado. Revisar srv-health y bloque backup."
 elif [[ "$status" == "WARN" ]]; then
-    issues_summary="Advertencias en srv-health. Revisar."
+    issues_summary="Advertencias activas. Revisar srv-health y backup."
 fi
 
 generated_at="$(date --iso-8601=seconds)"
-
-# --------------------------------
-# 5. Tiempo (opcional, desde weather.json)
-# --------------------------------
-WEATHER_JSON="/srv/storage/services/portal/data/weather.json"
-
-temp_now_c=""
-temp_max_c=""
-temp_min_c=""
-rain_prob_pct=""
-
-if [[ -r "$WEATHER_JSON" ]]; then
-    # Usamos jq para leer los campos (si falla, dejamos cadenas vacías)
-    read -r temp_now_c temp_max_c temp_min_c rain_prob_pct < <(
-        jq -r '[.temp_now_c, .temp_max_c, .temp_min_c, .rain_prob_pct] | @tsv' \
-           "$WEATHER_JSON" 2>/dev/null || echo "","","",""
-    )
-fi
 
 # --------------------------------
 # 6. Generar JSON de forma atómica
 # --------------------------------
 tmp="$(mktemp)"
 
+json_escape() {
+    printf '%s' "$1" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))'
+}
+
 {
     printf '{\n'
-    printf '  "server_name": "%s",\n' "$SERVER_NAME"
-    printf '  "status": "%s",\n' "$status"
+    printf '  "server_name": %s,\n' "$(json_escape "$SERVER_NAME")"
+    printf '  "status": %s,\n' "$(json_escape "$status")"
 
-    # ZFS
+    if [[ "$load_1m" != "null" ]]; then
+        printf '  "load_1m": %s,\n' "$load_1m"
+    else
+        printf '  "load_1m": null,\n'
+    fi
+
+    if [[ "$mem_used_pct" != "null" ]]; then
+        printf '  "mem_used_pct": %s,\n' "$mem_used_pct"
+    else
+        printf '  "mem_used_pct": null,\n'
+    fi
+
     if [[ "$zfs_percent" != "null" ]]; then
         printf '  "zfs_percent": %s,\n' "$zfs_percent"
     else
         printf '  "zfs_percent": null,\n'
     fi
-    printf '  "zfs_health": "%s",\n' "$zfs_health"
 
-    # Backups
-    printf '  "last_backup": "%s",\n' "$last_backup"
-    printf '  "backup_status": "%s",\n' "$backup_status"
-    printf '  "backup_policy": "%s",\n' "$backup_policy"
+    printf '  "zfs_health": %s,\n' "$(json_escape "$zfs_health")"
+    printf '  "backup_current": %s,\n' "$(json_escape "$backup_current")"
+    printf '  "backup_current_status": %s,\n' "$(json_escape "$backup_current_status")"
+    printf '  "backup_weekly": %s,\n' "$(json_escape "$backup_weekly")"
+    printf '  "backup_weekly_short": %s,\n' "$(json_escape "$backup_weekly_short")"
+    printf '  "backup1_state": %s,\n' "$(json_escape "$backup1_state")"
+    printf '  "last_restore_test": %s,\n' "$(json_escape "$last_restore_test")"
+    printf '  "backup_policy": %s,\n' "$(json_escape "$backup_policy")"
 
-    # Tiempo (valores opcionales)
     if [[ -n "${temp_now_c:-}" ]]; then
         printf '  "temp_now_c": %s,\n' "$temp_now_c"
     else
@@ -193,9 +223,8 @@ tmp="$(mktemp)"
         printf '  "rain_prob_pct": null,\n'
     fi
 
-    # Resumen + marca de tiempo
-    printf '  "issues_summary": "%s",\n' "$issues_summary"
-    printf '  "generated_at": "%s"\n' "$generated_at"
+    printf '  "issues_summary": %s,\n' "$(json_escape "$issues_summary")"
+    printf '  "generated_at": %s\n' "$(json_escape "$generated_at")"
     printf '}\n'
 } > "$tmp"
 

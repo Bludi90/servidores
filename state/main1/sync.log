@@ -52153,3 +52153,15 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
 ?? scripts/backup1/sudoers/
 ?? scripts/install-backup1-helpers.sh
 ?? state/main1/2026-04-04_1900-state.md
+[2026-04-04 20:00:02] === Inicio commit-and-push ===
+[2026-04-04 20:00:02] Cambios detectados:
+ M docs/ESTADO.md
+A  docs/portal/homepage-services.yaml.active
+ M reports/current/zfs_snapshots.txt
+M  scripts/cmd/srv-portal-status
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+A  state/main1/zfs-restore-backup1.last_test
+?? state/main1/2026-04-04_2000-state.md
