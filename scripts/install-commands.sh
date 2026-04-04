@@ -29,7 +29,7 @@ if [[ -d "$REPO_DIR/scripts/cmd" ]]; then
     cmd="$(basename "$f")"
 
     # Evitar instalar backups accidentales si están marcados como ejecutables
-    [[ "$cmd" == *.bak.* || "$cmd" == *.bak ]] && continue
+    [[ "$cmd" == *.bak.* || "$cmd" == *.bak || "$cmd" == *.bak-* ]] && continue
 
     if is_in_list "$cmd" "${SBIN_CMDS[@]}"; then
       target="$SBIN_DIR/$cmd"

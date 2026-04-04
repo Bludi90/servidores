@@ -71,11 +71,11 @@ fi
 
 echo
 echo "[run] Creando clone remoto..."
-sudo -u alejandro -H ssh -t "$SSH_TARGET" "sudo zfs create -p -o mountpoint=none -o canmount=off backup/restore-tests 2>/dev/null || true; sudo zfs clone -o readonly=on -o canmount=noauto -o mountpoint='${REMOTE_MOUNT}' '${REMOTE_SNAPSHOT}' '${REMOTE_CLONE}'; sudo zfs mount '${REMOTE_CLONE}'; sudo zfs get -H -o name,property,value mounted,mountpoint '${REMOTE_CLONE}'"
+sudo -u alejandro -H ssh "$SSH_TARGET" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper clone-mount '${REMOTE_SNAPSHOT}' '${REMOTE_CLONE}' '${REMOTE_MOUNT}'"
 
 echo
 echo "[run] Creando tar remoto de la subruta..."
-sudo -u alejandro -H ssh -t "$SSH_TARGET" "sudo tar -C '${REMOTE_MOUNT}' -cf '${REMOTE_TAR}' '${SUBPATH}' && sudo chown alejandro:alejandro '${REMOTE_TAR}' && ls -lh '${REMOTE_TAR}'"
+sudo -u alejandro -H ssh "$SSH_TARGET" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper tar-path '${REMOTE_MOUNT}' '${SUBPATH}' '${REMOTE_TAR}'"
 
 echo
 echo "[run] Copiando tar a destino local..."
@@ -94,7 +94,7 @@ find "${LOCAL_EXTRACT_DIR}/${SUBPATH}" -maxdepth 2 | sed -n "1,40p"
 
 echo
 echo "[run] Limpiando temporales remotos..."
-sudo -u alejandro -H ssh -t "$SSH_TARGET" "sudo zfs unmount '${REMOTE_CLONE}' 2>/dev/null || true; sudo zfs destroy '${REMOTE_CLONE}' 2>/dev/null || true; rm -f '${REMOTE_TAR}'; sudo zfs list -r backup/restore-tests"
+sudo -u alejandro -H ssh "$SSH_TARGET" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper cleanup '${REMOTE_CLONE}' '${REMOTE_TAR}'"
 
 echo
 echo "[run] Limpiando tar local..."

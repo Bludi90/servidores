@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+case "${1-}" in
+  "")
+    exec /usr/bin/systemctl poweroff
+    ;;
+  --check)
+    echo "OK: backup1-safe-poweroff listo"
+    exit 0
+    ;;
+  *)
+    echo "Uso: $0 [--check]" >&2
+    exit 2
+    ;;
+esac
