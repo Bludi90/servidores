@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+cmd="${1-}"
+
+case "$cmd" in
+  --check)
+    echo "OK: backup1-zfs-restore-helper listo"
+    exit 0
+    ;;
+
+  snapshot-exists)
+    snap="${2-}"
+    [[ -n "$snap" ]] || { echo "Falta snapshot" >&2; exit 2; }
+    /usr/sbin/zfs list -t snapshot "$snap"
+    ;;
+
+  clone-mount)
+    snap="${2-}"
+    clone_ds="${3-}"
+    mountpoint="${4-}"
+    [[ -n "$snap" ]] || { echo "Falta snapshot" >&2; exit 2; }
+    [[ -n "$clone_ds" ]] || { echo "Falta clone_ds" >&2; exit 2; }
+    [[ -n "$mountpoint" ]] || { echo "Falta mountpoint" >&2; exit 2; }
+
+    /usr/sbin/zfs create -p -o mountpoint=none -o canmount=off backup/restore-tests 2>/dev/null || true
+    /usr/sbin/zfs clone -o readonly=on -o canmount=noauto -o mountpoint="$mountpoint" "$snap" "$clone_ds"
+    /usr/sbin/zfs mount "$clone_ds"
+    /usr/sbin/zfs get -H -o name,property,value mounted,mountpoint "$clone_ds"
+    ;;
+
+  tar-path)
+    mountpoint="${2-}"
+    subpath="${3-}"
+    tarfile="${4-}"
+    [[ -n "$mountpoint" ]] || { echo "Falta mountpoint" >&2; exit 2; }
+    [[ -n "$subpath" ]] || { echo "Falta subpath" >&2; exit 2; }
+    [[ -n "$tarfile" ]] || { echo "Falta tarfile" >&2; exit 2; }
+
+    /usr/bin/tar -C "$mountpoint" -cf "$tarfile" "$subpath"
+    /bin/chown alejandro:alejandro "$tarfile"
+    /bin/ls -lh "$tarfile"
+    ;;
+
+  cleanup)
+    clone_ds="${2-}"
+    tarfile="${3-}"
+    [[ -n "$clone_ds" ]] || { echo "Falta clone_ds" >&2; exit 2; }
+    [[ -n "$tarfile" ]] || { echo "Falta tarfile" >&2; exit 2; }
+
+    /usr/sbin/zfs unmount "$clone_ds" 2>/dev/null || true
+    /usr/sbin/zfs destroy "$clone_ds" 2>/dev/null || true
+    /bin/rm -f "$tarfile"
+    /usr/sbin/zfs list -r backup/restore-tests
+    ;;
+
+  *)
+    echo "Uso: $0 --check | snapshot-exists <snapshot> | clone-mount <snapshot> <clone_ds> <mountpoint> | tar-path <mountpoint> <subpath> <tarfile> | cleanup <clone_ds> <tarfile>" >&2
+    exit 2
+    ;;
+esac

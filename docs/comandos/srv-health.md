@@ -1,84 +1,71 @@
-# Server-Health — Chequeo rápido del servidor - Cheatsheet
-
+# srv-health
 <!-- RESUMEN -->
-`srv-health` hace un chequeo rápido del servidor y muestra en unas pocas líneas
-el estado de ZFS (pool `tank`), servicios críticos (WireGuard, Docker, cron,
-smartd, zfs-zed), WireGuard `wg0`, Docker y algunas métricas básicas
-(uptime, carga, memoria, unidades systemd fallidas y logs clave).
-
+`srv-health` hace un chequeo rápido de salud del servidor y muestra en pocas líneas el estado general de `main1`: cabecera del sistema, ZFS, réplica hacia `backup1`, servicios críticos, UPS/NUT, WireGuard, Docker, DNS, unidades systemd fallidas y logs clave.
 Uso típico:
-
-```bash
-srv-health        # vista completa, con logs
-srv-health --short  # vista reducida, solo estado esencial
-```
+~~~bash
+srv-health
+srv-health --short
+~~~
 <!-- /RESUMEN -->
-
----
 
 ## Uso rápido
 
-- `srv-health`  
-  Vista completa, con todas las secciones (incluye logs).
+- `srv-health`
+  - vista completa
+  - incluye todas las secciones
+  - incluye `Logs clave`
 
-- `srv-health --short`  
-- `srv-health -s`  
-  Vista reducida, sin sección de logs y sin lista detallada de contenedores.
+- `srv-health --short`
+- `srv-health -s`
+  - vista reducida
+  - no muestra `Logs clave`
+  - no muestra la lista larga de contenedores
 
-- `srv-health` se ejecuta siempre como root (se relanza con `sudo` si hace falta).  
-- La salida está pensada para revisión rápida: verde (OK), amarillo (WARN), rojo (FAIL).
+## Qué comprueba
 
----
+### 1. Cabecera del servidor
+Muestra:
 
-## Opciones y modos principales
+- host
+- fecha
+- uptime
+- carga media
+- memoria usada/libre/total
 
-- `srv-health`  
-  Vista completa. Incluye:
-  - Cabecera (host, fecha, uptime, carga, memoria).
-  - ZFS (pool `tank`) con umbrales de ocupación.
-  - Servicios críticos (WireGuard, Docker, zfs-zed, smartd, cron).
-  - WireGuard `wg0` (peers y handshakes recientes).
-  - Docker (daemon y contenedores en ejecución).
-  - Unidades systemd fallidas.
-  - Logs clave (`smart-weekly.log` y `sync.log`).
-
-- `srv-health --short` o `srv-health -s`  
-  Vista reducida:
-  - No muestra la lista de contenedores por nombre.
-  - No muestra la sección de logs clave.
-  - Ideal para una comprobación rápida desde terminal o desde otros scripts.
-
----
-
-## Qué comprueba exactamente
-
-### 1. Cabecera
-
-- `hostname` real del servidor.
-- Fecha y hora actuales.
-- `uptime` en formato legible.
-- Carga media (load average).
-- Memoria usada, libre y total según `free -h`.
-
-### 2. ZFS (pool `tank`)
-
-- Requiere ZFS instalado (`zpool`).
-- Si existe el pool `tank`, obtiene:
-  - `health` (ONLINE, DEGRADED, FAULTED, etc.).
-  - Porcentaje de ocupación (`capacity`).
+### 2. ZFS
+Comprueba el pool `tank`.
 
 Criterios:
 
-- `HEALTH` distinto de `ONLINE` → **FAIL**.  
-- `HEALTH = ONLINE` y uso mayor o igual al 90 % → **FAIL** (“casi lleno”).  
-- `HEALTH = ONLINE` y uso entre el 80 % y el 89 % → **WARN** (“alto uso”).  
-- `HEALTH = ONLINE` y uso menor del 80 % → **OK**.
+- `HEALTH` distinto de `ONLINE` → `FAIL`
+- uso `>= 90%` → `FAIL`
+- uso `>= 80%` y `< 90%` → `WARN`
+- resto → `OK`
 
-Si ZFS no está instalado o el pool `tank` no existe, muestra un **WARN** informativo.
+### 3. Réplica ZFS backup1
+Muestra el estado operativo del backup mediante:
 
-### 3. Servicios críticos (systemd)
+~~~bash
+zfs-repl-backup1-freshness
+~~~
 
-Comprueba estas unidades si existen en el sistema:
+Ejemplos de salida:
+
+~~~text
+Bak OK (últ. 04/04/26 03:30)
+Bak WARN (últ. 02/04/26 03:30)
+Bak FAIL (últ. --/--/--)
+~~~
+
+Importante:
+
+- aquí **no** se usa la lógica semanal `x/7`
+- aquí se usa **frescura operativa**
+- sirve para responder a la pregunta:
+  - “¿el backup está al día ahora mismo?”
+
+### 4. Servicios críticos (systemd)
+Comprueba estas unidades si existen:
 
 - `wg-quick@wg0`
 - `docker`
@@ -86,93 +73,197 @@ Comprueba estas unidades si existen en el sistema:
 - `smartd`
 - `cron`
 
-Para cada unidad:
+Criterios:
 
-- Si la unidad existe y está activa → **OK**.  
-- Si la unidad existe pero está inactiva → **WARN**.  
-- Si la unidad no existe, se ignora (no se muestra nada para no ensuciar la salida).
+- existe y está activa → `OK`
+- existe pero no está activa → `WARN`
+- no existe → no ensucia la salida
 
-### 4. WireGuard (`wg0`)
+### 5. UPS (NUT)
+Comprueba:
 
-- Requiere el comando `wg` instalado.
-- Si `wg show wg0` funciona:
-  - Cuenta el número total de peers configurados.
-  - Calcula cuántos tienen un *handshake* en los últimos 30 minutos, usando `latest-handshakes`.
+- `nut-driver@cyberpower.service`
+- `nut-server.service`
+- `nut-monitor.service`
+- estado `ARMED`
+- salida de `upsc`
+
+Criterios generales:
+
+- todo correcto y en línea → `OK`
+- servicios inactivos o no armado → `WARN`
+- `FSD`, `LOWBATT`, fallo de `upsc` o situación grave → `FAIL`
+
+### 6. WireGuard (`wg0`)
+Comprueba:
+
+- si `wg` está instalado
+- si `wg0` está levantado
+- número total de peers
+- cuántos tienen handshake reciente (< 30 min)
 
 Criterios:
 
-- 0 peers → **WARN** (“sin peers configurados”).  
-- Peers > 0 y 0 activos recientes → **WARN** (“ninguno con handshake < 30 min”).  
-- Peers > 0 y al menos uno activo reciente → **OK**.
+- 0 peers → `WARN`
+- peers pero ninguno reciente → `WARN`
+- al menos uno reciente → `OK`
 
-Si `wg` no está instalado o `wg0` no está levantado, muestra un **WARN**.
+### 7. Docker
+Comprueba:
 
-### 5. Docker
-
-- Requiere Docker instalado y el servicio `docker` activo.
-- Si el servicio está activo:
-  - Cuenta los contenedores en ejecución (`docker ps`).
-  - En vista completa (sin `--short`), muestra la lista de nombres en una sola línea.
+- si Docker está instalado
+- si el servicio `docker` está activo
+- número de contenedores corriendo
 
 Criterios:
 
-- Docker activo y contenedores > 0 → **OK**, mostrando el número de contenedores y sus nombres.  
-- Docker activo pero sin contenedores en ejecución → **WARN**.  
-- Docker instalado pero servicio `docker` inactivo → **WARN**.  
-- Docker no instalado → **WARN**.
+- Docker activo y contenedores > 0 → `OK`
+- Docker activo pero sin contenedores → `WARN`
+- Docker instalado pero servicio inactivo → `WARN`
+- Docker no instalado → `WARN`
 
-### 6. Systemd (unidades fallidas)
+### 8. DNS (Pi-hole + Unbound)
+Comprueba:
 
-- Ejecuta `systemctl --failed` y cuenta cuántas unidades están en estado fallido.
+- contenedor `pihole-pihole-1`
+- contenedor `unbound-unbound-1`
+- resolución DNS real:
+  - Pi-hole
+  - Unbound
 
 Criterios:
 
-- 0 unidades fallidas → **OK**.  
-- Una o más unidades fallidas → **WARN**, mostrando:
-  - El número de unidades fallidas.
-  - En vista completa, una lista de cada unidad con su estado `SUB`.
+- ambos contenedores y resolución OK → `OK`
+- arrancando / unhealthy / no responde → `WARN` o `FAIL` según caso
 
-### 7. Logs clave
+### 9. Systemd (unidades fallidas)
+Ejecuta:
 
-Solo se muestra en la vista completa (sin `--short`).
+~~~bash
+systemctl --failed
+~~~
 
-Rutas esperadas, adaptadas a tu repo:
+Criterios:
+
+- 0 unidades fallidas → `OK`
+- una o más fallidas → `WARN`
+
+## Logs clave
+
+Solo en modo completo (`srv-health` sin `--short`).
+
+Muestra:
 
 - `state/main1/smart-weekly.log`
+  - última línea
 - `state/main1/sync.log`
+  - últimas 3 líneas
+- `state/main1/zfs-repl-backup1-nightly.log`
+  - últimas 5 líneas
 
-El comando muestra:
+Si alguno no existe, muestra `WARN`.
 
-- La última línea de `smart-weekly.log` (estado reciente del informe SMART/ZFS semanal).  
-- Las últimas 3 líneas de `sync.log` (estado del `commit-and-push` periódico hacia GitHub).
+## Resumen final
 
-Si alguno de estos ficheros no existe, muestra un **WARN** informativo indicando qué log falta.
+Al final imprime algo como:
 
----
+~~~text
+Estado general: OK (OK=15, WARN=0, FAIL=0)
+~~~
+
+o:
+
+~~~text
+Estado general: ATENCIÓN (OK=14, WARN=1, FAIL=0)
+~~~
+
+o:
+
+~~~text
+Estado general: CRÍTICO (OK=12, WARN=1, FAIL=2)
+~~~
+
+## Relación con otros comandos del bloque backup
+
+`srv-health` usa indirectamente:
+
+- `zfs-repl-backup1-freshness`
+  - para el estado actual del backup
+
+El resumen semanal del backup no sale aquí. Sale en:
+
+~~~bash
+srv-health-weekly
+~~~
+
+con una línea tipo:
+
+~~~text
+📦 Bak: 1/7 (últ. 04/04/26)
+~~~
 
 ## Ejemplos de uso
 
-- Vista completa para revisión manual interactiva:  
-  `srv-health`
+Vista completa:
 
-- Vista reducida (sin logs ni lista de contenedores):  
-  `srv-health --short`  
-  `srv-health -s`
+~~~bash
+srv-health
+~~~
 
-- Uso desde otro script para guardar la salida en un fichero y revisarla:  
-  Ejecutar `srv-health --short` redirigiendo la salida a un archivo y revisar el contenido.
+Vista corta:
 
----
+~~~bash
+srv-health --short
+~~~
 
-## Notas y troubleshooting
+## Troubleshooting rápido
 
-- `srv-health` se relanza como root si se ejecuta sin `sudo`, para poder consultar ZFS, WireGuard, systemd y Docker sin problemas de permisos.
-- El comando no cambia el código de salida en función de OK/WARN/FAIL; toda la información se interpreta leyendo la salida de texto.
-- Si aparece un **WARN** o **FAIL** en ZFS:
-  - Ejecuta `zpool status -x` para obtener el detalle.
-- Si aparece un **WARN** en WireGuard:
-  - Revisa `wg show wg0` o tu comando `wg-list-peers` para ver qué peers deberían estar activos.
-- Si aparecen unidades systemd fallidas:
-  - Ejecuta `systemctl status NOMBRE.service` (o similar) para ver el error concreto.
-- Si faltan `smart-weekly.log` o `sync.log`:
-  - Comprueba que los cron o timers que los generan siguen activos y que la ruta `state/main1` es la correcta para este host.
+### Sale `Bak WARN`
+No significa necesariamente que la semana vaya mal. Significa que la **última réplica OK ya no está fresca** según la ventana definida.
+
+Comprobar:
+
+~~~bash
+zfs-repl-backup1-freshness
+~~~
+
+### Sale `Bak FAIL`
+No hay una réplica OK suficientemente reciente, o no hay ninguna registrada.
+
+Comprobar:
+
+~~~bash
+zfs-repl-backup1-freshness
+zfs-repl-backup1-status
+tail -n 50 ~/servidores/state/main1/zfs-repl-backup1-nightly.log
+~~~
+
+### Faltan logs en `Logs clave`
+Comprobar que existan:
+
+- `~/servidores/state/main1/smart-weekly.log`
+- `~/servidores/state/main1/sync.log`
+- `~/servidores/state/main1/zfs-repl-backup1-nightly.log`
+
+### ZFS da `WARN` o `FAIL`
+Revisar:
+
+~~~bash
+zpool status -x
+~~~
+
+### WireGuard da `WARN`
+Revisar:
+
+~~~bash
+wg show wg0
+wg-list-peers
+~~~
+
+### Docker da `WARN`
+Revisar:
+
+~~~bash
+systemctl status docker
+docker ps
+~~~

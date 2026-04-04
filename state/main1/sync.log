@@ -52125,3 +52125,31 @@ Tras hacer esto, puedes arreglar la identidad usada para este commit con:
  M state/main1/urls-proxy.md
 ?? scripts/backup1/
 ?? state/main1/2026-04-04_1800-state.md
+[main 0416f40e] auto: snapshot main1 2026-04-04 18:00
+ 12 files changed, 533 insertions(+), 18 deletions(-)
+ create mode 100755 scripts/backup1/backup1-safe-poweroff
+ create mode 100644 state/main1/2026-04-04_1800-state.md
+[2026-04-04 18:00:02] Commit creado: auto: snapshot main1 2026-04-04 18:00
+[2026-04-04 18:00:05] git push OK.
+[2026-04-04 18:00:05] === Fin commit-and-push ===
+[2026-04-04 19:00:03] === Inicio commit-and-push ===
+[2026-04-04 19:00:03] Cambios detectados:
+ M docs/ESTADO.md
+ M docs/comandos/srv-health.md
+ M docs/comandos/zfs-repl-backup1.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? docs/comandos/srv-health.md.bak-2026-04-04-181624
+?? docs/comandos/zfs-repl-backup1-freshness.md
+?? docs/comandos/zfs-repl-backup1-nightly.md
+?? docs/comandos/zfs-repl-backup1-status.md
+?? docs/comandos/zfs-repl-backup1.md.bak-2026-04-04-181624
+?? docs/comandos/zfs-restore-backup1.md
+?? scripts/backup1/backup1-zfs-restore-helper
+?? scripts/backup1/sudoers/
+?? scripts/install-backup1-helpers.sh
+?? state/main1/2026-04-04_1900-state.md

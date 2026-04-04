@@ -1,0 +1,2 @@
+alejandro ALL=(root) NOPASSWD: /usr/local/sbin/backup1-zfs-restore-helper
+alejandro ALL=(root) NOPASSWD: /usr/local/sbin/backup1-zfs-restore-helper --check

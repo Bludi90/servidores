@@ -1,48 +1,80 @@
 # zfs-repl-backup1
-
 <!-- RESUMEN -->
-Comando manual para replicar incrementalmente el pool `tank` de `main1` hacia `backup1` usando ZFS (`zfs send | zfs receive`). Mantiene en un fichero de estado el último snapshot común, permite `--dry-run`, muestra estimación previa y, si `pv` está instalado, enseña una línea viva de progreso con bytes, velocidad, porcentaje y ETA aproximada.
+Comando manual para replicar incrementalmente el pool `tank` de `main1` hacia `backup1` usando ZFS (`zfs send | zfs receive`). Mantiene el último snapshot común en un fichero de estado, permite `--dry-run`, estima el tamaño antes de enviar y, si `pv` está instalado, muestra una línea viva de progreso.
 <!-- /RESUMEN -->
 
 ## Qué hace
 
-`zfs-repl-backup1` automatiza el flujo manual de réplica ZFS entre:
+`zfs-repl-backup1` ejecuta la **réplica manual** del dataset origen `tank` de `main1` hacia el dataset destino `backup/replicas/main1/tank` en `backup1`.
 
-- **Origen:** `main1`
-- **Dataset origen:** `tank`
-- **Destino:** `backup1`
-- **Dataset destino:** `backup/replicas/main1/tank`
+Es el comando base del sistema de réplica. Sobre él se apoyan después:
 
-El comando:
+- `zfs-repl-backup1-nightly` → flujo nocturno completo con WOL, réplica y apagado
+- `zfs-repl-backup1-status` → resumen semanal `x/7`
+- `zfs-repl-backup1-freshness` → estado operativo actual (`Bak OK/WARN/FAIL`)
+- `zfs-restore-backup1` → restore controlado a staging
 
-1. lee el último snapshot común desde `state/main1/zfs-repl-backup1.last_common`
-2. crea un snapshot nuevo recursivo en `tank`
-3. estima el tamaño del incremental
-4. opcionalmente pide confirmación
-5. ejecuta la réplica incremental por SSH
-6. verifica que el snapshot llegó a `backup1`
-7. actualiza el fichero de estado con el nuevo snapshot base común
+## Flujo que realiza
+
+1. Lee el último snapshot común desde:
+   - `~/servidores/state/main1/zfs-repl-backup1.last_common`
+2. Crea un snapshot nuevo recursivo en `tank`
+3. Estima el tamaño del incremental
+4. Pide confirmación, salvo que se use `--yes`
+5. Ejecuta la réplica incremental por SSH hacia `backup1`
+6. Verifica que el snapshot llegó al destino
+7. Actualiza el fichero `last_common` con el nuevo snapshot base común
 
 ## Ubicación
 
-- **Fuente del comando:** `~/servidores/scripts/cmd/zfs-repl-backup1`
-- **Comando publicado:** `/usr/local/bin/zfs-repl-backup1`
-- **Estado:** `~/servidores/state/main1/zfs-repl-backup1.last_common`
-- **Log:** `~/servidores/state/main1/zfs-repl-backup1.log`
+- **Fuente:** `~/servidores/scripts/cmd/zfs-repl-backup1`
+- **Comando instalado:** `/usr/local/bin/zfs-repl-backup1`
+
+## Ficheros y estado asociados
+
+- **Estado base común:**
+  - `~/servidores/state/main1/zfs-repl-backup1.last_common`
+- **Log manual de réplicas:**
+  - `~/servidores/state/main1/zfs-repl-backup1.log`
+
+### Relacionados con la automatización
+- **Wrapper nocturno:**
+  - `~/servidores/scripts/cmd/zfs-repl-backup1-nightly`
+- **Log del wrapper nocturno:**
+  - `~/servidores/state/main1/zfs-repl-backup1-nightly.log`
+- **Registro estructurado de ejecuciones:**
+  - `~/servidores/state/main1/zfs-repl-backup1-runs.tsv`
+- **Salida de cron del wrapper:**
+  - `~/servidores/state/main1/cron-zfs-repl-backup1-nightly.out`
+
+## Origen y destino
+
+### En `main1`
+- pool origen: `tank`
+
+### En `backup1`
+- pool destino: `backup`
+- dataset receptor: `backup/replicas/main1/tank`
+
+La réplica en `backup1` se mantiene en modo pasivo:
+
+- `readonly=on`
+- `mounted=no`
+- `canmount=noauto`
+
+Esto evita montar o modificar accidentalmente la réplica viva.
 
 ## Requisitos
 
 ### En `main1`
-- pool ZFS origen: `tank`
-- comando instalado en `/usr/local/bin/zfs-repl-backup1`
+- ZFS operativo
 - acceso SSH a `backup1` con el usuario `alejandro`
-- `sudoers` local con permiso `NOPASSWD` para ejecutar el propio script
-- `pv` instalado si se quiere barra/línea viva de progreso
+- `pv` instalado si se quiere progreso visual
+- permisos suficientes para ejecutar el propio comando
 
 ### En `backup1`
-- pool ZFS destino: `backup`
-- dataset receptor: `backup/replicas/main1/tank`
-- acceso SSH desde `main1`
+- pool `backup` operativo
+- dataset `backup/replicas/main1/tank` creado y funcional
 - `sudoers` remoto permitiendo `zfs receive` sin contraseña para `alejandro`
 
 ## Sintaxis
@@ -56,10 +88,10 @@ zfs-repl-backup1 [--from SNAP] [--to SNAP] [--yes] [--no-progress] [--dry-run]
 ### `--from SNAP`
 Fuerza el snapshot base común de origen.
 
-Se usa sobre todo:
-- en la **primera ejecución**
-- si hay que **realinear** el estado manualmente
-- si querés repetir una réplica partiendo de un snapshot concreto
+Uso típico:
+- inicialización manual
+- realinear el estado
+- repetir una réplica desde un snapshot concreto
 
 Ejemplo:
 
@@ -85,10 +117,6 @@ zfs-repl-backup1 --to replica-20260401-210000
 ### `--yes`
 No pide confirmación interactiva antes de enviar.
 
-Útil para:
-- ejecuciones rápidas manuales
-- futuras automatizaciones controladas
-
 Ejemplo:
 
 ~~~bash
@@ -97,11 +125,6 @@ zfs-repl-backup1 --yes
 
 ### `--no-progress`
 Desactiva `pv` aunque esté instalado.
-
-Útil si:
-- querés una salida más limpia
-- estás depurando el script
-- no querés línea viva de progreso
 
 Ejemplo:
 
@@ -114,8 +137,8 @@ Hace una simulación completa:
 
 - crea snapshot nuevo si hace falta
 - estima el tamaño del incremental
-- **no envía nada**
-- en la v2.1, si el snapshot fue creado solo para el dry-run, lo **borra al final**
+- no envía nada
+- si el snapshot fue creado solo para el dry-run, lo borra al final
 
 Ejemplo:
 
@@ -123,36 +146,28 @@ Ejemplo:
 zfs-repl-backup1 --dry-run --yes
 ~~~
 
-## Flujo normal de uso
+## Uso normal
 
-### Primera ejecución
-Si el fichero de estado todavía no existe, indicar la base común manualmente:
+### Inicialización / realineación
+Si el fichero de estado todavía no existe o hay que forzarlo:
 
 ~~~bash
 zfs-repl-backup1 --from replica-20260401-182242
 ~~~
 
-Tras una réplica correcta, el script actualizará automáticamente:
-
-~~~bash
-~/servidores/state/main1/zfs-repl-backup1.last_common
-~~~
-
-### Ejecución habitual
-Una vez inicializado el estado:
+### Ejecución manual habitual
 
 ~~~bash
 zfs-repl-backup1
 ~~~
 
-o sin pregunta de confirmación:
+o sin confirmación:
 
 ~~~bash
 zfs-repl-backup1 --yes
 ~~~
 
 ### Simulación previa
-Para ver cuánto va a viajar sin enviar nada:
 
 ~~~bash
 zfs-repl-backup1 --dry-run --yes
@@ -161,12 +176,7 @@ zfs-repl-backup1 --dry-run --yes
 ## Salida esperada
 
 ### Inicio
-El script informa de:
-
-- dataset origen
-- destino
-- snapshot base común
-- snapshot nuevo
+Muestra dataset origen, destino, base común y snapshot nuevo.
 
 Ejemplo:
 
@@ -178,138 +188,95 @@ Ejemplo:
 ~~~
 
 ### Estimación
-Antes de enviar, enseña la estimación de ZFS:
+Antes de enviar, enseña el tamaño estimado de ZFS:
 
 ~~~text
 total estimated size is 530M
 ~~~
 
 ### Progreso
-Si `pv` está instalado y no se usa `--no-progress`, se muestra una sola línea viva con algo parecido a:
+Si `pv` está instalado y no se usa `--no-progress`, se muestra una línea viva.
+
+Ejemplo:
 
 ~~~text
 zfs-repl-backup1: 13,4MiB 0:00:05 [2,63MiB/s] [=====================>] 94%
 ~~~
 
 ### Final correcto
-Al terminar, deja constancia del nuevo snapshot base común y actualiza el fichero de estado:
+Al terminar, actualiza `last_common`.
+
+Ejemplo:
 
 ~~~text
 [2026-04-01 18:06:36] Réplica completada correctamente
 [2026-04-01 18:06:36] Nuevo snapshot base común: tank@replica-20260401-180617
 ~~~
 
-## Ficheros de estado
+## Fichero `last_common`
 
-### `state/main1/zfs-repl-backup1.last_common`
 Contiene **solo el nombre** del último snapshot común, sin `tank@`.
 
 Ejemplo:
 
 ~~~text
-replica-20260401-180617
+replica-20260404-033002
 ~~~
 
-### `state/main1/zfs-repl-backup1.log`
-Log acumulado de ejecuciones del comando.
+## Cuándo usar este comando y cuándo no
 
-## Diseño de seguridad
+### Sí usar `zfs-repl-backup1`
+- para lanzar una réplica manual controlada
+- para depurar el flujo base
+- para validar incremental, tamaño y base común
+- para pruebas manuales antes de automatizar
 
-### En `main1`
-El comando se autoeleva con `sudo` al arrancar.
-
-Se configuró una regla `NOPASSWD` **solo** para este script, en lugar de abrir permisos generales a `zfs`. Así el usuario puede ejecutar el comando cómodamente, pero no obtiene vía libre a otros subcomandos arbitrarios de ZFS.
-
-### En `backup1`
-El `zfs receive` remoto se ejecuta con:
+### No usarlo como restore
+Para recuperación de contenido no se usa este comando, sino:
 
 ~~~bash
-sudo -n /usr/bin/zfs receive -u -F backup/replicas/main1/tank
+zfs-restore-backup1
 ~~~
 
-La réplica en destino se mantiene como:
+### No usarlo como automatización nocturna directa
+Para el flujo diario con wake + réplica + apagado se usa:
 
-- `readonly=on`
-- `mounted=no`
-- `canmount=noauto`
-
-Esto permite que `backup1` actúe como **destino pasivo** de réplica.
-
-## Comprobaciones útiles
-
-### Ver el snapshot base actual
 ~~~bash
-cat ~/servidores/state/main1/zfs-repl-backup1.last_common
+zfs-repl-backup1-nightly
 ~~~
 
-### Ver si el pool origen está sano
+## Notas operativas
+
+- El comando manual replica, pero no enciende ni apaga `backup1`.
+- La automatización diaria corre aparte por cron a las **03:30** mediante `zfs-repl-backup1-nightly`.
+- El estado semanal y la frescura actual se calculan a partir de:
+  - `zfs-repl-backup1-runs.tsv`
+- `srv-health --short` muestra la frescura actual como:
+  - `Bak OK`
+  - `Bak WARN`
+  - `Bak FAIL`
+- `srv-health-weekly` muestra el cumplimiento semanal como:
+  - `📦 Bak: x/7 (últ. dd/mm/aa)`
+
+## Troubleshooting rápido
+
+### El `dry-run` crea snapshot pero no envía
+Es normal. En ese modo no hay réplica real.
+
+### `backup1` no responde
+No es problema de este comando en sí. Revisar:
+- conectividad SSH
+- estado de `backup1`
+- si la réplica se quería hacer de forma automática, revisar `zfs-repl-backup1-nightly`
+
+### El estado base común no cuadra
+Comprobar:
+- `~/servidores/state/main1/zfs-repl-backup1.last_common`
+- snapshots presentes en origen y destino
+
+### Hay que recuperar archivos o config
+No usar `zfs-repl-backup1`. Usar:
+
 ~~~bash
-zpool status tank
+zfs-restore-backup1
 ~~~
-
-### Ver si el pool destino está sano
-~~~bash
-ssh alejandro@backup1 'zpool status backup'
-~~~
-
-### Ver snapshots recibidos en destino
-~~~bash
-ssh alejandro@backup1 'zfs list -t snapshot -r backup/replicas/main1/tank | tail -n 20'
-~~~
-
-### Ver estado pasivo de la réplica en `backup1`
-~~~bash
-ssh alejandro@backup1 'zfs get -r readonly,mounted,canmount backup/replicas/main1/tank | head -n 20'
-~~~
-
-## Problemas conocidos / errores típicos
-
-### `No hay SSH funcional hacia backup1`
-Suele significar:
-- alias SSH no disponible
-- conectividad rota
-- problema de clave SSH
-
-El script está preparado para lanzar SSH usando el usuario original (`alejandro`) para aprovechar su `~/.ssh/config`.
-
-### `sudo: a password is required` en `backup1`
-Indica que la regla remota de `sudoers` para `zfs receive` no está aplicando bien.
-
-### `No existe ... last_common`
-Pasa en la primera ejecución si todavía no se ha inicializado el fichero de estado. Se resuelve lanzando el comando con `--from SNAP`.
-
-### Dry-run dejando snapshots
-Corregido en la **v2.1**: si el snapshot nuevo fue creado solo para la simulación, se destruye automáticamente al salir.
-
-## Ejemplos reales
-
-### Réplica interactiva
-~~~bash
-zfs-repl-backup1
-~~~
-
-### Réplica directa
-~~~bash
-zfs-repl-backup1 --yes
-~~~
-
-### Simulación sin enviar
-~~~bash
-zfs-repl-backup1 --dry-run --yes
-~~~
-
-### Reanclar base común manualmente
-~~~bash
-zfs-repl-backup1 --from replica-20260401-182242 --yes
-~~~
-
-## Notas de mantenimiento
-
-- Este comando está pensado para seguir usándose **manual** por ahora.
-- Antes de automatizarlo por cron/systemd timer, conviene haber validado varias ejecuciones manuales sin incidencias.
-- Si más adelante se automatiza, convendrá añadir:
-  - bloqueo con `flock`
-  - rotación/limpieza de snapshots
-  - alertas si falla la réplica
-  - política explícita de retención
-
