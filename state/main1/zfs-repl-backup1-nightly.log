@@ -152,3 +152,55 @@
 [2026-04-03 22:06:20] OK    check: poweroff remoto no interactivo validado
 [2026-04-03 22:06:20] INFO  check: comprobaciones online OK
 [2026-04-03 22:06:20] INFO  check: todas las comprobaciones críticas pasaron
+[2026-04-04 03:30:01] INFO  check: iniciando comprobaciones comunes
+[2026-04-04 03:30:01] INFO  check: iniciando comprobaciones comunes
+[2026-04-04 03:30:01] OK    check: comando wol encontrado
+[2026-04-04 03:30:01] OK    check: comando wol encontrado
+[2026-04-04 03:30:01] OK    check: comando wolctl encontrado
+[2026-04-04 03:30:01] OK    check: comando wolctl encontrado
+[2026-04-04 03:30:01] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-04 03:30:01] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-04 03:30:01] OK    check: host WOL registrado: sv-backup1
+[2026-04-04 03:30:01] OK    check: host WOL registrado: sv-backup1
+[2026-04-04 03:30:01] INFO  main: sv-backup1 ya estaba encendido; no se enviará WOL
+[2026-04-04 03:30:01] INFO  main: sv-backup1 ya estaba encendido; no se enviará WOL
+[2026-04-04 03:30:01] INFO  check: iniciando comprobaciones online
+[2026-04-04 03:30:01] INFO  check: iniciando comprobaciones online
+[2026-04-04 03:30:01] OK    check: ping a 192.168.1.122 responde
+[2026-04-04 03:30:01] OK    check: ping a 192.168.1.122 responde
+[2026-04-04 03:30:02] OK    check: SSH a backup1 responde
+[2026-04-04 03:30:02] OK    check: SSH a backup1 responde
+[2026-04-04 03:30:02] OK    check: poweroff remoto no interactivo validado
+[2026-04-04 03:30:02] OK    check: poweroff remoto no interactivo validado
+[2026-04-04 03:30:02] INFO  check: comprobaciones online OK
+[2026-04-04 03:30:02] INFO  check: comprobaciones online OK
+[2026-04-04 03:30:02] INFO  repl: lanzando réplica real
+[2026-04-04 03:30:02] INFO  repl: lanzando réplica real
+[2026-04-04 03:30:02] Origen:  tank
+[2026-04-04 03:30:02] Destino: alejandro@backup1:backup/replicas/main1/tank
+[2026-04-04 03:30:02] Base común: tank@replica-20260403-212753
+[2026-04-04 03:30:02] Nuevo snapshot: tank@replica-20260404-033002
+[2026-04-04 03:30:03] Creando snapshot recursivo: tank@replica-20260404-033002
+[2026-04-04 03:30:04] Estimando tamaño del incremental...
+send from @replica-20260403-212753 to tank@replica-20260404-033002 estimated size is 116M
+send from @replica-20260403-212753 to tank/nextcloud@replica-20260404-033002 estimated size is 624B
+send from @replica-20260403-212753 to tank/nextcloud/data@replica-20260404-033002 estimated size is 71.6K
+send from @replica-20260403-212753 to tank/nextcloud/db@replica-20260404-033002 estimated size is 8.41M
+send from @replica-20260403-212753 to tank/nextcloud/config@replica-20260404-033002 estimated size is 205K
+send from @replica-20260403-212753 to tank/appdata@replica-20260404-033002 estimated size is 624B
+send from @replica-20260403-212753 to tank/appdata/casaos@replica-20260404-033002 estimated size is 624B
+send from @replica-20260403-212753 to tank/appdata/docker@replica-20260404-033002 estimated size is 49.2M
+send from @replica-20260403-212753 to tank/media@replica-20260404-033002 estimated size is 754M
+total estimated size is 928M
+[2026-04-04 03:30:07] Tamaño estimado total: 928M
+[2026-04-04 03:30:07] Tamaño estimado en bytes: 973078528
+[2026-04-04 03:30:07] Iniciando réplica incremental...
+[2026-04-04 03:30:29] Réplica completada correctamente
+[2026-04-04 03:30:29] Nuevo snapshot base común: tank@replica-20260404-033002
+[2026-04-04 03:30:29] Estado guardado en: /home/alejandro/servidores/state/main1/zfs-repl-backup1.last_common
+[2026-04-04 03:30:29] OK    repl: réplica finalizada
+[2026-04-04 03:30:29] OK    repl: réplica finalizada
+[2026-04-04 03:30:29] INFO  main: el host ya estaba encendido al inicio; se deja encendido
+[2026-04-04 03:30:29] INFO  main: el host ya estaba encendido al inicio; se deja encendido
+[2026-04-04 03:30:29] INFO  main: flujo completado correctamente
+[2026-04-04 03:30:29] INFO  main: flujo completado correctamente
