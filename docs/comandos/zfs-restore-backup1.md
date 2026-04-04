@@ -198,7 +198,7 @@ zfs-restore-backup1 \
 Si todo va bien, el contenido quedará en:
 
 ~~~text
-/ srv/storage/tmp/restore-staging/nginx
+/srv/storage/tmp/restore-staging/nginx
 ~~~
 
 Nota: en la ruta real no hay espacio; aquí solo se separa visualmente:

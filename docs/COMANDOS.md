@@ -1,6 +1,6 @@
 # Comandos y scripts (resumen)
 
-_Generado: 2026-04-01 19:21_
+_Generado: 2026-04-04 19:08_
 
 Este documento es un **índice** para consulta rápida. Las guías completas están enlazadas.
 
@@ -9,10 +9,14 @@ Este documento es un **índice** para consulta rápida. Las guías completas est
 - [DR WireGuard wg0 (main1 -> backup1)](comandos/dr-wg0-promote.md)
 - [import-peli](comandos/import-peli.md)
 - [LAN-Scan — Guía rápida](comandos/lan-scan.md)
-- [Server-Health — Chequeo rápido del servidor - Cheatsheet](comandos/srv-health.md)
+- [srv-health](comandos/srv-health.md)
 - [WireGuard — Cheatsheet](comandos/wireguard.md)
 - [Wake-on-LAN — Cheatsheet](comandos/wol.md)
+- [zfs-repl-backup1-freshness](comandos/zfs-repl-backup1-freshness.md)
 - [zfs-repl-backup1](comandos/zfs-repl-backup1.md)
+- [zfs-repl-backup1-nightly](comandos/zfs-repl-backup1-nightly.md)
+- [zfs-repl-backup1-status](comandos/zfs-repl-backup1-status.md)
+- [zfs-restore-backup1](comandos/zfs-restore-backup1.md)
 
 ## DR WireGuard wg0 (main1 -> backup1)
 
@@ -39,19 +43,14 @@ Uso típico:
 
 [→ Abrir guía completa](comandos/lan-scan.md)
 
-## Server-Health — Chequeo rápido del servidor - Cheatsheet
+## srv-health
 
-`srv-health` hace un chequeo rápido del servidor y muestra en unas pocas líneas
-el estado de ZFS (pool `tank`), servicios críticos (WireGuard, Docker, cron,
-smartd, zfs-zed), WireGuard `wg0`, Docker y algunas métricas básicas
-(uptime, carga, memoria, unidades systemd fallidas y logs clave).
-
+`srv-health` hace un chequeo rápido de salud del servidor y muestra en pocas líneas el estado general de `main1`: cabecera del sistema, ZFS, réplica hacia `backup1`, servicios críticos, UPS/NUT, WireGuard, Docker, DNS, unidades systemd fallidas y logs clave.
 Uso típico:
-
-```bash
-srv-health        # vista completa, con logs
-srv-health --short  # vista reducida, solo estado esencial
-```
+~~~bash
+srv-health
+srv-health --short
+~~~
 
 [→ Abrir guía completa](comandos/srv-health.md)
 
@@ -89,9 +88,33 @@ un pc-sobremesa o un pt-lenovo).
 
 [→ Abrir guía completa](comandos/wol.md)
 
+## zfs-repl-backup1-freshness
+
+Chequeo de frescura operativa del sistema de réplicas hacia `backup1`. Lee `zfs-repl-backup1-runs.tsv`, busca la última ejecución real correcta y devuelve `Bak OK`, `Bak WARN` o `Bak FAIL` según la antigüedad de esa última réplica buena.
+
+[→ Abrir guía completa](comandos/zfs-repl-backup1-freshness.md)
+
 ## zfs-repl-backup1
 
-Comando manual para replicar incrementalmente el pool `tank` de `main1` hacia `backup1` usando ZFS (`zfs send | zfs receive`). Mantiene en un fichero de estado el último snapshot común, permite `--dry-run`, muestra estimación previa y, si `pv` está instalado, enseña una línea viva de progreso con bytes, velocidad, porcentaje y ETA aproximada.
+Comando manual para replicar incrementalmente el pool `tank` de `main1` hacia `backup1` usando ZFS (`zfs send | zfs receive`). Mantiene el último snapshot común en un fichero de estado, permite `--dry-run`, estima el tamaño antes de enviar y, si `pv` está instalado, muestra una línea viva de progreso.
 
 [→ Abrir guía completa](comandos/zfs-repl-backup1.md)
+
+## zfs-repl-backup1-nightly
+
+Wrapper operativo para la réplica diaria hacia `backup1`. Comprueba requisitos, enciende `backup1` por WOL si hace falta, espera a que vuelva por ping/SSH, lanza `zfs-repl-backup1`, registra el resultado en log y en `runs.tsv`, y apaga `backup1` al final si lo encendió este mismo wrapper.
+
+[→ Abrir guía completa](comandos/zfs-repl-backup1-nightly.md)
+
+## zfs-repl-backup1-status
+
+Resumen semanal del sistema de réplicas hacia `backup1`, calculado a partir de `zfs-repl-backup1-runs.tsv`. Cuenta solo ejecuciones reales (`mode=real`) y devuelve una línea compacta tipo `Snpsht OK/WARN/FAIL`, útil para monitorización, revisión manual y consumo desde otros scripts.
+
+[→ Abrir guía completa](comandos/zfs-repl-backup1-status.md)
+
+## zfs-restore-backup1
+
+Restore controlado desde la réplica ZFS de `backup1` hacia un directorio local de staging. Comprueba que el snapshot exista, crea un clone temporal remoto, empaqueta la subruta pedida, la copia al host local, la extrae en destino y limpia los temporales al final.
+
+[→ Abrir guía completa](comandos/zfs-restore-backup1.md)
 
