@@ -52430,3 +52430,20 @@ A  state/main1/zfs-restore-backup1.last_test
  M state/main1/urls-proxy.md
 ?? state/main1/2026-04-05_1200-state.md
 ?? state/main1/2026-04-05_smart.md.tmp
+[main 1c2d7756] auto: snapshot main1 2026-04-05 12:00
+ 11 files changed, 685 insertions(+), 15 deletions(-)
+ create mode 100644 state/main1/2026-04-05_1200-state.md
+ create mode 100644 state/main1/2026-04-05_smart.md.tmp
+[2026-04-05 12:00:03] Commit creado: auto: snapshot main1 2026-04-05 12:00
+[2026-04-05 12:00:06] git push OK.
+[2026-04-05 12:00:06] === Fin commit-and-push ===
+[2026-04-05 13:00:03] === Inicio commit-and-push ===
+[2026-04-05 13:00:03] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/zfs_list.txt
+ M reports/current/zfs_snapshots.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2026-04-05_1300-state.md
