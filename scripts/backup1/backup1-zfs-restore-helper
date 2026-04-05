@@ -54,8 +54,22 @@ case "$cmd" in
     /usr/sbin/zfs list -r backup/restore-tests
     ;;
 
+  destroy-tag)
+    root_ds="${2-}"
+    tag="${3-}"
+    [[ -n "$root_ds" ]] || { echo "Falta root_ds" >&2; exit 2; }
+    [[ -n "$tag" ]] || { echo "Falta tag" >&2; exit 2; }
+
+    case "$tag" in
+      replica-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]) ;;
+      *) echo "Tag no canónico: $tag" >&2; exit 2 ;;
+    esac
+
+    /usr/sbin/zfs destroy -r "${root_ds}@${tag}"
+    ;;
+
   *)
-    echo "Uso: $0 --check | snapshot-exists <snapshot> | clone-mount <snapshot> <clone_ds> <mountpoint> | tar-path <mountpoint> <subpath> <tarfile> | cleanup <clone_ds> <tarfile>" >&2
+    echo "Uso: $0 --check | snapshot-exists <snapshot> | clone-mount <snapshot> <clone_ds> <mountpoint> | tar-path <mountpoint> <subpath> <tarfile> | cleanup <clone_ds> <tarfile> | destroy-tag <root_ds> <tag>" >&2
     exit 2
     ;;
 esac

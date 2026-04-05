@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+usage() {
+  cat <<'USAGE'
+Uso:
+  zfs-retention-prune --host backup1 --root-dataset backup/replicas/main1/tank [--execute]
+  zfs-retention-prune --host local   --root-dataset tank [--execute]
+
+Por defecto trabaja en modo simulación.
+USAGE
+}
+
+HOST=""
+ROOT_DATASET=""
+EXECUTE=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --host) HOST="${2:-}"; shift 2 ;;
+    --root-dataset) ROOT_DATASET="${2:-}"; shift 2 ;;
+    --execute) EXECUTE=1; shift ;;
+    -h|--help) usage; exit 0 ;;
+    *) echo "Argumento no reconocido: $1" >&2; usage >&2; exit 2 ;;
+  esac
+done
+
+[[ -n "$HOST" ]] || { echo "Falta --host" >&2; exit 2; }
+[[ -n "$ROOT_DATASET" ]] || { echo "Falta --root-dataset" >&2; exit 2; }
+
+TMP_TAGS="/tmp/zfs-retention-prune.tags"
+TMP_PRUNE="/tmp/zfs-retention-prune.prune"
+
+if [[ "$HOST" == "local" ]]; then
+  zfs list -H -t snapshot -o name -s creation "$ROOT_DATASET" \
+    | grep "^${ROOT_DATASET}@replica-[0-9]\{8\}-[0-9]\{6\}$" > "$TMP_TAGS"
+else
+  ssh "alejandro@${HOST}" \
+    "zfs list -H -t snapshot -o name -s creation '$ROOT_DATASET' | grep '^${ROOT_DATASET}@replica-[0-9]\{8\}-[0-9]\{6\}$'" \
+    > "$TMP_TAGS"
+fi
+
+python3 - <<'PY' > "$TMP_PRUNE"
+from pathlib import Path
+from datetime import datetime
+
+tags = []
+for line in Path('/tmp/zfs-retention-prune.tags').read_text().splitlines():
+    tag = line.split('@', 1)[1].strip()
+    dt = datetime.strptime(tag, 'replica-%Y%m%d-%H%M%S')
+    tags.append((dt, tag))
+
+tags.sort()
+all_tags = [tag for dt, tag in tags]
+
+# DAILY = último snapshot de cada uno de los últimos 7 días con snapshots
+by_day = {}
+for dt, tag in tags:
+    by_day[dt.date()] = (dt, tag)
+
+daily_days = sorted(by_day.keys())[-7:]
+keep_daily = {by_day[d][1] for d in daily_days}
+oldest_daily_day = min(daily_days) if daily_days else None
+
+# WEEKLY = último snapshot de cada semana anterior a la ventana diaria
+weekly_candidates = []
+for dt, tag in tags:
+    if oldest_daily_day is None or dt.date() < oldest_daily_day:
+        weekly_candidates.append((dt, tag))
+
+by_week = {}
+for dt, tag in weekly_candidates:
+    by_week[(dt.isocalendar().year, dt.isocalendar().week)] = (dt, tag)
+
+weekly_keys = sorted(by_week.keys())[-4:]
+keep_weekly = {by_week[k][1] for k in weekly_keys}
+oldest_week_dt = min((by_week[k][0] for k in weekly_keys), default=None)
+
+# MONTHLY = último snapshot de cada mes anterior a la ventana semanal
+monthly_candidates = []
+for dt, tag in tags:
+    if oldest_week_dt is not None:
+        if (dt.year, dt.month) < (oldest_week_dt.year, oldest_week_dt.month):
+            monthly_candidates.append((dt, tag))
+
+by_month = {}
+for dt, tag in monthly_candidates:
+    by_month[(dt.year, dt.month)] = (dt, tag)
+
+monthly_keys = sorted(by_month.keys())[-6:]
+keep_monthly = {by_month[k][1] for k in monthly_keys}
+
+keep_all = sorted(
+    keep_daily | keep_weekly | keep_monthly,
+    key=lambda t: datetime.strptime(t, 'replica-%Y%m%d-%H%M%S')
+)
+prune = [tag for tag in all_tags if tag not in keep_all]
+
+for tag in prune:
+    print(tag)
+PY
+
+echo "zfs-retention-prune (plan)"
+echo "HOST=$HOST"
+echo "ROOT_DATASET=$ROOT_DATASET"
+echo "EXECUTE=$EXECUTE"
+echo
+
+echo "=== PRUNE TAGS ==="
+cat "$TMP_PRUNE" || true
+echo
+
+if [[ ! -s "$TMP_PRUNE" ]]; then
+  echo "Nada para borrar."
+  exit 0
+fi
+
+echo "=== COMMANDS ==="
+while IFS= read -r tag; do
+  [[ -n "$tag" ]] || continue
+  if [[ "$HOST" == "local" ]]; then
+    echo "zfs destroy -r '${ROOT_DATASET}@${tag}'"
+  else
+    echo "ssh alejandro@${HOST} \"zfs destroy -r '${ROOT_DATASET}@${tag}'\""
+  fi
+done < "$TMP_PRUNE"
+
+if [[ "$EXECUTE" -eq 0 ]]; then
+  echo
+  echo "Modo simulación: no se ha borrado nada."
+  exit 0
+fi
+
+echo
+echo "=== EXECUTING ==="
+while IFS= read -r tag; do
+  [[ -n "$tag" ]] || continue
+  if [[ "$HOST" == "local" ]]; then
+    zfs destroy -r "${ROOT_DATASET}@${tag}"
+  else
+    ssh "alejandro@${HOST}" "zfs destroy -r '${ROOT_DATASET}@${tag}'"
+  fi
+done < "$TMP_PRUNE"
+
+echo
+echo "Poda completada."
