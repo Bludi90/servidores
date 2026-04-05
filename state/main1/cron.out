@@ -60964,3 +60964,26 @@ Escrito: /home/alejandro/servidores/state/main1/2026-04-05_1400-state.md
 ?? scripts/cmd/zfs-retention-plan
 ?? scripts/cmd/zfs-retention-prune
 ?? state/main1/2026-04-05_1400-state.md
+[main a9762308] auto: snapshot main1 2026-04-05 14:00
+ 14 files changed, 970 insertions(+), 342 deletions(-)
+ create mode 100755 scripts/cmd/srv-health-weekly
+ create mode 100755 scripts/cmd/zfs-retention-plan
+ create mode 100755 scripts/cmd/zfs-retention-prune
+ create mode 100644 state/main1/2026-04-05_1400-state.md
+ mode change 100644 => 120000 state/main1/current-state.md
+[2026-04-05 14:00:03] Commit creado: auto: snapshot main1 2026-04-05 14:00
+To github.com:Bludi90/servidores.git
+   2863c1e2..a9762308  main -> main
+[2026-04-05 14:00:05] git push OK.
+[2026-04-05 14:00:05] === Fin commit-and-push ===
+Escrito: /home/alejandro/servidores/state/main1/2026-04-05_1500-state.md
+[2026-04-05 15:00:02] === Inicio commit-and-push ===
+[2026-04-05 15:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/zfs_snapshots.txt
+ M scripts/cmd/zfs-retention-prune
+ M state/main1/cron.out
+ T state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2026-04-05_1500-state.md

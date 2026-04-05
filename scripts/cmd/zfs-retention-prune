@@ -121,7 +121,7 @@ while IFS= read -r tag; do
   if [[ "$HOST" == "local" ]]; then
     echo "zfs destroy -r '${ROOT_DATASET}@${tag}'"
   else
-    echo "ssh alejandro@${HOST} \"zfs destroy -r '${ROOT_DATASET}@${tag}'\""
+    echo "ssh alejandro@${HOST} \"sudo -n /usr/local/sbin/backup1-zfs-restore-helper destroy-tag '${ROOT_DATASET}' '${tag}'\""
   fi
 done < "$TMP_PRUNE"
 
@@ -138,7 +138,7 @@ while IFS= read -r tag; do
   if [[ "$HOST" == "local" ]]; then
     zfs destroy -r "${ROOT_DATASET}@${tag}"
   else
-    ssh "alejandro@${HOST}" "zfs destroy -r '${ROOT_DATASET}@${tag}'"
+    ssh -n "alejandro@${HOST}" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper destroy-tag '${ROOT_DATASET}' '${tag}'"
   fi
 done < "$TMP_PRUNE"
 
