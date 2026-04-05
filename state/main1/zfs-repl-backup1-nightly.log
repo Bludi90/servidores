@@ -204,3 +204,18 @@ total estimated size is 928M
 [2026-04-04 03:30:29] INFO  main: el host ya estaba encendido al inicio; se deja encendido
 [2026-04-04 03:30:29] INFO  main: flujo completado correctamente
 [2026-04-04 03:30:29] INFO  main: flujo completado correctamente
+[2026-04-05 03:30:01] INFO  check: iniciando comprobaciones comunes
+[2026-04-05 03:30:01] OK    check: comando wol encontrado
+[2026-04-05 03:30:01] OK    check: comando wolctl encontrado
+[2026-04-05 03:30:01] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-05 03:30:01] OK    check: host WOL registrado: sv-backup1
+[2026-04-05 03:30:01] INFO  main: sv-backup1 ya estaba encendido; no se enviará WOL
+[2026-04-05 03:30:01] INFO  check: iniciando comprobaciones online
+[2026-04-05 03:30:01] OK    check: ping a 192.168.1.122 responde
+[2026-04-05 03:30:02] OK    check: SSH a backup1 responde
+[2026-04-05 03:30:02] OK    check: poweroff remoto no interactivo validado
+[2026-04-05 03:30:02] INFO  check: comprobaciones online OK
+[2026-04-05 03:30:02] INFO  repl: lanzando réplica real
+[2026-04-05 03:30:46] OK    repl: réplica finalizada
+[2026-04-05 03:30:46] INFO  main: el host ya estaba encendido al inicio; se deja encendido
+[2026-04-05 03:30:46] INFO  main: flujo completado correctamente

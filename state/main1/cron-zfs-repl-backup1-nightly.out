@@ -1,0 +1,37 @@
+[2026-04-05 03:30:01] INFO  check: iniciando comprobaciones comunes
+[2026-04-05 03:30:01] OK    check: comando wol encontrado
+[2026-04-05 03:30:01] OK    check: comando wolctl encontrado
+[2026-04-05 03:30:01] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-05 03:30:01] OK    check: host WOL registrado: sv-backup1
+[2026-04-05 03:30:01] INFO  main: sv-backup1 ya estaba encendido; no se enviará WOL
+[2026-04-05 03:30:01] INFO  check: iniciando comprobaciones online
+[2026-04-05 03:30:01] OK    check: ping a 192.168.1.122 responde
+[2026-04-05 03:30:02] OK    check: SSH a backup1 responde
+[2026-04-05 03:30:02] OK    check: poweroff remoto no interactivo validado
+[2026-04-05 03:30:02] INFO  check: comprobaciones online OK
+[2026-04-05 03:30:02] INFO  repl: lanzando réplica real
+[2026-04-05 03:30:02] Origen:  tank
+[2026-04-05 03:30:02] Destino: alejandro@backup1:backup/replicas/main1/tank
+[2026-04-05 03:30:02] Base común: tank@replica-20260404-033002
+[2026-04-05 03:30:02] Nuevo snapshot: tank@replica-20260405-033002
+[2026-04-05 03:30:03] Creando snapshot recursivo: tank@replica-20260405-033002
+[2026-04-05 03:30:04] Estimando tamaño del incremental...
+send from @replica-20260404-033002 to tank@replica-20260405-033002 estimated size is 309M
+send from @replica-20260404-033002 to tank/nextcloud@replica-20260405-033002 estimated size is 624B
+send from @replica-20260404-033002 to tank/nextcloud/data@replica-20260405-033002 estimated size is 3.44M
+send from @replica-20260404-033002 to tank/nextcloud/db@replica-20260405-033002 estimated size is 33.0M
+send from @replica-20260404-033002 to tank/nextcloud/config@replica-20260405-033002 estimated size is 380K
+send from @replica-20260404-033002 to tank/appdata@replica-20260405-033002 estimated size is 624B
+send from @replica-20260404-033002 to tank/appdata/casaos@replica-20260405-033002 estimated size is 624B
+send from @replica-20260404-033002 to tank/appdata/docker@replica-20260405-033002 estimated size is 1.29G
+send from @replica-20260404-033002 to tank/media@replica-20260405-033002 estimated size is 610M
+total estimated size is 2.23G
+[2026-04-05 03:30:04] Tamaño estimado total: 2.23G
+[2026-04-05 03:30:04] Tamaño estimado en bytes: 2394444267
+[2026-04-05 03:30:04] Iniciando réplica incremental...
+[2026-04-05 03:30:46] Réplica completada correctamente
+[2026-04-05 03:30:46] Nuevo snapshot base común: tank@replica-20260405-033002
+[2026-04-05 03:30:46] Estado guardado en: /home/alejandro/servidores/state/main1/zfs-repl-backup1.last_common
+[2026-04-05 03:30:46] OK    repl: réplica finalizada
+[2026-04-05 03:30:46] INFO  main: el host ya estaba encendido al inicio; se deja encendido
+[2026-04-05 03:30:46] INFO  main: flujo completado correctamente
