@@ -23,6 +23,12 @@ Los datos de usuario viven en `/srv/storage` sobre ZFS (`tank`); aquí **no** ha
 - 🔒 **Reverse proxy**: Caddy en Docker (TLS interno para servicios `*.srv`).
 - 🔌 **SAI/UPS**: NUT operativo con notificaciones a Telegram y apagado controlado (armado mediante `/etc/nut/enable-shutdown`).
 
+### Estado operativo actual (resumen)
+
+- 🔐 **Acceso administrativo**: LAN + WireGuard (`llobregat6.duckdns.org`).
+- 📊 **Estado horario**: snapshots en `state/main1/` + índice en `docs/ESTADO.md`.
+- 🗂️ **Almacenamiento principal**: ZFS (`tank`) en producción.
+- 🔁 **Réplica**: copia prevista/nocturna hacia `backup1`.
 
 ## Estructura del repositorio (resumen)
 

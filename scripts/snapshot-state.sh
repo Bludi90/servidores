@@ -49,6 +49,8 @@ mkdir -p "$OUT_DIR"
   echo "- [UFW](#ufw)"
   echo "- [WireGuard](#wireguard)"
   echo "- [Peers WireGuard](#peers-wireguard)"
+  echo "- [DNS interno](#dns-interno)"
+  echo "- [Snapshots ZFS y réplica](#snapshots-zfs-y-réplica)"
   echo "- [Docker](#docker)"
   echo "- [VMs (libvirt)](#vms-libvirt)"
   echo "- [Backups (restic)](#backups-restic)"
@@ -200,7 +202,9 @@ mkdir -p "$OUT_DIR"
   echo "## WireGuard"
   echo '```'
   if command -v wg >/dev/null 2>&1; then
-    wg show 2>/dev/null | mask_all || echo "wg show falló o no hay interfaces."
+    sudo -n wg show 2>/dev/null | mask_all \
+      || wg show 2>/dev/null | mask_all \
+      || echo "No se pudo consultar 'wg show' (¿falta sudo/NOPASSWD o permisos?)."
   else
     echo "WireGuard (wg) no disponible."
   fi
@@ -224,6 +228,63 @@ mkdir -p "$OUT_DIR"
     echo
     echo "_wg-list-peers no encontrado en PATH._"
   fi
+  echo
+  ########################################################################
+  # DNS interno (Pi-hole + Unbound)
+  ########################################################################
+  echo "## DNS interno"
+  echo '```'
+  PIHOLE_CONT="pihole-pihole-1"
+  UNBOUND_CONT="unbound-unbound-1"
+
+  pihole_stat="$(docker ps --filter "name=^/${PIHOLE_CONT}$" --format '{{.Status}}' 2>/dev/null | head -n1)"
+  unbound_stat="$(docker ps --filter "name=^/${UNBOUND_CONT}$" --format '{{.Status}}' 2>/dev/null | head -n1)"
+
+  echo "Pi-hole: ${pihole_stat:-no detectado}"
+  echo "Unbound: ${unbound_stat:-no detectado}"
+
+  if command -v dig >/dev/null 2>&1; then
+    echo
+    echo "Prueba DNS via Pi-hole (10.8.0.1):"
+    dig @10.8.0.1 google.es +short 2>/dev/null || echo "sin respuesta"
+    echo
+    echo "Prueba DNS via Unbound (172.18.0.3):"
+    dig @172.18.0.3 google.es +short 2>/dev/null || echo "sin respuesta"
+  else
+    echo
+    echo "dig no disponible."
+  fi
+
+  if docker ps --format '{{.Names}}' 2>/dev/null | grep -qx "${PIHOLE_CONT}"; then
+    echo
+    echo "Upstream efectivo de Pi-hole:"
+    docker exec "${PIHOLE_CONT}" pihole-FTL --config dns.upstreams 2>/dev/null || echo "no disponible"
+  fi
+  echo '```'
+  echo
+
+  ########################################################################
+  # Snapshots ZFS y réplica
+  ########################################################################
+  echo "## Snapshots ZFS y réplica"
+  echo '```'
+  if command -v zfs >/dev/null 2>&1; then
+    echo "Últimos snapshots locales de tank:"
+    sudo -n zfs list -t snapshot -o name -s creation 2>/dev/null | grep '^tank@' | tail -n 5 \
+      || zfs list -t snapshot -o name -s creation 2>/dev/null | grep '^tank@' | tail -n 5 \
+      || echo "No se pudieron listar snapshots locales."
+  else
+    echo "zfs no disponible."
+  fi
+
+  echo
+  echo "Réplica backup1 (resumen log):"
+  if [ -r "/home/alejandro/servidores/state/main1/zfs-repl-backup1-nightly.log" ]; then
+    tail -n 10 /home/alejandro/servidores/state/main1/zfs-repl-backup1-nightly.log 2>/dev/null || true
+  else
+    echo "Log de réplica no legible."
+  fi
+  echo '```'
   echo
 
   ########################################################################

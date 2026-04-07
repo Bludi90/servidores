@@ -1,1 +1,0 @@
-● wg-quick@wgo.service loaded failed failed WireGuard via wg-quick(8) for wgo
