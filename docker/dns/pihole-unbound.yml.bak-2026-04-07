@@ -19,7 +19,9 @@ services:
       DNSMASQ_USER: pihole
       FTL_CMD: no-daemon
       FTLCONF_dns_listeningMode: ALL
-      FTLCONF_dns_upstreams: unbound#53
+      # Upstream por defecto; se puede sobreescribir en .env
+      FTLCONF_dns_upstreams: ${PIHOLE_DNS_UPSTREAMS:-1.1.1.1}
+      # Contraseña de la web de Pi-hole (SECRETO, sólo en .env)
       WEBPASSWORD: ${PIHOLE_WEBPASSWORD}
     volumes:
       - /srv/storage/services/dns/pihole/etc-pihole:/etc/pihole
@@ -35,6 +37,7 @@ services:
       - dns-net
     volumes:
       - /srv/storage/services/dns/unbound/conf.d:/opt/unbound/etc/unbound
+    # No exponemos el 53 al host: sólo Pi-hole habla con Unbound
 
 networks:
   dns-net:
