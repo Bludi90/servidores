@@ -53317,3 +53317,14 @@ A  state/main1/zfs-restore-backup1.last_test
  M state/main1/sync.log
 ?? state/main1/2026-04-07_1846-state.md
 ?? state/main1/2026-04-07_1849-state.md
+[main 6a44511b] auto: snapshot main1 2026-04-07 18:49
+ 11 files changed, 1291 insertions(+), 15 deletions(-)
+ create mode 100644 state/main1/2026-04-07_1846-state.md
+ create mode 100644 state/main1/2026-04-07_1849-state.md
+[2026-04-07 18:49:58] Commit creado: auto: snapshot main1 2026-04-07 18:49
+[2026-04-07 18:50:00] git push OK.
+[2026-04-07 18:50:00] === Fin commit-and-push ===
+[2026-04-07 18:51:47] === Inicio commit-and-push ===
+[2026-04-07 18:51:47] Cambios detectados:
+ M docs/ESTADO.md
+ M state/main1/sync.log
