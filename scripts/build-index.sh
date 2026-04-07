@@ -3,47 +3,51 @@ set -euo pipefail
 umask 022
 export LC_ALL=C
 
-# Raíz del repo = carpeta padre de scripts/
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-
-SERVER="$(hostname -s || echo main1)"
-
 docs_dir="${repo_root}/docs"
 estado_file="${docs_dir}/ESTADO.md"
-
-state_dir="${repo_root}/state/${SERVER}"
-current_abs="${state_dir}/current-state.md"
-sync_log_abs="${state_dir}/sync.log"
+state_root="${repo_root}/state"
 
 mkdir -p "${docs_dir}"
+mkdir -p "${state_root}"
 
-# Fecha "bonita" basada en current-state.md (si existe y no está vacío)
-if [[ -s "${current_abs}" ]]; then
-  nice_ts="$(date -r "${current_abs}" "+%Y-%m-%d %H:%M")"
-else
-  nice_ts="desconocido"
-fi
+now_ts="$(date '+%Y-%m-%d %H:%M')"
 
-# Paths relativos desde docs/ hacia current-state y sync.log
-if [[ -f "${current_abs}" ]]; then
-  current_rel="$(realpath --relative-to="${docs_dir}" "${current_abs}")"
-else
-  current_rel="../state/${SERVER}/current-state.md"
-fi
+{
+  echo "# Estado de servidores (índice)"
+  echo
+  echo "_Generado: ${now_ts}_"
+  echo
 
-if [[ -f "${sync_log_abs}" ]]; then
-  sync_rel="$(realpath --relative-to="${docs_dir}" "${sync_log_abs}")"
-else
-  sync_rel="../state/${SERVER}/sync.log"
-fi
+  found_any=0
 
-cat > "${estado_file}" <<EOF
-# Estado de servidores (índice)
+  for host_dir in "${state_root}"/*; do
+    [[ -d "${host_dir}" ]] || continue
+    host="$(basename "${host_dir}")"
+    current_abs="${host_dir}/current-state.md"
+    sync_log_abs="${host_dir}/sync.log"
 
-_Generado: ${nice_ts}_
+    [[ -f "${current_abs}" ]] || continue
 
-- **${SERVER}**: Último completo: [${nice_ts}](${current_rel}) — [sync.log](${sync_rel})
+    found_any=1
+    nice_ts="$(date -r "${current_abs}" '+%Y-%m-%d %H:%M' 2>/dev/null || echo desconocido)"
+    current_rel="$(realpath --relative-to="${docs_dir}" "${current_abs}")"
 
-### Criterio de 'completo'
-- El snapshot contiene secciones: WireGuard y Docker.
-EOF
+    if [[ -f "${sync_log_abs}" ]]; then
+      sync_rel="$(realpath --relative-to="${docs_dir}" "${sync_log_abs}")"
+      echo "- **${host}**: Último completo: [${nice_ts}](${current_rel}) — [sync.log](${sync_rel})"
+    else
+      echo "- **${host}**: Último completo: [${nice_ts}](${current_rel})"
+    fi
+  done
+
+  if [[ "${found_any}" -eq 0 ]]; then
+    echo "_No se han encontrado snapshots actuales en state/*/current-state.md_"
+    echo
+  else
+    echo
+  fi
+
+  echo "### Criterio de 'completo'"
+  echo "- El snapshot contiene secciones: ZFS, WireGuard, DNS interno y Docker."
+} > "${estado_file}"
