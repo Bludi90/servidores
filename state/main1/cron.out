@@ -62152,3 +62152,25 @@ Escrito: /home/alejandro/servidores/state/main1/2026-04-08_0300-state.md
  M state/main1/sync.log
  M state/main1/urls-proxy.md
 ?? state/main1/2026-04-08_0300-state.md
+[main 89aff143] auto: snapshot main1 2026-04-08 03:00
+ 8 files changed, 527 insertions(+), 49 deletions(-)
+ create mode 100644 state/main1/2026-04-08_0300-state.md
+[2026-04-08 03:00:04] Commit creado: auto: snapshot main1 2026-04-08 03:00
+To github.com:Bludi90/servidores.git
+   77f17ec3..89aff143  main -> main
+[2026-04-08 03:00:06] git push OK.
+[2026-04-08 03:00:06] === Fin commit-and-push ===
+Escrito: /home/alejandro/servidores/state/main1/2026-04-08_0400-state.md
+[2026-04-08 04:00:02] === Inicio commit-and-push ===
+[2026-04-08 04:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M state/main1/cron-zfs-repl-backup1-nightly.out
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+ M state/main1/zfs-repl-backup1-nightly.log
+ M state/main1/zfs-repl-backup1-runs.tsv
+?? state/main1/2026-04-08_0400-state.md

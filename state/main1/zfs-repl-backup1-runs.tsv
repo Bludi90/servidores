@@ -4,3 +4,4 @@ start_iso	end_iso	mode	rc	result	phase	host_started	wake_ok	repl_ok	shutdown_ok	
 2026-04-05T03:30:01+02:00	2026-04-05T03:30:46+02:00	real	0	OK	done	no	no	yes	no	replica-20260404-033002	replica-20260405-033002	45	real-ok
 2026-04-06T03:30:01+02:00	2026-04-06T03:30:17+02:00	real	0	OK	done	no	no	yes	no	replica-20260405-033002	replica-20260406-033002	16	real-ok
 2026-04-07T03:30:01+02:00	2026-04-07T03:37:56+02:00	real	1	FAIL	wake	yes	no	no	no	replica-20260406-033002		475	
+2026-04-08T03:30:01+02:00	2026-04-08T03:37:56+02:00	real	1	FAIL	wake	yes	no	no	no	replica-20260406-033002		475	
