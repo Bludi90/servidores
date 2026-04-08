@@ -62364,3 +62364,23 @@ Escrito: /home/alejandro/servidores/state/main1/2026-04-08_1400-state.md
  M state/main1/urls-proxy.md
 ?? scripts/snapshot-backup1.sh
 ?? state/main1/2026-04-08_1400-state.md
+[main c36d4fcf] auto: snapshot main1 2026-04-08 14:00
+ 9 files changed, 634 insertions(+), 57 deletions(-)
+ create mode 100755 scripts/snapshot-backup1.sh
+ create mode 100644 state/main1/2026-04-08_1400-state.md
+[2026-04-08 14:00:03] Commit creado: auto: snapshot main1 2026-04-08 14:00
+To github.com:Bludi90/servidores.git
+   81c56c73..c36d4fcf  main -> main
+[2026-04-08 14:00:06] git push OK.
+[2026-04-08 14:00:06] === Fin commit-and-push ===
+Escrito: /home/alejandro/servidores/state/main1/2026-04-08_1500-state.md
+[2026-04-08 15:00:02] === Inicio commit-and-push ===
+[2026-04-08 15:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2026-04-08_1500-state.md
