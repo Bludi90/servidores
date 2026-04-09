@@ -94,3 +94,14 @@ total estimated size is 397M
 [2026-04-08 03:30:15] INFO  wake: intento 2/3 enviado
 [2026-04-08 03:30:25] INFO  wake: intento 3/3 enviado
 [2026-04-08 03:30:25] INFO  wake: esperando ping hasta 300s
+[2026-04-09 03:30:03] INFO  check: iniciando comprobaciones comunes
+[2026-04-09 03:30:03] OK    check: comando wol encontrado
+[2026-04-09 03:30:03] OK    check: comando wolctl encontrado
+[2026-04-09 03:30:03] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-09 03:30:03] OK    check: host WOL registrado: sv-backup1
+[2026-04-09 03:30:07] INFO  main: sv-backup1 estaba apagado; se iniciará por WOL
+[2026-04-09 03:30:07] INFO  wake: enviando magic packet a sv-backup1
+[2026-04-09 03:30:08] INFO  wake: intento 1/3 enviado
+[2026-04-09 03:30:18] INFO  wake: intento 2/3 enviado
+[2026-04-09 03:30:28] INFO  wake: intento 3/3 enviado
+[2026-04-09 03:30:28] INFO  wake: esperando ping hasta 300s
