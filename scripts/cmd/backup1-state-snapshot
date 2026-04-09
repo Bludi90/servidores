@@ -1,0 +1,143 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+HOST="192.168.1.122"
+SSH_LOCAL_USER="${SSH_LOCAL_USER:-${SUDO_USER:-alejandro}}"
+SSH_REMOTE_USER="${SSH_REMOTE_USER:-alejandro}"
+REPO_ROOT="/home/alejandro/servidores"
+STATE_DIR="$REPO_ROOT/state/backup1"
+OWNER_USER="alejandro"
+OWNER_GROUP="alejandro"
+
+SSH_OPTS=(
+  -o BatchMode=yes
+  -o ConnectTimeout=10
+  -o ServerAliveInterval=10
+  -o ServerAliveCountMax=3
+  -o StrictHostKeyChecking=accept-new
+)
+
+usage() {
+  cat <<'USAGE'
+Uso:
+  backup1-state-snapshot [--host IP_O_HOST] [--remote-user USUARIO] [--repo-root RUTA]
+
+Opciones:
+  --host           Host o IP de backup1 (por defecto: 192.168.1.122)
+  --remote-user    Usuario SSH remoto (por defecto: alejandro)
+  --repo-root      Raíz del repo local (por defecto: /home/alejandro/servidores)
+  -h, --help       Mostrar ayuda
+USAGE
+}
+
+log() {
+  printf '[backup1-state-snapshot] %s\n' "$*" >&2
+}
+
+ssh_run() {
+  local target="${SSH_REMOTE_USER}@${HOST}"
+  if [[ "${EUID:-$(id -u)}" -eq 0 && "$SSH_LOCAL_USER" != "root" ]]; then
+    sudo -u "$SSH_LOCAL_USER" ssh "${SSH_OPTS[@]}" "$target" "$@"
+  else
+    ssh "${SSH_OPTS[@]}" "$target" "$@"
+  fi
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --host)
+      HOST="${2:?Falta valor para --host}"
+      shift 2
+      ;;
+    --remote-user)
+      SSH_REMOTE_USER="${2:?Falta valor para --remote-user}"
+      shift 2
+      ;;
+    --repo-root)
+      REPO_ROOT="${2:?Falta valor para --repo-root}"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "ERROR: argumento no reconocido: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+done
+
+STATE_DIR="$REPO_ROOT/state/backup1"
+mkdir -p "$STATE_DIR"
+
+if [[ "${EUID:-$(id -u)}" -eq 0 ]] && id -u "$OWNER_USER" >/dev/null 2>&1; then
+  chown "$OWNER_USER:$OWNER_GROUP" "$STATE_DIR" 2>/dev/null || true
+fi
+
+ts="$(date +%Y%m%d-%H%M%S)"
+outfile="$STATE_DIR/backup1-state-$ts.md"
+current="$STATE_DIR/current-state.md"
+tmp="$(mktemp "${TMPDIR:-/tmp}/backup1-state-snapshot.XXXXXX")"
+trap 'rm -f "$tmp"' EXIT
+
+log "Consultando $HOST por SSH..."
+
+ssh_run 'bash -s' > "$tmp" <<'REMOTE'
+set -Eeuo pipefail
+
+safe_cmd() {
+  local title="$1"
+  shift
+  printf '## %s\n\n' "$title"
+  printf '```text\n'
+  if "$@" 2>&1; then
+    :
+  else
+    rc=$?
+    printf '[rc=%s]\n' "$rc"
+  fi
+  printf '```\n\n'
+}
+
+HOST_FQDN="$(hostname -f 2>/dev/null || hostname)"
+NOW="$(date '+%Y-%m-%d %H:%M:%S %Z')"
+BOOT="$(uptime -s 2>/dev/null || true)"
+UP="$(uptime -p 2>/dev/null || uptime)"
+
+printf '# backup1 — state snapshot\n\n'
+printf -- '- Host: `%s`\n' "$HOST_FQDN"
+printf -- '- Fecha: `%s`\n' "$NOW"
+printf -- '- Arrancado desde: `%s`\n' "${BOOT:-desconocido}"
+printf -- '- Uptime: `%s`\n\n' "$UP"
+
+safe_cmd 'Red (IPv4 global)' ip -4 -brief addr show scope global
+safe_cmd 'Rutas' ip route
+safe_cmd 'Servicios clave' bash -lc '
+for s in ssh wg-quick@wg0 wg-quick@wgr0; do
+  printf "=== %s ===\n" "$s"
+  systemctl is-enabled "$s" 2>&1 || true
+  systemctl is-active "$s" 2>&1 || true
+  echo
+done
+'
+safe_cmd 'Unidades fallidas' systemctl --failed --no-pager --plain
+safe_cmd 'Pooles ZFS' zpool list
+safe_cmd 'Health ZFS' zpool status -x
+safe_cmd 'Estado detallado ZFS' zpool status
+safe_cmd 'Datasets ZFS' zfs list -o name,used,avail,refer,mountpoint
+safe_cmd 'Bloques / discos' lsblk -e7 -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT,MODEL,SERIAL
+safe_cmd 'Filesystem' df -hT
+REMOTE
+
+if [[ "${EUID:-$(id -u)}" -eq 0 ]] && id -u "$OWNER_USER" >/dev/null 2>&1; then
+  install -o "$OWNER_USER" -g "$OWNER_GROUP" -m 0644 "$tmp" "$outfile"
+  install -o "$OWNER_USER" -g "$OWNER_GROUP" -m 0644 "$tmp" "$current"
+else
+  install -m 0644 "$tmp" "$outfile"
+  install -m 0644 "$tmp" "$current"
+fi
+
+log "Snapshot escrito en: $outfile"
+printf '%s\n' "$outfile"

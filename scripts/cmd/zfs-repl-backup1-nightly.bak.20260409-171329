@@ -13,7 +13,6 @@ SSH_LOCAL_USER="alejandro"
 REPL_CMD="/usr/local/bin/zfs-repl-backup1"
 RETENTION_CMD="/usr/local/bin/zfs-retention-prune"
 RETENTION_ROOT_DATASET="backup/replicas/main1/tank"
-STATE_SNAPSHOT_CMD="/usr/local/bin/backup1-state-snapshot"
 REMOTE_POWEROFF_CHECK="sudo -n /usr/local/sbin/backup1-safe-poweroff --check"
 REMOTE_POWEROFF_REAL="sudo -n /usr/local/sbin/backup1-safe-poweroff"
 
@@ -301,18 +300,6 @@ run_real() {
     log "OK    retention: poda histórica completada"
   else
     log "WARN  retention: falló zfs-retention-prune; se conserva la réplica y se continúa"
-  fi
-
-  PHASE="state"
-  if [[ -x "$STATE_SNAPSHOT_CMD" ]]; then
-    log "INFO  state: generando snapshot markdown de backup1"
-    if "$STATE_SNAPSHOT_CMD" --host "$HOST_IP" >/dev/null; then
-      log "OK    state: snapshot generado"
-    else
-      log "WARN  state: falló backup1-state-snapshot; se continúa sin cortar el flujo"
-    fi
-  else
-    log "WARN  state: no existe $STATE_SNAPSHOT_CMD; se continúa sin cortar el flujo"
   fi
 
   if (( started_by_wrapper == 1 )); then
