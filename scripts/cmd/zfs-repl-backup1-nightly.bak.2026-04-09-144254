@@ -11,8 +11,6 @@ HOST_SSH="backup1"
 SSH_LOCAL_USER="alejandro"
 
 REPL_CMD="/usr/local/bin/zfs-repl-backup1"
-RETENTION_CMD="/usr/local/bin/zfs-retention-prune"
-RETENTION_ROOT_DATASET="backup/replicas/main1/tank"
 REMOTE_POWEROFF_CHECK="sudo -n /usr/local/sbin/backup1-safe-poweroff --check"
 REMOTE_POWEROFF_REAL="sudo -n /usr/local/sbin/backup1-safe-poweroff"
 
@@ -179,9 +177,6 @@ run_common_checks() {
   test -x "$REPL_CMD"
   log "OK    check: comando de réplica encontrado: $REPL_CMD"
 
-  test -x "$RETENTION_CMD"
-  log "OK    check: comando de retención encontrado: $RETENTION_CMD"
- 
   sudo wolctl show "$HOST_WOL" >/dev/null
   log "OK    check: host WOL registrado: $HOST_WOL"
 }
