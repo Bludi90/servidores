@@ -9,3 +9,5 @@ start_iso	end_iso	mode	rc	result	phase	host_started	wake_ok	repl_ok	shutdown_ok	
 2026-04-09T15:10:39+02:00	2026-04-09T15:10:39+02:00	real	1	FAIL	check-common	no	no	no	no	replica-20260406-033002		0	
 2026-04-09T15:15:45+02:00	2026-04-09T15:18:45+02:00	real	0	OK	done	yes	yes	yes	yes	replica-20260406-033002	replica-20260409-151722	180	real-ok
 2026-04-09T15:41:22+02:00	2026-04-09T15:41:42+02:00	real	0	OK	done	no	no	yes	no	replica-20260409-151722	replica-20260409-154123	20	real-ok
+2026-04-09T18:02:24+02:00	2026-04-09T18:02:48+02:00	real	0	FAIL	repl	no	no	no	no	replica-20260409-154123		24	
+2026-04-09T18:04:01+02:00	2026-04-09T18:17:22+02:00	real	0	OK	done	yes	yes	yes	yes	replica-20260409-154123	replica-20260409-180523	801	real-ok

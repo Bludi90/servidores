@@ -320,3 +320,49 @@ total estimated size is 928M
 [2026-04-09 15:41:42] OK    retention: poda histórica completada
 [2026-04-09 15:41:42] INFO  main: el host ya estaba encendido al inicio; se deja encendido
 [2026-04-09 15:41:42] INFO  main: flujo completado correctamente
+[2026-04-09 18:02:24] INFO  check: iniciando comprobaciones comunes
+[2026-04-09 18:02:24] OK    check: comando wol encontrado
+[2026-04-09 18:02:24] OK    check: comando wolctl encontrado
+[2026-04-09 18:02:24] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-09 18:02:24] OK    check: comando de retención encontrado: /usr/local/bin/zfs-retention-prune
+[2026-04-09 18:02:24] OK    check: host WOL registrado: sv-backup1
+[2026-04-09 18:02:24] INFO  main: sv-backup1 ya estaba encendido; no se enviará WOL
+[2026-04-09 18:02:24] INFO  check: iniciando comprobaciones online
+[2026-04-09 18:02:24] OK    check: ping a 192.168.1.122 responde
+[2026-04-09 18:02:24] OK    check: SSH a backup1 responde
+[2026-04-09 18:02:25] OK    check: poweroff remoto no interactivo validado
+[2026-04-09 18:02:25] INFO  check: comprobaciones online OK
+[2026-04-09 18:02:25] INFO  repl: lanzando réplica real
+[2026-04-09 18:04:01] INFO  check: iniciando comprobaciones comunes
+[2026-04-09 18:04:01] OK    check: comando wol encontrado
+[2026-04-09 18:04:01] OK    check: comando wolctl encontrado
+[2026-04-09 18:04:01] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-09 18:04:01] OK    check: comando de retención encontrado: /usr/local/bin/zfs-retention-prune
+[2026-04-09 18:04:01] OK    check: host WOL registrado: sv-backup1
+[2026-04-09 18:04:05] INFO  main: sv-backup1 estaba apagado; se iniciará por WOL
+[2026-04-09 18:04:05] INFO  wake: enviando magic packet a sv-backup1
+[2026-04-09 18:04:05] INFO  wake: intento 1/3 enviado
+[2026-04-09 18:04:15] INFO  wake: intento 2/3 enviado
+[2026-04-09 18:04:25] INFO  wake: intento 3/3 enviado
+[2026-04-09 18:04:25] INFO  wake: esperando ping hasta 300s
+[2026-04-09 18:05:22] OK    wake: ping recuperado
+[2026-04-09 18:05:22] INFO  wake: esperando SSH hasta 300s
+[2026-04-09 18:05:23] OK    wake: SSH recuperado
+[2026-04-09 18:05:23] INFO  check: iniciando comprobaciones online
+[2026-04-09 18:05:23] OK    check: ping a 192.168.1.122 responde
+[2026-04-09 18:05:23] OK    check: SSH a backup1 responde
+[2026-04-09 18:05:23] OK    check: poweroff remoto no interactivo validado
+[2026-04-09 18:05:23] INFO  check: comprobaciones online OK
+[2026-04-09 18:05:23] INFO  repl: lanzando réplica real
+[2026-04-09 18:16:45] OK    repl: réplica finalizada
+[2026-04-09 18:16:45] INFO  retention: aplicando política 7d/4w/6m en backup/replicas/main1/tank
+[2026-04-09 18:16:46] OK    retention: poda histórica completada
+[2026-04-09 18:16:46] INFO  state: generando snapshot markdown de backup1
+[2026-04-09 18:16:46] OK    state: snapshot generado
+[2026-04-09 18:16:46] INFO  main: el host fue encendido por este wrapper; se apagará al final
+[2026-04-09 18:16:46] INFO  shutdown: ordenando apagado remoto
+[2026-04-09 18:16:46] INFO  shutdown: esperando caída completa hasta 180s
+[2026-04-09 18:16:52] OK    shutdown: host apagado
+[2026-04-09 18:16:52] INFO  shutdown: margen post-apagado 30s
+[2026-04-09 18:17:22] INFO  shutdown: fin del ciclo
+[2026-04-09 18:17:22] INFO  main: flujo completado correctamente
