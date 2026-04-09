@@ -28,7 +28,8 @@ Los datos de usuario viven en `/srv/storage` sobre ZFS (`tank`); aquí **no** ha
 - 🔐 **Acceso administrativo**: LAN + WireGuard (`llobregat6.duckdns.org`).
 - 📊 **Estado horario**: snapshots en `state/main1/` + índice en `docs/ESTADO.md`.
 - 🗂️ **Almacenamiento principal**: ZFS (`tank`) en producción.
-- 🔁 **Réplica**: copia prevista/nocturna hacia `backup1`.
+- 🔁 **Réplica ZFS a backup1**: flujo nocturno operativo desde `main1` hacia `backup1`.
+- 🌙 **Flujo nocturno backup1**: encendido por WOL si hace falta, espera a ping/SSH, réplica ZFS, retención 7d/4w/6m, snapshot Markdown de estado de `backup1` y apagado automático si el wrapper lo arrancó.
 
 ## Estructura del repositorio (resumen)
 
@@ -72,6 +73,10 @@ En `main1` hay varios cron jobs:
   - `scripts/build-index.sh` → actualiza `docs/ESTADO.md`.
   - `scripts/commit-and-push.sh` → hace commit y push de cambios (snapshots, índice, logs).
 
+- Cada noche:
+  - `/usr/local/bin/zfs-repl-backup1-nightly` → gestiona el ciclo de réplica hacia `backup1`.
+  - Flujo: checks → WOL si `backup1` estaba apagado → espera a ping/SSH → réplica ZFS → retención histórica (7 diarios, 4 semanales, 6 mensuales) → snapshot de estado de `backup1` (`state/backup1/current-state.md` + histórico) → apagado remoto si el wrapper encendió el host.
+
 - Periódicamente (semanal, etc.):
   - Scripts de monitorización generan informes SMART/ZFS en `reports/`  
     y envían avisos (por ejemplo, vía Telegram) si se detectan problemas.
@@ -92,12 +97,21 @@ Desde la raíz del repo (`~/servidores`):
 # Generar snapshot manual de main1
 ./scripts/snapshot-state.sh
 
+# Escanear todos los dispositivos conectados por LAN al servidor principal
+lan-scan
+
 # Ver resumen rápido del estado del servidor (ZFS, servicios, WG, etc.)
 srv-health
 
-
 # (Re)instalar comandos del ecosistema en /usr/local/bin y /usr/local/sbin
 sudo ./scripts/install-commands.sh
+
+# Generar snapshot manual del estado de backup1 por SSH
+backup1-state-snapshot --host 192.168.1.122
+
+# Lanzar manualmente el flujo nocturno de réplica a backup1
+sudo zfs-repl-backup1-nightly
+
 # Ver actividad reciente del sistema de snapshots/commits
 tail -40 state/main1/sync.log
 ```
