@@ -14,7 +14,6 @@ USAGE
 HOST=""
 ROOT_DATASET=""
 EXECUTE=0
-SSH_LOCAL_USER="${SUDO_USER:-alejandro}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -29,32 +28,24 @@ done
 [[ -n "$HOST" ]] || { echo "Falta --host" >&2; exit 2; }
 [[ -n "$ROOT_DATASET" ]] || { echo "Falta --root-dataset" >&2; exit 2; }
 
-SSH_REMOTE="alejandro@${HOST}"
-ssh_run() {
-  sudo -u "$SSH_LOCAL_USER" -H ssh -o BatchMode=yes -o ConnectTimeout=10 "$SSH_REMOTE" "$@"
-}
-
-TMP_TAGS="$(mktemp /tmp/zfs-retention-prune.tags.XXXXXX)"
-TMP_PRUNE="$(mktemp /tmp/zfs-retention-prune.prune.XXXXXX)"
-cleanup() { rm -f "$TMP_TAGS" "$TMP_PRUNE"; }
-trap cleanup EXIT
+TMP_TAGS="/tmp/zfs-retention-prune.tags"
+TMP_PRUNE="/tmp/zfs-retention-prune.prune"
 
 if [[ "$HOST" == "local" ]]; then
   zfs list -H -t snapshot -o name -s creation "$ROOT_DATASET" \
     | grep "^${ROOT_DATASET}@replica-[0-9]\{8\}-[0-9]\{6\}$" > "$TMP_TAGS"
 else
-  ssh_run \
+  ssh "alejandro@${HOST}" \
     "zfs list -H -t snapshot -o name -s creation '$ROOT_DATASET' | grep '^${ROOT_DATASET}@replica-[0-9]\{8\}-[0-9]\{6\}$'" \
     > "$TMP_TAGS"
 fi
 
-TMP_TAGS="$TMP_TAGS" python3 - <<'PY' > "$TMP_PRUNE"
+python3 - <<'PY' > "$TMP_PRUNE"
 from pathlib import Path
 from datetime import datetime
-import os
 
 tags = []
-for line in Path(os.environ['TMP_TAGS']).read_text().splitlines():
+for line in Path('/tmp/zfs-retention-prune.tags').read_text().splitlines():
     tag = line.split('@', 1)[1].strip()
     dt = datetime.strptime(tag, 'replica-%Y%m%d-%H%M%S')
     tags.append((dt, tag))
@@ -147,7 +138,7 @@ while IFS= read -r tag; do
   if [[ "$HOST" == "local" ]]; then
     zfs destroy -r "${ROOT_DATASET}@${tag}"
   else
-    ssh_run "sudo -n /usr/local/sbin/backup1-zfs-restore-helper destroy-tag '${ROOT_DATASET}' '${tag}'"
+    ssh -n "alejandro@${HOST}" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper destroy-tag '${ROOT_DATASET}' '${tag}'"
   fi
 done < "$TMP_PRUNE"
 

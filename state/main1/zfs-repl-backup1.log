@@ -143,3 +143,27 @@
 [2026-04-06 03:30:17] Réplica completada correctamente
 [2026-04-06 03:30:17] Nuevo snapshot base común: tank@replica-20260406-033002
 [2026-04-06 03:30:17] Estado guardado en: /home/alejandro/servidores/state/main1/zfs-repl-backup1.last_common
+[2026-04-09 15:17:22] Origen:  tank
+[2026-04-09 15:17:22] Destino: alejandro@backup1:backup/replicas/main1/tank
+[2026-04-09 15:17:22] Base común: tank@replica-20260406-033002
+[2026-04-09 15:17:22] Nuevo snapshot: tank@replica-20260409-151722
+[2026-04-09 15:17:22] Creando snapshot recursivo: tank@replica-20260409-151722
+[2026-04-09 15:17:22] Estimando tamaño del incremental...
+[2026-04-09 15:17:23] Tamaño estimado total: 1.87G
+[2026-04-09 15:17:23] Tamaño estimado en bytes: 2007897210
+[2026-04-09 15:17:23] Iniciando réplica incremental...
+[2026-04-09 15:18:09] Réplica completada correctamente
+[2026-04-09 15:18:09] Nuevo snapshot base común: tank@replica-20260409-151722
+[2026-04-09 15:18:09] Estado guardado en: /home/alejandro/servidores/state/main1/zfs-repl-backup1.last_common
+[2026-04-09 15:41:23] Origen:  tank
+[2026-04-09 15:41:23] Destino: alejandro@backup1:backup/replicas/main1/tank
+[2026-04-09 15:41:23] Base común: tank@replica-20260409-151722
+[2026-04-09 15:41:23] Nuevo snapshot: tank@replica-20260409-154123
+[2026-04-09 15:41:24] Creando snapshot recursivo: tank@replica-20260409-154123
+[2026-04-09 15:41:25] Estimando tamaño del incremental...
+[2026-04-09 15:41:27] Tamaño estimado total: 17.7M
+[2026-04-09 15:41:27] Tamaño estimado en bytes: 18559795
+[2026-04-09 15:41:27] Iniciando réplica incremental...
+[2026-04-09 15:41:33] Réplica completada correctamente
+[2026-04-09 15:41:33] Nuevo snapshot base común: tank@replica-20260409-154123
+[2026-04-09 15:41:33] Estado guardado en: /home/alejandro/servidores/state/main1/zfs-repl-backup1.last_common

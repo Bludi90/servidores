@@ -293,6 +293,15 @@ run_real() {
   BASE_COMMON_POST="$(read_base_common)"
   log "OK    repl: réplica finalizada"
 
+  PHASE="retention"
+  log "INFO  retention: aplicando política 7d/4w/6m en ${RETENTION_ROOT_DATASET}"
+
+  if "$RETENTION_CMD" --host "$HOST_IP" --root-dataset "$RETENTION_ROOT_DATASET" --execute; then
+    log "OK    retention: poda histórica completada"
+  else
+    log "WARN  retention: falló zfs-retention-prune; se conserva la réplica y se continúa"
+  fi
+
   if (( started_by_wrapper == 1 )); then
     log "INFO  main: el host fue encendido por este wrapper; se apagará al final"
     shutdown_host
