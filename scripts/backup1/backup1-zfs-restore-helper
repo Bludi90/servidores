@@ -42,6 +42,15 @@ case "$cmd" in
     /bin/ls -lh "$tarfile"
     ;;
 
+  tar-stdout)
+    mountpoint="${2-}"
+    subpath="${3-}"
+    [[ -n "$mountpoint" ]] || { echo "Falta mountpoint" >&2; exit 2; }
+    [[ -n "$subpath" ]] || { echo "Falta subpath" >&2; exit 2; }
+
+    exec /usr/bin/tar -C "$mountpoint" -cf - "$subpath"
+    ;;
+
   cleanup)
     clone_ds="${2-}"
     tarfile="${3-}"
@@ -50,7 +59,7 @@ case "$cmd" in
 
     /usr/sbin/zfs unmount "$clone_ds" 2>/dev/null || true
     /usr/sbin/zfs destroy "$clone_ds" 2>/dev/null || true
-    /bin/rm -f "$tarfile"
+    /bin/rm -f "$tarfile" 2>/dev/null || true
     /usr/sbin/zfs list -r backup/restore-tests
     ;;
 
@@ -69,7 +78,7 @@ case "$cmd" in
     ;;
 
   *)
-    echo "Uso: $0 --check | snapshot-exists <snapshot> | clone-mount <snapshot> <clone_ds> <mountpoint> | tar-path <mountpoint> <subpath> <tarfile> | cleanup <clone_ds> <tarfile> | destroy-tag <root_ds> <tag>" >&2
+    echo "Uso: $0 --check | snapshot-exists <snapshot> | clone-mount <snapshot> <clone_ds> <mountpoint> | tar-path <mountpoint> <subpath> <tarfile> | tar-stdout <mountpoint> <subpath> | cleanup <clone_ds> <tarfile> | destroy-tag <root_ds> <tag>" >&2
     exit 2
     ;;
 esac
