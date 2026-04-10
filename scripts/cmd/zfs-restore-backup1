@@ -85,7 +85,13 @@ ls -lh "$LOCAL_TAR"
 
 echo
 echo "[run] Limpiando subruta destino previa..."
-sudo rm -rf "${LOCAL_EXTRACT_DIR:?}/${SUBPATH}"
+if [[ -e "${LOCAL_EXTRACT_DIR:?}/${SUBPATH}" ]]; then
+  if rm -rf -- "${LOCAL_EXTRACT_DIR:?}/${SUBPATH}" 2>/dev/null; then
+    :
+  else
+    sudo -n rm -rf -- "${LOCAL_EXTRACT_DIR:?}/${SUBPATH}"
+  fi
+fi
 
 echo
 echo "[run] Extrayendo tar en destino local..."
