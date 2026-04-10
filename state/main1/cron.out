@@ -63399,3 +63399,26 @@ Escrito: /home/alejandro/servidores/state/main1/2026-04-10_1900-state.md
  M state/main1/sync.log
  M state/main1/urls-proxy.md
 ?? state/main1/2026-04-10_1900-state.md
+[dr-system-export-helper f84db879] auto: snapshot main1 2026-04-10 19:00
+ 10 files changed, 537 insertions(+), 41 deletions(-)
+ create mode 100644 state/main1/2026-04-10_1900-state.md
+[2026-04-10 19:00:05] Commit creado: auto: snapshot main1 2026-04-10 19:00
+To github.com:Bludi90/servidores.git
+ ! [rejected]          main -> main (non-fast-forward)
+error: falló el empuje de algunas referencias a 'github.com:Bludi90/servidores.git'
+hint: Updates were rejected because a pushed branch tip is behind its remote
+hint: counterpart. If you want to integrate the remote changes, use 'git pull'
+hint: before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+Escrito: /home/alejandro/servidores/state/main1/2026-04-10_2000-state.md
+[2026-04-10 20:00:03] === Inicio commit-and-push ===
+[2026-04-10 20:00:03] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zfs_snapshots.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2026-04-10_2000-state.md
