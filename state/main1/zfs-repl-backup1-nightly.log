@@ -366,3 +366,23 @@ total estimated size is 928M
 [2026-04-09 18:16:52] INFO  shutdown: margen post-apagado 30s
 [2026-04-09 18:17:22] INFO  shutdown: fin del ciclo
 [2026-04-09 18:17:22] INFO  main: flujo completado correctamente
+[2026-04-10 03:30:01] INFO  check: iniciando comprobaciones comunes
+[2026-04-10 03:30:01] OK    check: comando wol encontrado
+[2026-04-10 03:30:01] OK    check: comando wolctl encontrado
+[2026-04-10 03:30:01] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-10 03:30:01] OK    check: comando de retención encontrado: /usr/local/bin/zfs-retention-prune
+[2026-04-10 03:30:02] OK    check: host WOL registrado: sv-backup1
+[2026-04-10 03:30:02] INFO  main: sv-backup1 ya estaba encendido; no se enviará WOL
+[2026-04-10 03:30:02] INFO  check: iniciando comprobaciones online
+[2026-04-10 03:30:02] OK    check: ping a 192.168.1.122 responde
+[2026-04-10 03:30:02] OK    check: SSH a backup1 responde
+[2026-04-10 03:30:03] OK    check: poweroff remoto no interactivo validado
+[2026-04-10 03:30:03] INFO  check: comprobaciones online OK
+[2026-04-10 03:30:03] INFO  repl: lanzando réplica real
+[2026-04-10 03:30:42] OK    repl: réplica finalizada
+[2026-04-10 03:30:42] INFO  retention: aplicando política 7d/4w/6m en backup/replicas/main1/tank
+[2026-04-10 03:30:43] OK    retention: poda histórica completada
+[2026-04-10 03:30:43] INFO  state: generando snapshot markdown de backup1
+[2026-04-10 03:30:44] OK    state: snapshot generado
+[2026-04-10 03:30:44] INFO  main: el host ya estaba encendido al inicio; se deja encendido
+[2026-04-10 03:30:44] INFO  main: flujo completado correctamente
