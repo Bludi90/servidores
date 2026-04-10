@@ -1,0 +1,30 @@
+name: nextcloud-lab
+
+services:
+  mariadb:
+    image: ${NEXTCLOUD_DB_IMAGE:-linuxserver/mariadb:11.4.5}
+    container_name: ${NEXTCLOUD_DB_CONTAINER_NAME:-mariadb-lab}
+    env_file:
+      - .env.db
+    volumes:
+      - ${NEXTCLOUD_DB_PATH}:/config
+    restart: unless-stopped
+
+  nextcloud:
+    image: ${NEXTCLOUD_APP_IMAGE:-linuxserver/nextcloud:32.0.1}
+    container_name: ${NEXTCLOUD_APP_CONTAINER_NAME:-nextcloud-lab}
+    depends_on:
+      - mariadb
+    environment:
+      - PUID=${NEXTCLOUD_APP_PUID:-33}
+      - PGID=${NEXTCLOUD_APP_PGID:-33}
+      - TZ=${TZ:-Europe/Madrid}
+      - PHP_INI_SCAN_DIR=${PHP_INI_SCAN_DIR:-:/config/php}
+    ports:
+      - "${NEXTCLOUD_BIND_IP:-127.0.0.1}:${NEXTCLOUD_BIND_PORT:-11443}:443"
+    volumes:
+      - ${NEXTCLOUD_CONFIG_PATH}:/config
+      - ${NEXTCLOUD_DATA_PATH}:/data
+      - ${NEXTCLOUD_STORAGE_ROOT_PATH}:/srv/storage
+      - ${NEXTCLOUD_MEDIA_PATH}:/srv/storage/media
+    restart: unless-stopped
