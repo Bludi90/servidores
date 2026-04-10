@@ -8,10 +8,10 @@ Uso:
 
 Ejemplo:
   zfs-restore-backup1-dataset \
-    --ssh-target alejandro@192.168.1.122 \
+    --ssh-target backup1-dr \
     --dataset nextcloud/config \
     --tag replica-20260410-033003 \
-    --dest /srv/storage/tmp/dr-restore
+    --dest ~/dr-tests/restore-nextcloud-config
 USAGE
 }
 
@@ -51,8 +51,6 @@ REMOTE_DATASET="backup/replicas/main1/tank/${DATASET}"
 REMOTE_SNAPSHOT="${REMOTE_DATASET}@${TAG}"
 REMOTE_CLONE="backup/restore-tests/${SAFE_DATASET}-${STAMP}"
 REMOTE_MOUNT="/mnt/restore-test-${SAFE_DATASET}-${STAMP}"
-REMOTE_TAR="/tmp/zfs-restore-${SAFE_DATASET}-dataset-${STAMP}.tar"
-LOCAL_TAR="${DEST}/zfs-restore-${SAFE_DATASET}-dataset-${STAMP}.tar"
 LOCAL_TARGET_DIR="${DEST}/${SAFE_DATASET}"
 
 SSH_OPTS=(
@@ -68,7 +66,7 @@ cleanup_remote() {
     echo
     echo "[cleanup] Intentando limpiar temporales remotos..."
     ssh "${SSH_OPTS[@]}" "$SSH_TARGET" \
-      "sudo -n /usr/local/sbin/backup1-zfs-restore-helper cleanup '${REMOTE_CLONE}' '${REMOTE_TAR}'" || true
+      "sudo -n /usr/local/sbin/backup1-zfs-restore-helper cleanup '${REMOTE_CLONE}' '/tmp/no-file-needed'" || true
   fi
 }
 
@@ -90,8 +88,6 @@ echo "REMOTE_DATASET=$REMOTE_DATASET"
 echo "REMOTE_SNAPSHOT=$REMOTE_SNAPSHOT"
 echo "REMOTE_CLONE=$REMOTE_CLONE"
 echo "REMOTE_MOUNT=$REMOTE_MOUNT"
-echo "REMOTE_TAR=$REMOTE_TAR"
-echo "LOCAL_TAR=$LOCAL_TAR"
 echo "LOCAL_TARGET_DIR=$LOCAL_TARGET_DIR"
 
 echo
@@ -110,18 +106,8 @@ ssh "${SSH_OPTS[@]}" "$SSH_TARGET" \
 REMOTE_READY=1
 
 echo
-echo "[run] Creando tar remoto del dataset completo..."
-ssh "${SSH_OPTS[@]}" "$SSH_TARGET" \
-  "sudo -n /usr/local/sbin/backup1-zfs-restore-helper tar-path '${REMOTE_MOUNT}' '.' '${REMOTE_TAR}'"
-
-echo
-echo "[run] Copiando tar a destino local..."
-mkdir -p "$DEST"
-scp "${SSH_OPTS[@]}" "${SSH_TARGET}:${REMOTE_TAR}" "$LOCAL_TAR"
-ls -lh "$LOCAL_TAR"
-
-echo
 echo "[run] Recreando directorio destino local..."
+mkdir -p "$DEST"
 if [[ -e "$LOCAL_TARGET_DIR" ]]; then
   if rm -rf -- "$LOCAL_TARGET_DIR" 2>/dev/null; then
     :
@@ -132,18 +118,17 @@ fi
 mkdir -p "$LOCAL_TARGET_DIR"
 
 echo
-echo "[run] Extrayendo tar en destino local..."
-tar -C "$LOCAL_TARGET_DIR" -xf "$LOCAL_TAR"
-find "$LOCAL_TARGET_DIR" -maxdepth 2 | sed -n '1,60p'
+echo "[run] Extrayendo dataset por streaming (sin tar local)..."
+ssh "${SSH_OPTS[@]}" "$SSH_TARGET" \
+  "sudo -n tar -C '$REMOTE_MOUNT' -cf - ." \
+  | tar -C "$LOCAL_TARGET_DIR" -xf -
 
-echo
-echo "[run] Limpiando tar local..."
-rm -f "$LOCAL_TAR"
+find "$LOCAL_TARGET_DIR" -maxdepth 2 | sed -n '1,60p'
 
 echo
 echo "[run] Limpiando temporales remotos..."
 ssh "${SSH_OPTS[@]}" "$SSH_TARGET" \
-  "sudo -n /usr/local/sbin/backup1-zfs-restore-helper cleanup '${REMOTE_CLONE}' '${REMOTE_TAR}'"
+  "sudo -n /usr/local/sbin/backup1-zfs-restore-helper cleanup '${REMOTE_CLONE}' '/tmp/no-file-needed'"
 REMOTE_READY=0
 
 cleanup_ssh_master
