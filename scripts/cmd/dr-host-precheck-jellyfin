@@ -1,0 +1,152 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+CHECK_USER="${SUDO_USER:-${USER:-alejandro}}"
+CONFIG_PATH=""
+MEDIA_PATH=""
+CUSTOM_INIT_PATH=""
+CACHE_PATH="/var/tmp/jellyfin-lab/cache"
+TRANSCODE_PATH="/var/tmp/jellyfin-lab/transcode"
+
+usage() {
+  cat <<'USAGE'
+Uso:
+  dr-host-precheck-jellyfin \
+    --config PATH \
+    --media PATH \
+    --custom-init PATH \
+    [--cache PATH] \
+    [--transcode PATH] \
+    [--user USUARIO]
+
+Comprueba el host DR mínimo para levantar Jellyfin desde datos restaurados o clones ZFS.
+
+Opciones:
+  --config       Ruta a la configuración persistente de Jellyfin (se comprobará escritura)
+  --media        Ruta a la biblioteca multimedia (se comprobará lectura/travesía)
+  --custom-init  Ruta a custom-cont-init.d (se comprobará lectura)
+  --cache        Ruta de caché efímera (por defecto: /var/tmp/jellyfin-lab/cache)
+  --transcode    Ruta de transcode efímera (por defecto: /var/tmp/jellyfin-lab/transcode)
+  --user         Usuario con el que corre Jellyfin en el host DR (por defecto: usuario actual / SUDO_USER)
+  -h, --help     Mostrar ayuda
+USAGE
+}
+
+log() {
+  printf '[dr-host-precheck-jellyfin] %s\n' "$*" >&2
+}
+
+docker_cmd() {
+  if docker version >/dev/null 2>&1; then
+    docker "$@"
+  elif sudo -n docker version >/dev/null 2>&1; then
+    sudo -n docker "$@"
+  else
+    sudo docker "$@"
+  fi
+}
+
+run_as_check_user() {
+  local script="$1"
+  if [[ "$(id -un)" == "$CHECK_USER" ]]; then
+    bash -c "$script"
+  else
+    sudo -u "$CHECK_USER" bash -c "$script"
+  fi
+}
+
+require_dir() {
+  local path="$1"
+  [[ -d "$path" ]] || { echo "FAIL no existe directorio: $path" >&2; exit 1; }
+}
+
+check_read_dir() {
+  local path="$1"
+  run_as_check_user "test -r '$path' && test -x '$path'"
+}
+
+check_write_dir() {
+  local path="$1"
+  local probe="$path/.dr-write-test.$$"
+  run_as_check_user "touch '$probe' && rm -f '$probe'"
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --config)
+      CONFIG_PATH="${2:?Falta valor para --config}"
+      shift 2
+      ;;
+    --media)
+      MEDIA_PATH="${2:?Falta valor para --media}"
+      shift 2
+      ;;
+    --custom-init)
+      CUSTOM_INIT_PATH="${2:?Falta valor para --custom-init}"
+      shift 2
+      ;;
+    --cache)
+      CACHE_PATH="${2:?Falta valor para --cache}"
+      shift 2
+      ;;
+    --transcode)
+      TRANSCODE_PATH="${2:?Falta valor para --transcode}"
+      shift 2
+      ;;
+    --user)
+      CHECK_USER="${2:?Falta valor para --user}"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "ERROR: argumento no reconocido: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+done
+
+[[ -n "$CONFIG_PATH" ]] || { echo 'ERROR: falta --config' >&2; usage >&2; exit 2; }
+[[ -n "$MEDIA_PATH" ]] || { echo 'ERROR: falta --media' >&2; usage >&2; exit 2; }
+[[ -n "$CUSTOM_INIT_PATH" ]] || { echo 'ERROR: falta --custom-init' >&2; usage >&2; exit 2; }
+
+if ! id -u "$CHECK_USER" >/dev/null 2>&1; then
+  echo "ERROR: usuario inexistente: $CHECK_USER" >&2
+  exit 1
+fi
+
+require_dir "$CONFIG_PATH"
+require_dir "$MEDIA_PATH"
+require_dir "$CUSTOM_INIT_PATH"
+require_dir "$CACHE_PATH"
+require_dir "$TRANSCODE_PATH"
+
+echo '== Docker =='
+docker_cmd version >/dev/null
+echo 'OK docker'
+
+echo '== Compose =='
+docker_cmd compose version
+
+echo '== Paths =='
+for p in "$CONFIG_PATH" "$CUSTOM_INIT_PATH" "$MEDIA_PATH" "$CACHE_PATH" "$TRANSCODE_PATH"; do
+  stat_out="$(stat -c '%U:%G %a %n' "$p")"
+  echo "OK $stat_out"
+done
+
+echo '== Permisos =='
+check_write_dir "$CONFIG_PATH"
+echo "OK escritura config ($CHECK_USER)"
+check_read_dir "$MEDIA_PATH"
+echo "OK lectura media ($CHECK_USER)"
+check_read_dir "$CUSTOM_INIT_PATH"
+echo "OK lectura custom-init ($CHECK_USER)"
+check_write_dir "$CACHE_PATH"
+echo "OK escritura cache ($CHECK_USER)"
+check_write_dir "$TRANSCODE_PATH"
+echo "OK escritura transcode ($CHECK_USER)"
+
+echo 'OK precheck jellyfin'
