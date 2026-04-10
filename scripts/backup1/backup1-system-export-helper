@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+cmd="${1-}"
+
+resolve_name() {
+  case "${1-}" in
+    etc-wireguard)      echo "/srv/replica/main1/etc-wireguard" ;;
+    etc-ssh)            echo "/srv/replica/main1/etc-ssh" ;;
+    etc-systemd-system) echo "/srv/replica/main1/etc-systemd-system" ;;
+    *)
+      echo "Nombre no permitido: ${1-}" >&2
+      exit 2
+      ;;
+  esac
+}
+
+list_names() {
+  printf '%s\n' etc-wireguard etc-ssh etc-systemd-system
+}
+
+case "$cmd" in
+  --check)
+    echo "OK: backup1-system-export-helper listo"
+    exit 0
+    ;;
+
+  list)
+    while read -r name; do
+      path="$(resolve_name "$name")"
+      if [[ -e "$path" ]]; then
+        status="OK"
+      else
+        status="MISSING"
+      fi
+      printf '%s\t%s\t%s\n' "$name" "$status" "$path"
+    done < <(list_names)
+    ;;
+
+  check-path)
+    name="${2-}"
+    [[ -n "$name" ]] || { echo "Falta nombre" >&2; exit 2; }
+    path="$(resolve_name "$name")"
+    [[ -e "$path" ]] || { echo "Ruta no existe: $path" >&2; exit 1; }
+
+    echo "NAME=$name"
+    echo "PATH=$path"
+    /bin/ls -ld "$path"
+    /usr/bin/du -sh "$path"
+    ;;
+
+  tar-stdout)
+    name="${2-}"
+    [[ -n "$name" ]] || { echo "Falta nombre" >&2; exit 2; }
+    path="$(resolve_name "$name")"
+    [[ -d "$path" ]] || { echo "Ruta no existe o no es directorio: $path" >&2; exit 1; }
+
+    exec /usr/bin/tar -C "$path" -cf - .
+    ;;
+
+  *)
+    echo "Uso: $0 --check | list | check-path <etc-wireguard|etc-ssh|etc-systemd-system> | tar-stdout <etc-wireguard|etc-ssh|etc-systemd-system>" >&2
+    exit 2
+    ;;
+esac

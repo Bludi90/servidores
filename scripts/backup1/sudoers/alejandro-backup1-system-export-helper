@@ -1,0 +1,2 @@
+alejandro ALL=(root) NOPASSWD: /usr/local/sbin/backup1-system-export-helper
+alejandro ALL=(root) NOPASSWD: /usr/local/sbin/backup1-system-export-helper --check
