@@ -30,7 +30,7 @@ fi
 echo "[*] Parcheando interfaz WAN en PostUp/PostDown -> $WAN_IF (si aplica)"
 if grep -qE 'Post(Up|Down).* -o [^ ]+' "$STAGE/wg0.conf"; then
   cp -a "$STAGE/wg0.conf" "$STAGE/wg0.conf.bak.${TS}"
-  sed -i -E "s/(Post(Up|Down)[[:space:]]*=[[:space:]]*.* -o )[[:alnum:]_.:-]+/\1${WAN_IF}/g" "$STAGE/wg0.conf"
+  sed -i -E "s/(Post(Up|Down)=.* -o )[^ ]+/\1${WAN_IF}/g" "$STAGE/wg0.conf"
 fi
 
 echo "[*] Instalando wg0.conf"
