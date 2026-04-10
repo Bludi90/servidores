@@ -120,7 +120,7 @@ mkdir -p "$LOCAL_TARGET_DIR"
 echo
 echo "[run] Extrayendo dataset por streaming (sin tar local)..."
 ssh "${SSH_OPTS[@]}" "$SSH_TARGET" \
-  "sudo -n tar -C '$REMOTE_MOUNT' -cf - ." \
+  "sudo -n /usr/local/sbin/backup1-zfs-restore-helper tar-stdout '${REMOTE_MOUNT}' '.'" \
   | tar -C "$LOCAL_TARGET_DIR" -xf -
 
 find "$LOCAL_TARGET_DIR" -maxdepth 2 | sed -n '1,60p'
