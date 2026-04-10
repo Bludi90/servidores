@@ -1,4 +1,4 @@
-# Estado de main1 — 2026-04-10_2000
+# Estado de main1 — 2026-04-10_2018
 
 ## Índice
 
@@ -54,14 +54,14 @@ Linux main1 6.12.73+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.73-1 (2026-02
 Debian GNU/Linux 13 (trixie)
 
 Uptime:
-up 6 weeks, 4 days, 23 hours, 21 minutes
+up 6 weeks, 4 days, 23 hours, 39 minutes
 ```
 
 ## CPU y RAM
 ```
 CPUs: 16
                total        used        free      shared  buff/cache   available
-Mem:            14Gi        10Gi       959Mi        82Mi       3.6Gi       3.9Gi
+Mem:            14Gi        11Gi       1.7Gi        69Mi       2.7Gi       3.7Gi
 Swap:           15Gi       6.4Gi       8.9Gi
 ```
 
@@ -227,52 +227,52 @@ interface: wg0
   private key: (hidden)
   listening port: 51820
 
-peer: BfTojNzP/nhwC0gEjl4xhFoSlFYxU32DO9+3Yb7yuD8=
-  endpoint: 85.51.246.x:xxxx
-  allowed ips: 10.8.0.x/32
-  latest handshake: 39 seconds ago
-  transfer: 45.86 MiB received, 2.93 GiB sent
-
 peer: h1faNjOF62M7uDHY7Q0PkE97kfHd52IkLVkzwTu2qkw=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 minute, 16 seconds ago
-  transfer: 998.67 MiB received, 41.83 MiB sent
-
-peer: KEZGd3+6dRKm70ttQMmxbWqKFvGBOyvRUXjIluc/TzI=
-  endpoint: 88.20.73.x:xxxx
-  allowed ips: 10.8.0.x/32
-  latest handshake: 1 minute, 25 seconds ago
-  transfer: 5.17 GiB received, 2.20 GiB sent
-
-peer: DigK2nE3jYKSgMniMbR5lxZ/zxIM2j3W/XollOGAj2w=
-  endpoint: 95.127.38.x:xxxx
-  allowed ips: 10.8.0.x/32
-  latest handshake: 2 minutes ago
-  transfer: 952.95 KiB received, 1.50 MiB sent
+  latest handshake: 25 seconds ago
+  transfer: 998.69 MiB received, 41.87 MiB sent
 
 peer: 0S8e6faG5RzPgD6j54ZB0NQ9NeXaGsJRT+85KBiQzBI=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 13 minutes, 37 seconds ago
+  latest handshake: 1 minute, 46 seconds ago
   transfer: 28.89 MiB received, 1.46 GiB sent
+
+peer: KEZGd3+6dRKm70ttQMmxbWqKFvGBOyvRUXjIluc/TzI=
+  endpoint: 88.20.73.x:xxxx
+  allowed ips: 10.8.0.x/32
+  latest handshake: 1 minute, 51 seconds ago
+  transfer: 5.18 GiB received, 2.24 GiB sent
+
+peer: DigK2nE3jYKSgMniMbR5lxZ/zxIM2j3W/XollOGAj2w=
+  endpoint: 95.127.38.x:xxxx
+  allowed ips: 10.8.0.x/32
+  latest handshake: 3 minutes, 56 seconds ago
+  transfer: 956.96 KiB received, 1.51 MiB sent
+
+peer: BfTojNzP/nhwC0gEjl4xhFoSlFYxU32DO9+3Yb7yuD8=
+  endpoint: 85.51.246.x:xxxx
+  allowed ips: 10.8.0.x/32
+  latest handshake: 17 minutes, 3 seconds ago
+  transfer: 45.86 MiB received, 2.93 GiB sent
 
 peer: 7IwcRslG8kfUELjQ/is/+38oViwRaWCM4sH35uS5Zho=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 11 hours, 14 minutes, 40 seconds ago
+  latest handshake: 11 hours, 33 minutes, 7 seconds ago
   transfer: 6.25 MiB received, 21.64 MiB sent
 
 peer: zlCDqPzHSrq4T4ytXqycK5hX9B0BGs8lCVI3iAB8vmY=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 20 hours, 38 minutes, 20 seconds ago
+  latest handshake: 20 hours, 56 minutes, 47 seconds ago
   transfer: 24.46 MiB received, 5.95 GiB sent
 
 peer: XthUZfEkAeNFVoYNyJrcU2QMt1I+0bETU5FwHdLjU2U=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 day, 6 hours, 55 minutes, 44 seconds ago
+  latest handshake: 1 day, 7 hours, 14 minutes, 11 seconds ago
   transfer: 188.08 KiB received, 85.06 KiB sent
 
 peer: bRmKj5NN4N4FWxBG8Mwm/IFriKvV0ncXUta1WIvgOnA=
@@ -323,10 +323,10 @@ Pi-hole: Up 3 days (healthy)
 Unbound: Up 3 days (healthy)
 
 Prueba DNS via Pi-hole (10.8.0.1):
-172.217.171.35
+216.58.204.195
 
 Prueba DNS via Unbound (172.18.0.3):
-192.178.25.99
+142.251.142.131
 
 Upstream efectivo de Pi-hole:
 [ unbound-unbound-1#53 ]
