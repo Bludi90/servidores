@@ -8,7 +8,7 @@ Uso:
 
 Ejemplo:
   zfs-restore-backup1-dataset \
-    --ssh-target backup1 \
+    --ssh-target alejandro@192.168.1.122 \
     --dataset nextcloud/config \
     --tag replica-20260410-033003 \
     --dest /srv/storage/tmp/dr-restore
@@ -55,17 +55,33 @@ REMOTE_TAR="/tmp/zfs-restore-${SAFE_DATASET}-dataset-${STAMP}.tar"
 LOCAL_TAR="${DEST}/zfs-restore-${SAFE_DATASET}-dataset-${STAMP}.tar"
 LOCAL_TARGET_DIR="${DEST}/${SAFE_DATASET}"
 
+SSH_OPTS=(
+  -o ControlMaster=auto
+  -o ControlPersist=600
+  -o ControlPath=/tmp/ssh-zfs-restore-%C
+)
+
 REMOTE_READY=0
 
 cleanup_remote() {
   if (( REMOTE_READY == 1 )); then
     echo
     echo "[cleanup] Intentando limpiar temporales remotos..."
-    ssh "$SSH_TARGET" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper cleanup '${REMOTE_CLONE}' '${REMOTE_TAR}'" || true
+    ssh "${SSH_OPTS[@]}" "$SSH_TARGET" \
+      "sudo -n /usr/local/sbin/backup1-zfs-restore-helper cleanup '${REMOTE_CLONE}' '${REMOTE_TAR}'" || true
   fi
 }
 
-trap cleanup_remote EXIT
+cleanup_ssh_master() {
+  ssh "${SSH_OPTS[@]}" -O exit "$SSH_TARGET" >/dev/null 2>&1 || true
+}
+
+cleanup_all() {
+  cleanup_remote
+  cleanup_ssh_master
+}
+
+trap cleanup_all EXIT
 
 echo "zfs-restore-backup1-dataset (plan)"
 echo "DRY_RUN=$DRY_RUN"
@@ -80,7 +96,8 @@ echo "LOCAL_TARGET_DIR=$LOCAL_TARGET_DIR"
 
 echo
 echo "[check] Comprobando snapshot remoto..."
-ssh "$SSH_TARGET" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper snapshot-exists '$REMOTE_SNAPSHOT'"
+ssh "${SSH_OPTS[@]}" "$SSH_TARGET" \
+  "sudo -n /usr/local/sbin/backup1-zfs-restore-helper snapshot-exists '$REMOTE_SNAPSHOT'"
 
 if [[ "$DRY_RUN" -eq 1 ]]; then
   exit 0
@@ -88,17 +105,19 @@ fi
 
 echo
 echo "[run] Creando clone remoto..."
-ssh "$SSH_TARGET" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper clone-mount '${REMOTE_SNAPSHOT}' '${REMOTE_CLONE}' '${REMOTE_MOUNT}'"
+ssh "${SSH_OPTS[@]}" "$SSH_TARGET" \
+  "sudo -n /usr/local/sbin/backup1-zfs-restore-helper clone-mount '${REMOTE_SNAPSHOT}' '${REMOTE_CLONE}' '${REMOTE_MOUNT}'"
 REMOTE_READY=1
 
 echo
 echo "[run] Creando tar remoto del dataset completo..."
-ssh "$SSH_TARGET" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper tar-path '${REMOTE_MOUNT}' '.' '${REMOTE_TAR}'"
+ssh "${SSH_OPTS[@]}" "$SSH_TARGET" \
+  "sudo -n /usr/local/sbin/backup1-zfs-restore-helper tar-path '${REMOTE_MOUNT}' '.' '${REMOTE_TAR}'"
 
 echo
 echo "[run] Copiando tar a destino local..."
 mkdir -p "$DEST"
-scp "${SSH_TARGET}:${REMOTE_TAR}" "$LOCAL_TAR"
+scp "${SSH_OPTS[@]}" "${SSH_TARGET}:${REMOTE_TAR}" "$LOCAL_TAR"
 ls -lh "$LOCAL_TAR"
 
 echo
@@ -123,8 +142,11 @@ rm -f "$LOCAL_TAR"
 
 echo
 echo "[run] Limpiando temporales remotos..."
-ssh "$SSH_TARGET" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper cleanup '${REMOTE_CLONE}' '${REMOTE_TAR}'"
+ssh "${SSH_OPTS[@]}" "$SSH_TARGET" \
+  "sudo -n /usr/local/sbin/backup1-zfs-restore-helper cleanup '${REMOTE_CLONE}' '${REMOTE_TAR}'"
 REMOTE_READY=0
+
+cleanup_ssh_master
 trap - EXIT
 
 echo
