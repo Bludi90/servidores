@@ -1,0 +1,19 @@
+name: jellyfin-lab
+
+services:
+  jellyfin:
+    image: ${JELLYFIN_IMAGE:-lscr.io/linuxserver/jellyfin@sha256:234ea8d508b2cba26054d0dac9d4c0353435dce483e8b266947d473629774559}
+    container_name: ${JELLYFIN_CONTAINER_NAME:-jellyfin-lab}
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Madrid}
+    ports:
+      - "${JELLYFIN_BIND_IP:-127.0.0.1}:${JELLYFIN_BIND_PORT:-8097}:8096"
+    volumes:
+      - ${JELLYFIN_CONFIG_PATH}:/config
+      - ${JELLYFIN_CACHE_PATH:-/var/tmp/jellyfin-lab/cache}:/cache
+      - ${JELLYFIN_TRANSCODE_PATH:-/var/tmp/jellyfin-lab/transcode}:/transcode
+      - ${JELLYFIN_CUSTOM_INIT_PATH}:/custom-cont-init.d:ro
+      - ${JELLYFIN_MEDIA_PATH}:/media:ro
+    restart: unless-stopped
