@@ -2,8 +2,6 @@
 
 _Generado: 2025-11-09 19:27_
 
-# Wake-on-LAN — Cheatsheet
-
 <!-- RESUMEN -->
 Wake-on-LAN (WOL) te permite encender equipos a distancia usando paquetes mágicos
 dirigidos a su MAC. En este entorno se gestiona con `wolctl` y un fichero de hosts
