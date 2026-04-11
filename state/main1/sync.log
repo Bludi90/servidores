@@ -54928,3 +54928,17 @@ A  state/main1/zfs-restore-backup1.last_test
  M state/main1/sync.log
  M state/main1/urls-proxy.md
 ?? state/main1/2026-04-11_2000-state.md
+[dr-system-export-helper 49f6876e] auto: snapshot main1 2026-04-11 20:00
+ 9 files changed, 528 insertions(+), 31 deletions(-)
+ create mode 100644 state/main1/2026-04-11_2000-state.md
+[2026-04-11 20:00:05] Commit creado: auto: snapshot main1 2026-04-11 20:00
+[2026-04-11 21:00:05] === Inicio commit-and-push ===
+[2026-04-11 21:00:05] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_snapshots.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2026-04-11_2100-state.md
