@@ -64200,3 +64200,28 @@ Escrito: /home/alejandro/servidores/state/main1/2026-04-12_0400-state.md
  M state/main1/zfs-repl-backup1.log
 ?? state/backup1/backup1-state-20260412-033103.md
 ?? state/main1/2026-04-12_0400-state.md
+[dr-system-export-helper 23d8ba21] auto: snapshot main1 2026-04-12 04:00
+ 17 files changed, 829 insertions(+), 58 deletions(-)
+ create mode 100644 state/backup1/backup1-state-20260412-033103.md
+ create mode 100644 state/main1/2026-04-12_0400-state.md
+[2026-04-12 04:00:02] Commit creado: auto: snapshot main1 2026-04-12 04:00
+To github.com:Bludi90/servidores.git
+ ! [rejected]          main -> main (fetch first)
+error: falló el empuje de algunas referencias a 'github.com:Bludi90/servidores.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+Escrito: /home/alejandro/servidores/state/main1/2026-04-12_0500-state.md
+[2026-04-12 05:00:02] === Inicio commit-and-push ===
+[2026-04-12 05:00:02] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_snapshots.txt
+ M reports/current/zpool_status.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+ M state/main1/urls-proxy.md
+?? state/main1/2026-04-12_0500-state.md
