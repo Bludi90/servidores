@@ -180,12 +180,12 @@ tank/nextcloud@replica-20260410-033003          vie abr 10  3:30 2026      0B   
 tank/nextcloud/config@replica-20260410-033003   vie abr 10  3:30 2026    152K   643M
 tank/nextcloud/data@replica-20260410-033003     vie abr 10  3:30 2026     64K  33.6G
 tank/nextcloud/db@replica-20260410-033003       vie abr 10  3:30 2026    236K   645M
-tank@replica-20260411-033127                    sáb abr 11  3:31 2026  47.1M  1.11T
+tank@replica-20260411-033127                    sáb abr 11  3:31 2026  52.2M  1.11T
 tank/appdata@replica-20260411-033127            sáb abr 11  3:31 2026     0B   104K
 tank/appdata/casaos@replica-20260411-033127     sáb abr 11  3:31 2026     0B   304K
 tank/appdata/docker@replica-20260411-033127     sáb abr 11  3:31 2026  18.2M  24.4G
-tank/media@replica-20260411-033127              sáb abr 11  3:31 2026   316K  1.90T
+tank/media@replica-20260411-033127              sáb abr 11  3:31 2026   476K  1.90T
 tank/nextcloud@replica-20260411-033127          sáb abr 11  3:31 2026     0B   264M
-tank/nextcloud/config@replica-20260411-033127   sáb abr 11  3:31 2026    92K   643M
+tank/nextcloud/config@replica-20260411-033127   sáb abr 11  3:31 2026   168K   643M
 tank/nextcloud/data@replica-20260411-033127     sáb abr 11  3:31 2026  1.84M  33.9G
 tank/nextcloud/db@replica-20260411-033127       sáb abr 11  3:31 2026   256K   662M
