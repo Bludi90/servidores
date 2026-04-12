@@ -45,3 +45,17 @@ scripts/*.bak*
 *.bak
 scripts/root/
 scripts/root/
+
+# Estado horario local: publicar solo la foto actual en main
+state/*/*-state.md
+state/backup1/backup1-state-*.md
+!state/*/current-state.md
+
+# Logs y locks locales
+state/*/sync.log
+state/*/cron.out
+state/*/.state-hourly.lock
+state/*/cron-zfs-repl-backup1-nightly.out
+
+# Informes históricos locales
+reports/daily/

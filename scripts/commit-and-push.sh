@@ -2,36 +2,42 @@
 set -euo pipefail
 
 REPO="/home/alejandro/servidores"
-HOST="main1"
+HOST="$(hostname -s 2>/dev/null || echo main1)"
 LOG="$REPO/state/$HOST/sync.log"
 
 mkdir -p "$(dirname "$LOG")"
 touch "$LOG"
-# En caso de que algún día se ejecute como root, devolvé el log al usuario normal
-chown alejandro:alejandro "$LOG" || true
+chown alejandro:alejandro "$LOG" 2>/dev/null || true
 
 cd "$REPO"
 
 ts() { date '+%Y-%m-%d %H:%M:%S'; }
 
-echo "[$(ts)] === Inicio commit-and-push ===" | tee -a "$LOG"
+BRANCH="$(git branch --show-current || true)"
+if [ -z "$BRANCH" ]; then
+  echo "[$(ts)] ERROR: no se pudo detectar la rama actual." >> "$LOG"
+  exit 1
+fi
 
-# Si no hay cambios (ni staged ni unstaged), salimos
-if git diff --quiet && git diff --cached --quiet; then
-  echo "[$(ts)] No hay cambios; nada que commitear." | tee -a "$LOG"
-  echo "[$(ts)] === Fin commit-and-push (sin cambios) ===" | tee -a "$LOG"
+echo "[$(ts)] === Inicio commit-and-push ===" >> "$LOG"
+echo "[$(ts)] Rama actual: $BRANCH" >> "$LOG"
+
+# Publicar solo la foto actual, no el histórico horario ni los logs
+git add docs/ESTADO.md 2>/dev/null || true
+git add "state/$HOST/current-state.md" 2>/dev/null || true
+[ -f "state/backup1/current-state.md" ] && git add "state/backup1/current-state.md" || true
+[ -d "reports/current" ] && git add reports/current || true
+
+if git diff --cached --quiet; then
+  echo "[$(ts)] No hay cambios publicados; nada que commitear." >> "$LOG"
+  echo "[$(ts)] === Fin commit-and-push (sin cambios) ===" >> "$LOG"
   exit 0
 fi
 
-echo "[$(ts)] Cambios detectados:" | tee -a "$LOG"
-git status --short | tee -a "$LOG" || true
+MSG="auto: current-state $HOST $(date '+%Y-%m-%d %H:%M')"
+git commit -m "$MSG" >> "$LOG" 2>&1
+echo "[$(ts)] Commit creado: $MSG" >> "$LOG"
 
-MSG="auto: snapshot $HOST $(date '+%Y-%m-%d %H:%M')"
-
-git add -A
-git commit -m "$MSG" | tee -a "$LOG"
-echo "[$(ts)] Commit creado: $MSG" | tee -a "$LOG"
-
-git push origin main | tee -a "$LOG"
-echo "[$(ts)] git push OK." | tee -a "$LOG"
-echo "[$(ts)] === Fin commit-and-push ===" | tee -a "$LOG"
+git push -u origin "$BRANCH" >> "$LOG" 2>&1
+echo "[$(ts)] git push OK hacia $BRANCH." >> "$LOG"
+echo "[$(ts)] === Fin commit-and-push ===" >> "$LOG"
