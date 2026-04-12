@@ -64453,3 +64453,16 @@ hint: have locally. This is usually caused by another repository pushing to
 hint: the same ref. If you want to integrate the remote changes, use
 hint: 'git pull' before pushing again.
 hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+Escrito: /home/alejandro/servidores/state/main1/2026-04-12_1500-state.md
+[2026-04-12 15:00:07] === Inicio commit-and-push ===
+[2026-04-12 15:00:07] Rama actual: dr-system-export-helper
+[2026-04-12 15:00:07] Cambios detectados:
+ M docs/ESTADO.md
+ M reports/current/free.txt
+ M reports/current/zfs_list.txt
+ M reports/current/zfs_snapshots.txt
+ M state/main1/cron.out
+ M state/main1/current-state.md
+ M state/main1/sync.log
+?? state/main1/.state-hourly.lock
+?? state/main1/2026-04-12_1500-state.md
