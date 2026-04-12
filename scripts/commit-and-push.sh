@@ -2,21 +2,26 @@
 set -euo pipefail
 
 REPO="/home/alejandro/servidores"
-HOST="main1"
+HOST="$(hostname -s 2>/dev/null || echo main1)"
 LOG="$REPO/state/$HOST/sync.log"
 
 mkdir -p "$(dirname "$LOG")"
 touch "$LOG"
-# En caso de que algún día se ejecute como root, devolvé el log al usuario normal
 chown alejandro:alejandro "$LOG" || true
 
 cd "$REPO"
 
 ts() { date '+%Y-%m-%d %H:%M:%S'; }
 
-echo "[$(ts)] === Inicio commit-and-push ===" | tee -a "$LOG"
+BRANCH="$(git branch --show-current || true)"
+if [ -z "$BRANCH" ]; then
+  echo "[$(ts)] ERROR: no se pudo detectar la rama actual." | tee -a "$LOG"
+  exit 1
+fi
 
-# Si no hay cambios (ni staged ni unstaged), salimos
+echo "[$(ts)] === Inicio commit-and-push ===" | tee -a "$LOG"
+echo "[$(ts)] Rama actual: $BRANCH" | tee -a "$LOG"
+
 if git diff --quiet && git diff --cached --quiet; then
   echo "[$(ts)] No hay cambios; nada que commitear." | tee -a "$LOG"
   echo "[$(ts)] === Fin commit-and-push (sin cambios) ===" | tee -a "$LOG"
@@ -32,6 +37,6 @@ git add -A
 git commit -m "$MSG" | tee -a "$LOG"
 echo "[$(ts)] Commit creado: $MSG" | tee -a "$LOG"
 
-git push origin main | tee -a "$LOG"
-echo "[$(ts)] git push OK." | tee -a "$LOG"
+git push -u origin "$BRANCH" | tee -a "$LOG"
+echo "[$(ts)] git push OK hacia $BRANCH." | tee -a "$LOG"
 echo "[$(ts)] === Fin commit-and-push ===" | tee -a "$LOG"
