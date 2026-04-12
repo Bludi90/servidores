@@ -228,3 +228,61 @@ Nada para borrar.
 [2026-04-11 03:38:42] INFO  shutdown: margen post-apagado 30s
 [2026-04-11 03:39:12] INFO  shutdown: fin del ciclo
 [2026-04-11 03:39:12] INFO  main: flujo completado correctamente
+[2026-04-12 03:30:02] INFO  check: iniciando comprobaciones comunes
+[2026-04-12 03:30:02] OK    check: comando wol encontrado
+[2026-04-12 03:30:02] OK    check: comando wolctl encontrado
+[2026-04-12 03:30:02] OK    check: comando de réplica encontrado: /usr/local/bin/zfs-repl-backup1
+[2026-04-12 03:30:02] OK    check: comando de retención encontrado: /usr/local/bin/zfs-retention-prune
+[2026-04-12 03:30:02] OK    check: host WOL registrado: sv-backup1
+[2026-04-12 03:30:02] INFO  main: sv-backup1 ya estaba encendido; no se enviará WOL
+[2026-04-12 03:30:02] INFO  check: iniciando comprobaciones online
+[2026-04-12 03:30:02] OK    check: ping a 192.168.1.122 responde
+[2026-04-12 03:30:02] OK    check: SSH a backup1 responde
+[2026-04-12 03:30:03] OK    check: poweroff remoto no interactivo validado
+[2026-04-12 03:30:03] INFO  check: comprobaciones online OK
+[2026-04-12 03:30:03] INFO  repl: lanzando réplica real
+[2026-04-12 03:30:03] Origen:  tank
+[2026-04-12 03:30:03] Destino: alejandro@backup1:backup/replicas/main1/tank
+[2026-04-12 03:30:03] Base común: tank@replica-20260411-033127
+[2026-04-12 03:30:03] Nuevo snapshot: tank@replica-20260412-033003
+[2026-04-12 03:30:03] Creando snapshot recursivo: tank@replica-20260412-033003
+[2026-04-12 03:30:06] Estimando tamaño del incremental...
+send from @replica-20260411-033127 to tank@replica-20260412-033003 estimated size is 233M
+send from @replica-20260411-033127 to tank/nextcloud@replica-20260412-033003 estimated size is 624B
+send from @replica-20260411-033127 to tank/nextcloud/data@replica-20260412-033003 estimated size is 3.35M
+send from @replica-20260411-033127 to tank/nextcloud/db@replica-20260412-033003 estimated size is 33.1M
+send from @replica-20260411-033127 to tank/nextcloud/config@replica-20260412-033003 estimated size is 381K
+send from @replica-20260411-033127 to tank/appdata@replica-20260412-033003 estimated size is 624B
+send from @replica-20260411-033127 to tank/appdata/casaos@replica-20260412-033003 estimated size is 624B
+send from @replica-20260411-033127 to tank/appdata/docker@replica-20260412-033003 estimated size is 80.5M
+send from @replica-20260411-033127 to tank/media@replica-20260412-033003 estimated size is 85.3M
+total estimated size is 436M
+[2026-04-12 03:30:06] Tamaño estimado total: 436M
+[2026-04-12 03:30:06] Tamaño estimado en bytes: 457179136
+[2026-04-12 03:30:06] Iniciando réplica incremental...
+[2026-04-12 03:31:00] Réplica completada correctamente
+[2026-04-12 03:31:00] Nuevo snapshot base común: tank@replica-20260412-033003
+[2026-04-12 03:31:00] Estado guardado en: /home/alejandro/servidores/state/main1/zfs-repl-backup1.last_common
+[2026-04-12 03:31:00] OK    repl: réplica finalizada
+[2026-04-12 03:31:00] INFO  retention: aplicando política 7d/4w/6m en backup/replicas/main1/tank
+zfs-retention-prune (plan)
+HOST=192.168.1.122
+ROOT_DATASET=backup/replicas/main1/tank
+EXECUTE=1
+
+=== PRUNE TAGS ===
+replica-20260401-191403
+
+=== COMMANDS ===
+ssh alejandro@192.168.1.122 "sudo -n /usr/local/sbin/backup1-zfs-restore-helper destroy-tag 'backup/replicas/main1/tank' 'replica-20260401-191403'"
+
+=== EXECUTING ===
+
+Poda completada.
+[2026-04-12 03:31:03] OK    retention: poda histórica completada
+[2026-04-12 03:31:03] INFO  state: generando snapshot markdown de backup1
+[backup1-state-snapshot] Consultando 192.168.1.122 por SSH...
+[backup1-state-snapshot] Snapshot escrito en: /home/alejandro/servidores/state/backup1/backup1-state-20260412-033103.md
+[2026-04-12 03:31:04] OK    state: snapshot generado
+[2026-04-12 03:31:04] INFO  main: el host ya estaba encendido al inicio; se deja encendido
+[2026-04-12 03:31:04] INFO  main: flujo completado correctamente
