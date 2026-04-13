@@ -1,4 +1,4 @@
-# Estado de main1 — 2026-04-13_1700
+# Estado de main1 — 2026-04-13_1800
 
 ## Índice
 
@@ -54,15 +54,15 @@ Linux main1 6.12.73+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.73-1 (2026-02
 Debian GNU/Linux 13 (trixie)
 
 Uptime:
-up 7 weeks, 20 hours, 21 minutes
+up 7 weeks, 21 hours, 21 minutes
 ```
 
 ## CPU y RAM
 ```
 CPUs: 16
                total        used        free      shared  buff/cache   available
-Mem:            14Gi        10Gi       2.0Gi        62Mi       2.6Gi       4.0Gi
-Swap:           15Gi       6.3Gi       9.0Gi
+Mem:            14Gi        11Gi       429Mi        86Mi       3.9Gi       3.9Gi
+Swap:           15Gi       6.4Gi       8.8Gi
 ```
 
 ## Redes (IPv4 depuradas)
@@ -103,11 +103,11 @@ tmpfs tmpfs 7.5G 48K 7.5G 1% /tmp
 tank zfs 5.5T 1.2T 4.4T 21% /srv/storage
 tank/appdata zfs 4.4T 128K 4.4T 1% /srv/storage/appdata
 tank/media zfs 6.3T 2.0T 4.4T 31% /srv/storage/media
-tank/appdata/docker zfs 4.5T 25G 4.4T 1% /srv/storage/appdata/docker
+tank/appdata/docker zfs 4.4T 25G 4.4T 1% /srv/storage/appdata/docker
 tank/nextcloud zfs 4.4T 264M 4.4T 1% /srv/storage/nextcloud
 tank/appdata/casaos zfs 4.4T 384K 4.4T 1% /srv/storage/appdata/casaos
-tank/nextcloud/db zfs 4.4T 675M 4.4T 1% /srv/storage/nextcloud/db
-tank/nextcloud/data zfs 4.5T 34G 4.4T 1% /srv/storage/nextcloud/data
+tank/nextcloud/db zfs 4.4T 676M 4.4T 1% /srv/storage/nextcloud/db
+tank/nextcloud/data zfs 4.4T 34G 4.4T 1% /srv/storage/nextcloud/data
 tank/nextcloud/config zfs 4.4T 643M 4.4T 1% /srv/storage/nextcloud/config
 tmpfs tmpfs 1.0M 0 1.0M 0% /run/credentials/getty@tty3.service
 tmpfs tmpfs 1.0M 0 1.0M 0% /run/credentials/getty@tty2.service
@@ -227,64 +227,64 @@ interface: wg0
   private key: (hidden)
   listening port: 51820
 
-peer: 1aqdDAaLV5DZJHriYmn8qZM767T53yEENQaOJXHzRQw=
-  endpoint: 88.20.73.x:xxxx
+peer: BfTojNzP/nhwC0gEjl4xhFoSlFYxU32DO9+3Yb7yuD8=
+  endpoint: 145.1.196.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 22 seconds ago
-  transfer: 560.83 KiB received, 896.04 KiB sent
-
-peer: DigK2nE3jYKSgMniMbR5lxZ/zxIM2j3W/XollOGAj2w=
-  endpoint: 188.167.250.x:xxxx
-  allowed ips: 10.8.0.x/32
-  latest handshake: 33 seconds ago
-  transfer: 3.12 MiB received, 4.75 MiB sent
+  latest handshake: 1 minute, 16 seconds ago
+  transfer: 46.92 MiB received, 2.93 GiB sent
 
 peer: KEZGd3+6dRKm70ttQMmxbWqKFvGBOyvRUXjIluc/TzI=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 minute, 36 seconds ago
-  transfer: 5.18 GiB received, 2.30 GiB sent
+  latest handshake: 1 minute, 34 seconds ago
+  transfer: 5.19 GiB received, 2.32 GiB sent
 
-peer: BfTojNzP/nhwC0gEjl4xhFoSlFYxU32DO9+3Yb7yuD8=
-  endpoint: 145.1.196.x:xxxx
+peer: 1aqdDAaLV5DZJHriYmn8qZM767T53yEENQaOJXHzRQw=
+  endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 10 minutes, 12 seconds ago
-  transfer: 46.83 MiB received, 2.93 GiB sent
+  latest handshake: 1 minute, 53 seconds ago
+  transfer: 857.02 KiB received, 1.27 MiB sent
+
+peer: DigK2nE3jYKSgMniMbR5lxZ/zxIM2j3W/XollOGAj2w=
+  endpoint: 188.167.250.x:xxxx
+  allowed ips: 10.8.0.x/32
+  latest handshake: 5 minutes, 43 seconds ago
+  transfer: 3.23 MiB received, 7.01 MiB sent
 
 peer: h1faNjOF62M7uDHY7Q0PkE97kfHd52IkLVkzwTu2qkw=
   endpoint: 95.127.45.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 8 hours, 22 minutes, 59 seconds ago
+  latest handshake: 9 hours, 22 minutes, 59 seconds ago
   transfer: 1002.91 MiB received, 49.49 MiB sent
 
 peer: zlCDqPzHSrq4T4ytXqycK5hX9B0BGs8lCVI3iAB8vmY=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 10 hours, 19 minutes, 25 seconds ago
+  latest handshake: 11 hours, 19 minutes, 25 seconds ago
   transfer: 71.33 MiB received, 11.56 GiB sent
 
 peer: 0S8e6faG5RzPgD6j54ZB0NQ9NeXaGsJRT+85KBiQzBI=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 22 hours, 24 minutes, 32 seconds ago
+  latest handshake: 23 hours, 24 minutes, 32 seconds ago
   transfer: 28.98 MiB received, 1.46 GiB sent
 
 peer: UHQMYQTUJuZmar72fA6a0OXuQRFebkAhYBoBfT0dvGI=
   endpoint: 79.159.51.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 day, 17 hours, 39 minutes, 51 seconds ago
+  latest handshake: 1 day, 18 hours, 39 minutes, 51 seconds ago
   transfer: 694.88 KiB received, 7.77 MiB sent
 
 peer: 7IwcRslG8kfUELjQ/is/+38oViwRaWCM4sH35uS5Zho=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 day, 23 hours, 2 seconds ago
+  latest handshake: 2 days, 2 seconds ago
   transfer: 7.72 MiB received, 25.16 MiB sent
 
 peer: XthUZfEkAeNFVoYNyJrcU2QMt1I+0bETU5FwHdLjU2U=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 4 days, 3 hours, 55 minutes, 45 seconds ago
+  latest handshake: 4 days, 4 hours, 55 minutes, 45 seconds ago
   transfer: 188.08 KiB received, 87.95 KiB sent
 
 peer: bRmKj5NN4N4FWxBG8Mwm/IFriKvV0ncXUta1WIvgOnA=
@@ -328,14 +328,14 @@ wg-list-peers no devolvió datos (¿falta NOPASSWD en sudoers?).
 
 ## DNS interno
 ```
-Pi-hole: Up 5 days (healthy)
+Pi-hole: Up 6 days (healthy)
 Unbound: Up 6 days (healthy)
 
 Prueba DNS via Pi-hole (10.8.0.1):
-192.178.25.99
+216.58.205.163
 
 Prueba DNS via Unbound (172.18.0.3):
-142.251.142.131
+216.58.205.35
 
 Upstream efectivo de Pi-hole:
 [ unbound-unbound-1#53 ]
@@ -367,7 +367,7 @@ Réplica backup1 (resumen log):
 ```
 Contenedores en ejecución:
 NAMES                     IMAGE                                                            STATUS
-pihole-pihole-1           pihole/pihole:latest                                             Up 5 days (healthy)
+pihole-pihole-1           pihole/pihole:latest                                             Up 6 days (healthy)
 ghostfolio                ghostfolio/ghostfolio:2.251.0                                    Up 4 days (healthy)
 gf-postgres               postgres:15-alpine                                               Up 6 days (healthy)
 gf-redis                  redis:alpine                                                     Up 6 days (healthy)
