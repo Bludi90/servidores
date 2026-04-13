@@ -1,4 +1,4 @@
-# Estado de main1 — 2026-04-13_1400
+# Estado de main1 — 2026-04-13_1500
 
 ## Índice
 
@@ -54,15 +54,15 @@ Linux main1 6.12.73+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.73-1 (2026-02
 Debian GNU/Linux 13 (trixie)
 
 Uptime:
-up 7 weeks, 17 hours, 21 minutes
+up 7 weeks, 18 hours, 21 minutes
 ```
 
 ## CPU y RAM
 ```
 CPUs: 16
                total        used        free      shared  buff/cache   available
-Mem:            14Gi        11Gi       975Mi        66Mi       3.5Gi       3.8Gi
-Swap:           15Gi       6.2Gi       9.1Gi
+Mem:            14Gi        10Gi       1.4Gi        50Mi       3.0Gi       4.0Gi
+Swap:           15Gi       6.4Gi       8.9Gi
 ```
 
 ## Redes (IPv4 depuradas)
@@ -230,55 +230,55 @@ interface: wg0
 peer: DigK2nE3jYKSgMniMbR5lxZ/zxIM2j3W/XollOGAj2w=
   endpoint: 95.127.52.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 minute, 10 seconds ago
-  transfer: 3.03 MiB received, 4.62 MiB sent
+  latest handshake: 1 minute, 13 seconds ago
+  transfer: 3.06 MiB received, 4.67 MiB sent
+
+peer: KEZGd3+6dRKm70ttQMmxbWqKFvGBOyvRUXjIluc/TzI=
+  endpoint: 88.20.73.x:xxxx
+  allowed ips: 10.8.0.x/32
+  latest handshake: 1 minute, 45 seconds ago
+  transfer: 5.18 GiB received, 2.29 GiB sent
 
 peer: BfTojNzP/nhwC0gEjl4xhFoSlFYxU32DO9+3Yb7yuD8=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 minute, 12 seconds ago
-  transfer: 46.73 MiB received, 2.93 GiB sent
+  latest handshake: 14 minutes, 51 seconds ago
+  transfer: 46.77 MiB received, 2.93 GiB sent
 
 peer: h1faNjOF62M7uDHY7Q0PkE97kfHd52IkLVkzwTu2qkw=
   endpoint: 95.127.45.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 5 hours, 22 minutes, 59 seconds ago
+  latest handshake: 6 hours, 22 minutes, 59 seconds ago
   transfer: 1002.91 MiB received, 49.49 MiB sent
 
 peer: zlCDqPzHSrq4T4ytXqycK5hX9B0BGs8lCVI3iAB8vmY=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 7 hours, 19 minutes, 25 seconds ago
+  latest handshake: 8 hours, 19 minutes, 25 seconds ago
   transfer: 71.33 MiB received, 11.56 GiB sent
 
 peer: 0S8e6faG5RzPgD6j54ZB0NQ9NeXaGsJRT+85KBiQzBI=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 19 hours, 24 minutes, 32 seconds ago
+  latest handshake: 20 hours, 24 minutes, 32 seconds ago
   transfer: 28.98 MiB received, 1.46 GiB sent
-
-peer: KEZGd3+6dRKm70ttQMmxbWqKFvGBOyvRUXjIluc/TzI=
-  endpoint: 88.20.73.x:xxxx
-  allowed ips: 10.8.0.x/32
-  latest handshake: 21 hours, 2 minutes, 48 seconds ago
-  transfer: 5.18 GiB received, 2.29 GiB sent
 
 peer: UHQMYQTUJuZmar72fA6a0OXuQRFebkAhYBoBfT0dvGI=
   endpoint: 79.159.51.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 day, 14 hours, 39 minutes, 51 seconds ago
+  latest handshake: 1 day, 15 hours, 39 minutes, 51 seconds ago
   transfer: 694.88 KiB received, 7.77 MiB sent
 
 peer: 7IwcRslG8kfUELjQ/is/+38oViwRaWCM4sH35uS5Zho=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 day, 20 hours, 2 seconds ago
+  latest handshake: 1 day, 21 hours, 2 seconds ago
   transfer: 7.72 MiB received, 25.16 MiB sent
 
 peer: XthUZfEkAeNFVoYNyJrcU2QMt1I+0bETU5FwHdLjU2U=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 4 days, 55 minutes, 45 seconds ago
+  latest handshake: 4 days, 1 hour, 55 minutes, 45 seconds ago
   transfer: 188.08 KiB received, 87.95 KiB sent
 
 peer: bRmKj5NN4N4FWxBG8Mwm/IFriKvV0ncXUta1WIvgOnA=
@@ -323,13 +323,13 @@ wg-list-peers no devolvió datos (¿falta NOPASSWD en sudoers?).
 ## DNS interno
 ```
 Pi-hole: Up 5 days (healthy)
-Unbound: Up 5 days (healthy)
+Unbound: Up 6 days (healthy)
 
 Prueba DNS via Pi-hole (10.8.0.1):
-192.178.25.99
+142.251.142.131
 
 Prueba DNS via Unbound (172.18.0.3):
-142.251.142.131
+192.178.25.99
 
 Upstream efectivo de Pi-hole:
 [ unbound-unbound-1#53 ]
@@ -386,7 +386,7 @@ immich_redis              valkey/valkey:8                                       
 sabnzbd                   lscr.io/linuxserver/sabnzbd:latest                               Up 6 days
 prowlarr                  lscr.io/linuxserver/prowlarr:latest                              Up 6 days
 collabora-collabora-1     collabora/code:latest                                            Up 6 days
-unbound-unbound-1         mvance/unbound:latest                                            Up 5 days (healthy)
+unbound-unbound-1         mvance/unbound:latest                                            Up 6 days (healthy)
 radarr                    lscr.io/linuxserver/radarr:latest                                Up 6 days
 qbittorrent               lscr.io/linuxserver/qbittorrent:latest                           Up 6 days
 firefly_iii_cron          alpine                                                           Up 6 days
