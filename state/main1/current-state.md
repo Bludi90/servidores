@@ -1,4 +1,4 @@
-# Estado de main1 — 2026-04-13_0200
+# Estado de main1 — 2026-04-13_0300
 
 ## Índice
 
@@ -54,15 +54,15 @@ Linux main1 6.12.73+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.73-1 (2026-02
 Debian GNU/Linux 13 (trixie)
 
 Uptime:
-up 7 weeks, 5 hours, 21 minutes
+up 7 weeks, 6 hours, 21 minutes
 ```
 
 ## CPU y RAM
 ```
 CPUs: 16
                total        used        free      shared  buff/cache   available
-Mem:            14Gi        11Gi       1.5Gi       105Mi       2.9Gi       3.7Gi
-Swap:           15Gi       6.2Gi       9.1Gi
+Mem:            14Gi        10Gi       1.6Gi       127Mi       3.4Gi       4.3Gi
+Swap:           15Gi       6.1Gi       9.2Gi
 ```
 
 ## Redes (IPv4 depuradas)
@@ -98,7 +98,7 @@ tmpfs tmpfs 1.5G 7.6M 1.5G 1% /run
 tmpfs tmpfs 7.5G 4.0K 7.5G 1% /dev/shm
 efivarfs efivarfs 128K 55K 69K 45% /sys/firmware/efi/efivars
 tmpfs tmpfs 5.0M 16K 5.0M 1% /run/lock
-tmpfs tmpfs 7.5G 52K 7.5G 1% /tmp
+tmpfs tmpfs 7.5G 48K 7.5G 1% /tmp
 /dev/nvme0n1p1 vfat 975M 8.8M 966M 1% /boot/efi
 tank zfs 5.5T 1.2T 4.4T 21% /srv/storage
 tank/appdata zfs 4.4T 128K 4.4T 1% /srv/storage/appdata
@@ -227,58 +227,58 @@ interface: wg0
   private key: (hidden)
   listening port: 51820
 
-peer: DigK2nE3jYKSgMniMbR5lxZ/zxIM2j3W/XollOGAj2w=
-  endpoint: 88.20.73.x:xxxx
-  allowed ips: 10.8.0.x/32
-  latest handshake: 2 minutes, 5 seconds ago
-  transfer: 2.76 MiB received, 4.23 MiB sent
-
 peer: h1faNjOF62M7uDHY7Q0PkE97kfHd52IkLVkzwTu2qkw=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 2 minutes, 33 seconds ago
-  transfer: 1002.61 MiB received, 48.97 MiB sent
+  latest handshake: 1 minute, 9 seconds ago
+  transfer: 1002.64 MiB received, 49.03 MiB sent
+
+peer: DigK2nE3jYKSgMniMbR5lxZ/zxIM2j3W/XollOGAj2w=
+  endpoint: 88.20.73.x:xxxx
+  allowed ips: 10.8.0.x/32
+  latest handshake: 1 minute, 48 seconds ago
+  transfer: 2.80 MiB received, 4.29 MiB sent
 
 peer: BfTojNzP/nhwC0gEjl4xhFoSlFYxU32DO9+3Yb7yuD8=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 2 minutes, 50 seconds ago
-  transfer: 46.50 MiB received, 2.93 GiB sent
+  latest handshake: 7 minutes, 24 seconds ago
+  transfer: 46.52 MiB received, 2.93 GiB sent
 
 peer: zlCDqPzHSrq4T4ytXqycK5hX9B0BGs8lCVI3iAB8vmY=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 2 hours, 10 minutes, 50 seconds ago
+  latest handshake: 3 hours, 10 minutes, 50 seconds ago
   transfer: 71.33 MiB received, 11.56 GiB sent
 
 peer: 0S8e6faG5RzPgD6j54ZB0NQ9NeXaGsJRT+85KBiQzBI=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 7 hours, 24 minutes, 32 seconds ago
+  latest handshake: 8 hours, 24 minutes, 32 seconds ago
   transfer: 28.98 MiB received, 1.46 GiB sent
 
 peer: KEZGd3+6dRKm70ttQMmxbWqKFvGBOyvRUXjIluc/TzI=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 9 hours, 2 minutes, 48 seconds ago
+  latest handshake: 10 hours, 2 minutes, 48 seconds ago
   transfer: 5.18 GiB received, 2.29 GiB sent
 
 peer: UHQMYQTUJuZmar72fA6a0OXuQRFebkAhYBoBfT0dvGI=
   endpoint: 79.159.51.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 day, 2 hours, 39 minutes, 51 seconds ago
+  latest handshake: 1 day, 3 hours, 39 minutes, 51 seconds ago
   transfer: 694.88 KiB received, 7.77 MiB sent
 
 peer: 7IwcRslG8kfUELjQ/is/+38oViwRaWCM4sH35uS5Zho=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 day, 8 hours, 2 seconds ago
+  latest handshake: 1 day, 9 hours, 2 seconds ago
   transfer: 7.72 MiB received, 25.16 MiB sent
 
 peer: XthUZfEkAeNFVoYNyJrcU2QMt1I+0bETU5FwHdLjU2U=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 3 days, 12 hours, 55 minutes, 45 seconds ago
+  latest handshake: 3 days, 13 hours, 55 minutes, 45 seconds ago
   transfer: 188.08 KiB received, 87.95 KiB sent
 
 peer: bRmKj5NN4N4FWxBG8Mwm/IFriKvV0ncXUta1WIvgOnA=
@@ -326,7 +326,7 @@ Pi-hole: Up 5 days (healthy)
 Unbound: Up 5 days (healthy)
 
 Prueba DNS via Pi-hole (10.8.0.1):
-216.58.205.35
+216.58.205.163
 
 Prueba DNS via Unbound (172.18.0.3):
 142.251.142.131
