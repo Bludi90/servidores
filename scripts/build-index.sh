@@ -25,7 +25,6 @@ now_ts="$(date '+%Y-%m-%d %H:%M')"
     [[ -d "${host_dir}" ]] || continue
     host="$(basename "${host_dir}")"
     current_abs="${host_dir}/current-state.md"
-    sync_log_abs="${host_dir}/sync.log"
 
     [[ -f "${current_abs}" ]] || continue
 
@@ -33,12 +32,7 @@ now_ts="$(date '+%Y-%m-%d %H:%M')"
     nice_ts="$(date -r "${current_abs}" '+%Y-%m-%d %H:%M' 2>/dev/null || echo desconocido)"
     current_rel="$(realpath --relative-to="${docs_dir}" "${current_abs}")"
 
-    if [[ -f "${sync_log_abs}" ]]; then
-      sync_rel="$(realpath --relative-to="${docs_dir}" "${sync_log_abs}")"
-      echo "- **${host}**: Último completo: [${nice_ts}](${current_rel}) — [sync.log](${sync_rel})"
-    else
-      echo "- **${host}**: Último completo: [${nice_ts}](${current_rel})"
-    fi
+    echo "- **${host}**: Último completo: [${nice_ts}](${current_rel})"
   done
 
   if [[ "${found_any}" -eq 0 ]]; then
