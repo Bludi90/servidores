@@ -1,0 +1,219 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+CONFIG_DIR="/etc/a2-backup"
+CONFIG_FILE="$CONFIG_DIR/config.env"
+SECRETS_FILE="$CONFIG_DIR/secrets.env"
+MANIFEST_FILE="$CONFIG_DIR/profile.manifest"
+LOG_FILE="/var/log/a2-backup.log"
+STATE_DIR="/var/lib/a2-backup/state"
+CREDENTIALS_FILE="$CONFIG_DIR/smb-credentials"
+
+usage() {
+  cat <<'USAGE'
+Uso:
+  a2-backup-run-smb-remote
+
+Descripción:
+  Ejecuta una primera copia real del perfil A2 mínimo hacia un recurso SMB/CIFS
+  (típicamente un PC Windows compartiendo una carpeta por red).
+
+Requisitos:
+  - A2_BACKEND=smb_remote
+  - mount.cifs disponible
+  - rsync disponible
+  - variables SMB configuradas en /etc/a2-backup/config.env y secrets.env
+
+Variables esperadas:
+  A2_SMB_HOST
+  A2_SMB_SHARE
+  A2_SMB_MOUNTPOINT
+  A2_SMB_BASEDIR
+  A2_SMB_USERNAME
+  A2_SMB_VERS
+  A2_SMB_PASSWORD   (en secrets.env)
+
+Notas:
+  - este MVP copia rutas del perfil A2 mínimo
+  - soporta hooks opcionales de dump:
+      A2_NEXTCLOUD_DUMP_CMD
+      A2_IMMICH_DUMP_CMD
+  - todavía no implementa snapshots ZFS automáticos
+USAGE
+}
+
+log() {
+  local msg="$*"
+  printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$msg"
+}
+
+append_log() {
+  mkdir -p "$(dirname "$LOG_FILE")"
+  log "$*" | tee -a "$LOG_FILE"
+}
+
+require_root() {
+  if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
+    echo "Este comando debe ejecutarse como root." >&2
+    exit 1
+  fi
+}
+
+load_config() {
+  [[ -f "$CONFIG_FILE" ]] || { echo "Falta $CONFIG_FILE" >&2; exit 1; }
+  # shellcheck disable=SC1090
+  source "$CONFIG_FILE"
+  if [[ -f "$SECRETS_FILE" ]]; then
+    # shellcheck disable=SC1090
+    source "$SECRETS_FILE"
+  fi
+}
+
+check_prereqs() {
+  command -v rsync >/dev/null 2>&1 || { echo "Falta rsync" >&2; exit 1; }
+  command -v mount.cifs >/dev/null 2>&1 || { echo "Falta mount.cifs (paquete cifs-utils)" >&2; exit 1; }
+  command -v mountpoint >/dev/null 2>&1 || { echo "Falta mountpoint" >&2; exit 1; }
+
+  [[ "${A2_BACKEND:-}" == "smb_remote" ]] || { echo "A2_BACKEND debe ser smb_remote" >&2; exit 2; }
+  [[ -n "${A2_SMB_HOST:-}" ]] || { echo "Falta A2_SMB_HOST" >&2; exit 2; }
+  [[ -n "${A2_SMB_SHARE:-}" ]] || { echo "Falta A2_SMB_SHARE" >&2; exit 2; }
+  [[ -n "${A2_SMB_MOUNTPOINT:-}" ]] || { echo "Falta A2_SMB_MOUNTPOINT" >&2; exit 2; }
+  [[ -n "${A2_SMB_BASEDIR:-}" ]] || { echo "Falta A2_SMB_BASEDIR" >&2; exit 2; }
+  [[ -n "${A2_SMB_USERNAME:-}" ]] || { echo "Falta A2_SMB_USERNAME" >&2; exit 2; }
+  [[ -n "${A2_SMB_VERS:-}" ]] || { echo "Falta A2_SMB_VERS" >&2; exit 2; }
+  [[ -n "${A2_SMB_PASSWORD:-}" ]] || { echo "Falta A2_SMB_PASSWORD en secrets.env" >&2; exit 2; }
+  [[ -n "${A2_STAGING_DIR:-}" ]] || { echo "Falta A2_STAGING_DIR" >&2; exit 2; }
+  [[ -f "$MANIFEST_FILE" ]] || { echo "Falta $MANIFEST_FILE" >&2; exit 1; }
+}
+
+gather_profile_paths() {
+  local out_file="$1"
+  : > "$out_file"
+  shopt -s nullglob
+  local p
+  for p in /srv/storage/users/*/C_critico \
+           /srv/storage/users/*/I_importante \
+           /srv/storage/media/C_critico \
+           /srv/storage/media/I_importante; do
+    [[ -e "$p" ]] || continue
+    printf '%s\n' "$p" >> "$out_file"
+  done
+  shopt -u nullglob
+}
+
+run_optional_dump() {
+  local name="$1"
+  local cmd="$2"
+  local outfile="$3"
+
+  if [[ -z "$cmd" ]]; then
+    append_log "WARN $name: sin comando de dump configurado; se omite"
+    return 0
+  fi
+
+  append_log "INFO $name: generando dump -> $outfile"
+  if bash -lc "$cmd" > "$outfile"; then
+    append_log "OK $name: dump generado"
+  else
+    append_log "WARN $name: falló el dump; se continúa sin abortar"
+    rm -f "$outfile"
+  fi
+}
+
+prepare_credentials_file() {
+  umask 077
+  cat > "$CREDENTIALS_FILE" <<EOF
+username=${A2_SMB_USERNAME}
+password=${A2_SMB_PASSWORD}
+EOF
+}
+
+cleanup_mount() {
+  local mounted_now="$1"
+  if [[ "$mounted_now" == "1" ]]; then
+    umount "$A2_SMB_MOUNTPOINT" || true
+  fi
+}
+
+main() {
+  [[ "${1:-}" =~ ^(-h|--help|help)$ ]] && { usage; exit 0; }
+
+  require_root
+  load_config
+  check_prereqs
+
+  local stamp host_short run_dir meta_dir dumps_dir profile_paths_file target_root mounted_now="0"
+  stamp="$(date +%Y%m%d-%H%M%S)"
+  host_short="$(hostname -s 2>/dev/null || hostname)"
+  run_dir="${A2_STAGING_DIR%/}/run-$stamp"
+  meta_dir="$run_dir/meta"
+  dumps_dir="$run_dir/dumps"
+  profile_paths_file="$meta_dir/profile-paths.txt"
+  target_root="${A2_SMB_MOUNTPOINT%/}/${A2_SMB_BASEDIR%/}/${host_short}/$stamp"
+
+  mkdir -p "$meta_dir" "$dumps_dir" "$STATE_DIR" "$A2_SMB_MOUNTPOINT"
+
+  append_log "INFO run=$stamp backend=smb_remote"
+  append_log "INFO preparando staging en $run_dir"
+
+  prepare_credentials_file
+
+  if mountpoint -q "$A2_SMB_MOUNTPOINT"; then
+    append_log "INFO mountpoint ya montado: $A2_SMB_MOUNTPOINT"
+  else
+    append_log "INFO montando //${A2_SMB_HOST}/${A2_SMB_SHARE} en $A2_SMB_MOUNTPOINT"
+    mount -t cifs "//${A2_SMB_HOST}/${A2_SMB_SHARE}" "$A2_SMB_MOUNTPOINT" \
+      -o "credentials=${CREDENTIALS_FILE},vers=${A2_SMB_VERS},iocharset=utf8,uid=0,gid=0,file_mode=0600,dir_mode=0700" \
+      && mounted_now="1"
+  fi
+
+  trap 'cleanup_mount "$mounted_now"' EXIT
+
+  gather_profile_paths "$profile_paths_file"
+  cp "$MANIFEST_FILE" "$meta_dir/profile.manifest"
+  {
+    echo "RUN_TIMESTAMP=$stamp"
+    echo "HOSTNAME=$host_short"
+    echo "PROFILE=${A2_PROFILE:-a2-minimo}"
+    echo "BACKEND=$A2_BACKEND"
+    echo "SMB=//${A2_SMB_HOST}/${A2_SMB_SHARE}/${A2_SMB_BASEDIR}"
+  } > "$meta_dir/run.env"
+
+  if [[ "${A2_DUMP_NEXTCLOUD_DB:-0}" == "1" ]]; then
+    run_optional_dump "nextcloud-db" "${A2_NEXTCLOUD_DUMP_CMD:-}" "$dumps_dir/nextcloud-db.sql"
+  fi
+  if [[ "${A2_DUMP_IMMICH_DB:-0}" == "1" ]]; then
+    run_optional_dump "immich-db" "${A2_IMMICH_DUMP_CMD:-}" "$dumps_dir/immich-db.sql"
+  fi
+
+  mkdir -p "$target_root/data" "$target_root/meta" "$target_root/dumps"
+
+  append_log "INFO copiando metadata a $target_root/meta"
+  rsync -aH "$meta_dir/" "$target_root/meta/"
+
+  if compgen -G "$dumps_dir/*" >/dev/null; then
+    append_log "INFO copiando dumps a $target_root/dumps"
+    rsync -aH "$dumps_dir/" "$target_root/dumps/"
+  else
+    append_log "WARN no hay dumps generados en esta ejecución"
+  fi
+
+  if [[ ! -s "$profile_paths_file" ]]; then
+    append_log "WARN no se encontraron rutas del perfil para copiar"
+  else
+    append_log "INFO copiando rutas del perfil a $target_root/data"
+    mapfile -t PROFILE_PATHS < "$profile_paths_file"
+    rsync -aH --relative "${PROFILE_PATHS[@]}" "$target_root/data/"
+  fi
+
+  {
+    echo "LAST_RUN=$stamp"
+    echo "LAST_TARGET_DIR=$target_root"
+  } > "$STATE_DIR/last-run.env"
+
+  append_log "OK ejecución completada"
+  echo "RUN_DIR=$run_dir"
+  echo "TARGET_DIR=$target_root"
+}
+
+main "$@"
