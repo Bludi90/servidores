@@ -1,0 +1,183 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+CONFIG_DIR="/etc/a2-backup"
+CONFIG_FILE="$CONFIG_DIR/config.env"
+SECRETS_FILE="$CONFIG_DIR/secrets.env"
+MANIFEST_FILE="$CONFIG_DIR/profile.manifest"
+LOG_FILE="/var/log/a2-backup.log"
+STATE_DIR="/var/lib/a2-backup/state"
+
+usage() {
+  cat <<'USAGE'
+Uso:
+  a2-backup-run-lan-remote
+
+Descripción:
+  Ejecuta una primera copia real del perfil A2 mínimo hacia un destino
+  remoto por SSH+rsync, usando la configuración persistente de /etc/a2-backup.
+
+Requisitos:
+  - A2_BACKEND=lan_remote
+  - A2_REMOTE_METHOD=rsync
+  - acceso SSH funcional al host remoto
+
+Notas:
+  - este MVP copia rutas del perfil A2 mínimo
+  - soporta hooks opcionales de dump:
+      A2_NEXTCLOUD_DUMP_CMD
+      A2_IMMICH_DUMP_CMD
+  - todavía no implementa snapshots ZFS automáticos
+USAGE
+}
+
+log() {
+  local msg="$*"
+  printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$msg"
+}
+
+append_log() {
+  mkdir -p "$(dirname "$LOG_FILE")"
+  log "$*" | tee -a "$LOG_FILE"
+}
+
+require_root() {
+  if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
+    echo "Este comando debe ejecutarse como root." >&2
+    exit 1
+  fi
+}
+
+load_config() {
+  [[ -f "$CONFIG_FILE" ]] || { echo "Falta $CONFIG_FILE" >&2; exit 1; }
+  # shellcheck disable=SC1090
+  source "$CONFIG_FILE"
+  if [[ -f "$SECRETS_FILE" ]]; then
+    # shellcheck disable=SC1090
+    source "$SECRETS_FILE"
+  fi
+}
+
+check_prereqs() {
+  command -v rsync >/dev/null 2>&1 || { echo "Falta rsync" >&2; exit 1; }
+  command -v ssh >/dev/null 2>&1 || { echo "Falta ssh" >&2; exit 1; }
+
+  [[ "${A2_BACKEND:-}" == "lan_remote" ]] || { echo "A2_BACKEND debe ser lan_remote" >&2; exit 2; }
+  [[ "${A2_REMOTE_METHOD:-}" == "rsync" ]] || { echo "A2_REMOTE_METHOD debe ser rsync" >&2; exit 2; }
+  [[ -n "${A2_REMOTE_HOST:-}" ]] || { echo "Falta A2_REMOTE_HOST" >&2; exit 2; }
+  [[ -n "${A2_REMOTE_USER:-}" ]] || { echo "Falta A2_REMOTE_USER" >&2; exit 2; }
+  [[ -n "${A2_REMOTE_BASEDIR:-}" ]] || { echo "Falta A2_REMOTE_BASEDIR" >&2; exit 2; }
+  [[ -n "${A2_STAGING_DIR:-}" ]] || { echo "Falta A2_STAGING_DIR" >&2; exit 2; }
+  [[ -f "$MANIFEST_FILE" ]] || { echo "Falta $MANIFEST_FILE" >&2; exit 1; }
+}
+
+gather_profile_paths() {
+  local out_file="$1"
+  : > "$out_file"
+  shopt -s nullglob
+  local p
+  for p in /srv/storage/users/*/C_critico \
+           /srv/storage/users/*/I_importante \
+           /srv/storage/media/C_critico \
+           /srv/storage/media/I_importante; do
+    [[ -e "$p" ]] || continue
+    printf '%s\n' "$p" >> "$out_file"
+  done
+  shopt -u nullglob
+}
+
+run_optional_dump() {
+  local name="$1"
+  local cmd="$2"
+  local outfile="$3"
+
+  if [[ -z "$cmd" ]]; then
+    append_log "WARN $name: sin comando de dump configurado; se omite"
+    return 0
+  fi
+
+  append_log "INFO $name: generando dump -> $outfile"
+  if bash -lc "$cmd" > "$outfile"; then
+    append_log "OK $name: dump generado"
+  else
+    append_log "WARN $name: falló el dump; se continúa sin abortar"
+    rm -f "$outfile"
+  fi
+}
+
+main() {
+  [[ "${1:-}" =~ ^(-h|--help|help)$ ]] && { usage; exit 0; }
+
+  require_root
+  load_config
+  check_prereqs
+
+  local stamp host_short run_dir meta_dir dumps_dir profile_paths_file remote_run_dir
+  stamp="$(date +%Y%m%d-%H%M%S)"
+  host_short="$(hostname -s 2>/dev/null || hostname)"
+  run_dir="${A2_STAGING_DIR%/}/run-$stamp"
+  meta_dir="$run_dir/meta"
+  dumps_dir="$run_dir/dumps"
+  profile_paths_file="$meta_dir/profile-paths.txt"
+  remote_run_dir="${A2_REMOTE_BASEDIR%/}/${host_short}/$stamp"
+
+  mkdir -p "$meta_dir" "$dumps_dir" "$STATE_DIR"
+
+  append_log "INFO run=$stamp backend=lan_remote method=rsync"
+  append_log "INFO preparando staging en $run_dir"
+
+  gather_profile_paths "$profile_paths_file"
+  cp "$MANIFEST_FILE" "$meta_dir/profile.manifest"
+
+  {
+    echo "RUN_TIMESTAMP=$stamp"
+    echo "HOSTNAME=$host_short"
+    echo "PROFILE=${A2_PROFILE:-a2-minimo}"
+    echo "BACKEND=$A2_BACKEND"
+    echo "REMOTE=${A2_REMOTE_USER}@${A2_REMOTE_HOST}:${A2_REMOTE_BASEDIR}"
+  } > "$meta_dir/run.env"
+
+  if [[ "${A2_DUMP_NEXTCLOUD_DB:-0}" == "1" ]]; then
+    run_optional_dump "nextcloud-db" "${A2_NEXTCLOUD_DUMP_CMD:-}" "$dumps_dir/nextcloud-db.sql"
+  fi
+  if [[ "${A2_DUMP_IMMICH_DB:-0}" == "1" ]]; then
+    run_optional_dump "immich-db" "${A2_IMMICH_DUMP_CMD:-}" "$dumps_dir/immich-db.sql"
+  fi
+
+  append_log "INFO creando directorio remoto $remote_run_dir"
+  ssh -p "${A2_REMOTE_SSH_PORT:-22}" "${A2_REMOTE_USER}@${A2_REMOTE_HOST}" \
+    "mkdir -p '$remote_run_dir/data' '$remote_run_dir/meta' '$remote_run_dir/dumps'"
+
+  append_log "INFO copiando metadata"
+  rsync -aH -e "ssh -p ${A2_REMOTE_SSH_PORT:-22}" "$meta_dir/" \
+    "${A2_REMOTE_USER}@${A2_REMOTE_HOST}:$remote_run_dir/meta/"
+
+  if compgen -G "$dumps_dir/*" >/dev/null; then
+    append_log "INFO copiando dumps"
+    rsync -aH -e "ssh -p ${A2_REMOTE_SSH_PORT:-22}" "$dumps_dir/" \
+      "${A2_REMOTE_USER}@${A2_REMOTE_HOST}:$remote_run_dir/dumps/"
+  else
+    append_log "WARN no hay dumps generados en esta ejecución"
+  fi
+
+  if [[ ! -s "$profile_paths_file" ]]; then
+    append_log "WARN no se encontraron rutas del perfil para copiar"
+  else
+    append_log "INFO copiando rutas del perfil al destino remoto"
+    mapfile -t PROFILE_PATHS < "$profile_paths_file"
+    rsync -aH --relative -e "ssh -p ${A2_REMOTE_SSH_PORT:-22}" \
+      "${PROFILE_PATHS[@]}" \
+      "${A2_REMOTE_USER}@${A2_REMOTE_HOST}:$remote_run_dir/data/"
+  fi
+
+  {
+    echo "LAST_RUN=$stamp"
+    echo "LAST_REMOTE_DIR=$remote_run_dir"
+  } > "$STATE_DIR/last-run.env"
+
+  append_log "OK ejecución completada"
+  echo "RUN_DIR=$run_dir"
+  echo "REMOTE_RUN_DIR=$remote_run_dir"
+}
+
+main "$@"
