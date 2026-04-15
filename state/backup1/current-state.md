@@ -1,20 +1,20 @@
 # backup1 — state snapshot
 
 - Host: `backup1`
-- Fecha: `2026-04-14 03:35:49 CEST`
-- Arrancado desde: `2026-04-13 14:30:49`
-- Uptime: `up 13 hours, 5 minutes`
+- Fecha: `2026-04-15 03:31:49 CEST`
+- Arrancado desde: `2026-04-15 03:30:38`
+- Uptime: `up 1 minute`
 
 ## Red (IPv4 global)
 
 ```text
 eno1             UP             192.168.1.122/24 
-br-5fc9606e742a  DOWN           172.22.0.1/16 
 br-7bd6ce37ca3d  DOWN           172.21.0.1/16 
 docker0          DOWN           172.17.0.1/16 
 br-fa1bfe95f7ad  DOWN           172.18.0.1/16 
 br-1dc76445de0d  DOWN           172.20.0.1/16 
 br-443ffb922fc9  DOWN           172.19.0.1/16 
+br-5fc9606e742a  DOWN           172.22.0.1/16 
 ```
 
 ## Rutas
@@ -100,7 +100,7 @@ backup/dr-lab/nextcloud-media-replica-20260410-033003           85.0M  4.02T  1.
 backup/dr-lab/nextcloud-root-replica-20260410-033003             213M  4.02T  1.07T  /mnt/dr-lab-nextcloud-root-replica-20260410-033003
 backup/replicas                                                 3.12T  4.02T    96K  /backup/replicas
 backup/replicas/main1                                           3.12T  4.02T    96K  /backup/replicas/main1
-backup/replicas/main1/tank                                      3.12T  4.02T  1.11T  /backup/replicas/main1/tank
+backup/replicas/main1/tank                                      3.12T  4.02T  1.10T  /backup/replicas/main1/tank
 backup/replicas/main1/tank/appdata                              24.8G  4.02T   104K  /backup/replicas/main1/tank/appdata
 backup/replicas/main1/tank/appdata/casaos                        304K  4.02T   304K  /backup/replicas/main1/tank/appdata/casaos
 backup/replicas/main1/tank/appdata/docker                       24.8G  4.02T  24.5G  /backup/replicas/main1/tank/appdata/docker
@@ -108,9 +108,8 @@ backup/replicas/main1/tank/media                                1.94T  4.02T  1.
 backup/replicas/main1/tank/nextcloud                            46.2G  4.02T   264M  /backup/replicas/main1/tank/nextcloud
 backup/replicas/main1/tank/nextcloud/config                      645M  4.02T   643M  /backup/replicas/main1/tank/nextcloud/config
 backup/replicas/main1/tank/nextcloud/data                       44.4G  4.02T  33.9G  /backup/replicas/main1/tank/nextcloud/data
-backup/replicas/main1/tank/nextcloud/db                          879M  4.02T   677M  /backup/replicas/main1/tank/nextcloud/db
+backup/replicas/main1/tank/nextcloud/db                          894M  4.02T   682M  /backup/replicas/main1/tank/nextcloud/db
 backup/restore-tests                                              96K  4.02T    96K  none
-backup/restore-tests/media-20260413-172437                         0B  4.02T  1.91T  /mnt/restore-media-20260413-172437
 backup/takeover                                                  223M  4.02T    96K  none
 backup/takeover/main1                                            223M  4.02T    96K  none
 backup/takeover/main1/replica-20260410-033003                    223M  4.02T    96K  none
@@ -143,7 +142,7 @@ sdd      3,6T disk                       WDC WD40PURX-64GVNY0  WD-WCC4E5YRCCP5
 ```text
 S.ficheros                                                     Tipo     Tamaño Usados  Disp Uso% Montado en
 udev                                                           devtmpfs    16G      0   16G   0% /dev
-tmpfs                                                          tmpfs      3,2G   996K  3,2G   1% /run
+tmpfs                                                          tmpfs      3,2G   972K  3,2G   1% /run
 /dev/sda2                                                      ext4       847G    12G  793G   2% /
 tmpfs                                                          tmpfs       16G      0   16G   0% /dev/shm
 efivarfs                                                       efivarfs   128K    39K   85K  32% /sys/firmware/efi/efivars
@@ -151,20 +150,19 @@ tmpfs                                                          tmpfs      5,0M  
 tmpfs                                                          tmpfs      1,0M      0  1,0M   0% /run/credentials/systemd-journald.service
 tmpfs                                                          tmpfs       16G      0   16G   0% /tmp
 /dev/sda1                                                      vfat       975M   8,8M  966M   1% /boot/efi
-backup/dr-lab/nextcloud-db-replica-20260410-033003             zfs        4,1T   649M  4,1T   1% /mnt/dr-lab-nextcloud-db-replica-20260410-033003
-backup/takeover/main1/replica-20260410-033003/nextcloud-db     zfs        4,1T   646M  4,1T   1% /mnt/takeover/main1/replica-20260410-033003/nextcloud-db
-backup/dr-lab/nextcloud-media-replica-20260410-033003          zfs        6,0T   1,9T  4,1T  33% /mnt/dr-lab-nextcloud-media-replica-20260410-033003
-backup/takeover/main1/replica-20260410-033003/media            zfs        6,0T   1,9T  4,1T  33% /mnt/takeover/main1/replica-20260410-033003/media
-backup/dr-lab/nextcloud-root-replica-20260410-033003           zfs        5,1T   1,1T  4,1T  22% /mnt/dr-lab-nextcloud-root-replica-20260410-033003
-backup/takeover/main1/replica-20260410-033003/root             zfs        5,1T   1,1T  4,1T  22% /mnt/takeover/main1/replica-20260410-033003/root
-backup/dr-lab/nextcloud-config-replica-20260410-033003         zfs        4,1T   643M  4,1T   1% /mnt/dr-lab-nextcloud-config-replica-20260410-033003
-backup/takeover/main1/replica-20260410-033003/nextcloud-config zfs        4,1T   643M  4,1T   1% /mnt/takeover/main1/replica-20260410-033003/nextcloud-config
-backup/dr-lab/nextcloud-data-replica-20260410-033003           zfs        4,1T    34G  4,1T   1% /mnt/dr-lab-nextcloud-data-replica-20260410-033003
-backup/takeover/main1/replica-20260410-033003/nextcloud-data   zfs        4,1T    34G  4,1T   1% /mnt/takeover/main1/replica-20260410-033003/nextcloud-data
 backup                                                         zfs        4,1T   128K  4,1T   1% /backup
 backup/replicas                                                zfs        4,1T   128K  4,1T   1% /backup/replicas
+backup/dr-lab/nextcloud-media-replica-20260410-033003          zfs        6,0T   1,9T  4,1T  33% /mnt/dr-lab-nextcloud-media-replica-20260410-033003
+backup/takeover/main1/replica-20260410-033003/media            zfs        6,0T   1,9T  4,1T  33% /mnt/takeover/main1/replica-20260410-033003/media
+backup/dr-lab/nextcloud-data-replica-20260410-033003           zfs        4,1T    34G  4,1T   1% /mnt/dr-lab-nextcloud-data-replica-20260410-033003
+backup/takeover/main1/replica-20260410-033003/nextcloud-data   zfs        4,1T    34G  4,1T   1% /mnt/takeover/main1/replica-20260410-033003/nextcloud-data
+backup/takeover/main1/replica-20260410-033003/nextcloud-db     zfs        4,1T   646M  4,1T   1% /mnt/takeover/main1/replica-20260410-033003/nextcloud-db
+backup/dr-lab/nextcloud-config-replica-20260410-033003         zfs        4,1T   643M  4,1T   1% /mnt/dr-lab-nextcloud-config-replica-20260410-033003
+backup/dr-lab/nextcloud-db-replica-20260410-033003             zfs        4,1T   649M  4,1T   1% /mnt/dr-lab-nextcloud-db-replica-20260410-033003
+backup/takeover/main1/replica-20260410-033003/nextcloud-config zfs        4,1T   643M  4,1T   1% /mnt/takeover/main1/replica-20260410-033003/nextcloud-config
+backup/dr-lab/nextcloud-root-replica-20260410-033003           zfs        5,1T   1,1T  4,1T  22% /mnt/dr-lab-nextcloud-root-replica-20260410-033003
+backup/takeover/main1/replica-20260410-033003/root             zfs        5,1T   1,1T  4,1T  22% /mnt/takeover/main1/replica-20260410-033003/root
 tmpfs                                                          tmpfs      1,0M      0  1,0M   0% /run/credentials/getty@tty1.service
-backup/restore-tests/media-20260413-172437                     zfs        6,0T   2,0T  4,1T  33% /mnt/restore-media-20260413-172437
 tmpfs                                                          tmpfs      3,2G   8,0K  3,2G   1% /run/user/1000
 ```
 
