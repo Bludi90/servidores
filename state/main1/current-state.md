@@ -1,4 +1,4 @@
-# Estado de main1 — 2026-04-13_1600
+# Estado de main1 — 2026-04-15_2000
 
 ## Índice
 
@@ -54,14 +54,14 @@ Linux main1 6.12.73+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.73-1 (2026-02
 Debian GNU/Linux 13 (trixie)
 
 Uptime:
-up 7 weeks, 19 hours, 21 minutes
+up 7 weeks, 2 days, 23 hours, 21 minutes
 ```
 
 ## CPU y RAM
 ```
 CPUs: 16
                total        used        free      shared  buff/cache   available
-Mem:            14Gi        11Gi       1.4Gi        83Mi       2.6Gi       3.3Gi
+Mem:            14Gi       8.3Gi       240Mi       113Mi       7.0Gi       6.6Gi
 Swap:           15Gi       6.3Gi       9.0Gi
 ```
 
@@ -93,21 +93,21 @@ wg0              UNKNOWN        10.8.0.x/24
 df -hT:
 Filesystem Type Size Used Avail Use% Mounted on
 udev devtmpfs 7.5G 0 7.5G 0% /dev
-tmpfs tmpfs 1.5G 7.6M 1.5G 1% /run
+tmpfs tmpfs 1.5G 7.7M 1.5G 1% /run
 /dev/nvme0n1p2 ext4 900G 21G 834G 3% /
 tmpfs tmpfs 7.5G 4.0K 7.5G 1% /dev/shm
 efivarfs efivarfs 128K 55K 69K 45% /sys/firmware/efi/efivars
 tmpfs tmpfs 5.0M 16K 5.0M 1% /run/lock
-tmpfs tmpfs 7.5G 48K 7.5G 1% /tmp
+tmpfs tmpfs 7.5G 40K 7.5G 1% /tmp
 /dev/nvme0n1p1 vfat 975M 8.8M 966M 1% /boot/efi
 tank zfs 5.5T 1.2T 4.4T 21% /srv/storage
 tank/appdata zfs 4.4T 128K 4.4T 1% /srv/storage/appdata
-tank/media zfs 6.3T 2.0T 4.4T 31% /srv/storage/media
-tank/appdata/docker zfs 4.5T 25G 4.4T 1% /srv/storage/appdata/docker
+tank/media zfs 6.3T 2.0T 4.4T 32% /srv/storage/media
+tank/appdata/docker zfs 4.4T 25G 4.4T 1% /srv/storage/appdata/docker
 tank/nextcloud zfs 4.4T 264M 4.4T 1% /srv/storage/nextcloud
 tank/appdata/casaos zfs 4.4T 384K 4.4T 1% /srv/storage/appdata/casaos
-tank/nextcloud/db zfs 4.4T 675M 4.4T 1% /srv/storage/nextcloud/db
-tank/nextcloud/data zfs 4.5T 34G 4.4T 1% /srv/storage/nextcloud/data
+tank/nextcloud/db zfs 4.4T 684M 4.4T 1% /srv/storage/nextcloud/db
+tank/nextcloud/data zfs 4.4T 34G 4.4T 1% /srv/storage/nextcloud/data
 tank/nextcloud/config zfs 4.4T 643M 4.4T 1% /srv/storage/nextcloud/config
 tmpfs tmpfs 1.0M 0 1.0M 0% /run/credentials/getty@tty3.service
 tmpfs tmpfs 1.0M 0 1.0M 0% /run/credentials/getty@tty2.service
@@ -228,63 +228,63 @@ interface: wg0
   listening port: 51820
 
 peer: DigK2nE3jYKSgMniMbR5lxZ/zxIM2j3W/XollOGAj2w=
-  endpoint: 188.167.250.x:xxxx
+  endpoint: 95.127.60.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 4 seconds ago
-  transfer: 3.09 MiB received, 4.70 MiB sent
+  latest handshake: 16 seconds ago
+  transfer: 4.50 MiB received, 8.77 MiB sent
 
-peer: 1aqdDAaLV5DZJHriYmn8qZM767T53yEENQaOJXHzRQw=
+peer: h1faNjOF62M7uDHY7Q0PkE97kfHd52IkLVkzwTu2qkw=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 49 seconds ago
-  transfer: 227.01 KiB received, 375.25 KiB sent
+  latest handshake: 1 minute, 4 seconds ago
+  transfer: 1.62 GiB received, 77.53 MiB sent
 
 peer: KEZGd3+6dRKm70ttQMmxbWqKFvGBOyvRUXjIluc/TzI=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 minute, 38 seconds ago
-  transfer: 5.18 GiB received, 2.29 GiB sent
+  latest handshake: 1 minute, 16 seconds ago
+  transfer: 5.19 GiB received, 2.37 GiB sent
 
 peer: BfTojNzP/nhwC0gEjl4xhFoSlFYxU32DO9+3Yb7yuD8=
   endpoint: 145.1.196.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 8 minutes, 41 seconds ago
-  transfer: 46.78 MiB received, 2.93 GiB sent
+  latest handshake: 12 minutes, 30 seconds ago
+  transfer: 47.84 MiB received, 2.93 GiB sent
 
-peer: h1faNjOF62M7uDHY7Q0PkE97kfHd52IkLVkzwTu2qkw=
-  endpoint: 95.127.45.x:xxxx
+peer: 0S8e6faG5RzPgD6j54ZB0NQ9NeXaGsJRT+85KBiQzBI=
+  endpoint: 188.167.250.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 7 hours, 22 minutes, 59 seconds ago
-  transfer: 1002.91 MiB received, 49.49 MiB sent
+  latest handshake: 10 hours, 34 minutes, 22 seconds ago
+  transfer: 109.43 MiB received, 5.68 GiB sent
+
+peer: 1aqdDAaLV5DZJHriYmn8qZM767T53yEENQaOJXHzRQw=
+  endpoint: 88.20.73.x:xxxx
+  allowed ips: 10.8.0.x/32
+  latest handshake: 20 hours, 45 minutes, 54 seconds ago
+  transfer: 3.81 MiB received, 5.61 MiB sent
 
 peer: zlCDqPzHSrq4T4ytXqycK5hX9B0BGs8lCVI3iAB8vmY=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 9 hours, 19 minutes, 25 seconds ago
-  transfer: 71.33 MiB received, 11.56 GiB sent
-
-peer: 0S8e6faG5RzPgD6j54ZB0NQ9NeXaGsJRT+85KBiQzBI=
-  endpoint: 88.20.73.x:xxxx
-  allowed ips: 10.8.0.x/32
-  latest handshake: 21 hours, 24 minutes, 32 seconds ago
-  transfer: 28.98 MiB received, 1.46 GiB sent
+  latest handshake: 1 day, 22 hours, 41 minutes, 54 seconds ago
+  transfer: 71.36 MiB received, 11.56 GiB sent
 
 peer: UHQMYQTUJuZmar72fA6a0OXuQRFebkAhYBoBfT0dvGI=
   endpoint: 79.159.51.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 day, 16 hours, 39 minutes, 51 seconds ago
+  latest handshake: 3 days, 20 hours, 39 minutes, 51 seconds ago
   transfer: 694.88 KiB received, 7.77 MiB sent
 
 peer: 7IwcRslG8kfUELjQ/is/+38oViwRaWCM4sH35uS5Zho=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 day, 22 hours, 2 seconds ago
+  latest handshake: 4 days, 2 hours, 2 seconds ago
   transfer: 7.72 MiB received, 25.16 MiB sent
 
 peer: XthUZfEkAeNFVoYNyJrcU2QMt1I+0bETU5FwHdLjU2U=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 4 days, 2 hours, 55 minutes, 45 seconds ago
+  latest handshake: 6 days, 6 hours, 55 minutes, 45 seconds ago
   transfer: 188.08 KiB received, 87.95 KiB sent
 
 peer: bRmKj5NN4N4FWxBG8Mwm/IFriKvV0ncXUta1WIvgOnA=
@@ -316,6 +316,9 @@ peer: rdS+htVI8hQInzymA3kv3/zkEG9YA6YLAfgoNI10e14=
 
 peer: THAhVtcVYQ++A2R/cpA9oQyRRujwY9BSM0PqlE/lmC4=
   allowed ips: 10.8.0.x/32
+
+peer: lrWZ8HNftgJQtJ1pEYFoLP7awmJe1z/d/lrRJ07vaBo=
+  allowed ips: 10.8.0.x/32
 ```
 
 ## Peers WireGuard
@@ -328,14 +331,14 @@ wg-list-peers no devolvió datos (¿falta NOPASSWD en sudoers?).
 
 ## DNS interno
 ```
-Pi-hole: Up 5 days (healthy)
-Unbound: Up 6 days (healthy)
+Pi-hole: Up 8 days (healthy)
+Unbound: Up 8 days (healthy)
 
 Prueba DNS via Pi-hole (10.8.0.1):
-216.58.204.163
+192.178.25.99
 
 Prueba DNS via Unbound (172.18.0.3):
-192.178.25.99
+142.251.142.131
 
 Upstream efectivo de Pi-hole:
 [ unbound-unbound-1#53 ]
@@ -344,59 +347,59 @@ Upstream efectivo de Pi-hole:
 ## Snapshots ZFS y réplica
 ```
 Últimos snapshots locales de tank:
-tank@replica-20260409-180523
-tank@replica-20260410-033003
 tank@replica-20260411-033127
 tank@replica-20260412-033003
 tank@replica-20260413-033145
+tank@replica-20260414-033002
+tank@replica-20260415-033120
 
 Réplica backup1 (resumen log):
-[2026-04-13 03:39:00] OK    retention: poda histórica completada
-[2026-04-13 03:39:00] INFO  state: generando snapshot markdown de backup1
-[2026-04-13 03:39:01] OK    state: snapshot generado
-[2026-04-13 03:39:01] INFO  main: el host fue encendido por este wrapper; se apagará al final
-[2026-04-13 03:39:01] INFO  shutdown: ordenando apagado remoto
-[2026-04-13 03:39:01] INFO  shutdown: esperando caída completa hasta 180s
-[2026-04-13 03:39:09] OK    shutdown: host apagado
-[2026-04-13 03:39:09] INFO  shutdown: margen post-apagado 30s
-[2026-04-13 03:39:39] INFO  shutdown: fin del ciclo
-[2026-04-13 03:39:39] INFO  main: flujo completado correctamente
+[2026-04-15 03:31:49] OK    retention: poda histórica completada
+[2026-04-15 03:31:49] INFO  state: generando snapshot markdown de backup1
+[2026-04-15 03:31:50] OK    state: snapshot generado
+[2026-04-15 03:31:50] INFO  main: el host fue encendido por este wrapper; se apagará al final
+[2026-04-15 03:31:50] INFO  shutdown: ordenando apagado remoto
+[2026-04-15 03:31:50] INFO  shutdown: esperando caída completa hasta 180s
+[2026-04-15 03:31:56] OK    shutdown: host apagado
+[2026-04-15 03:31:56] INFO  shutdown: margen post-apagado 30s
+[2026-04-15 03:32:26] INFO  shutdown: fin del ciclo
+[2026-04-15 03:32:26] INFO  main: flujo completado correctamente
 ```
 
 ## Docker
 ```
 Contenedores en ejecución:
 NAMES                     IMAGE                                                            STATUS
-pihole-pihole-1           pihole/pihole:latest                                             Up 5 days (healthy)
-ghostfolio                ghostfolio/ghostfolio:2.251.0                                    Up 3 days (healthy)
-gf-postgres               postgres:15-alpine                                               Up 6 days (healthy)
-gf-redis                  redis:alpine                                                     Up 6 days (healthy)
-mariadb                   linuxserver/mariadb:11.4.5                                       Up 6 days
-syncthing                 syncthing/syncthing:latest                                       Up 6 days (healthy)
-jellyfin                  lscr.io/linuxserver/jellyfin:latest                              Up 6 days
-n8n                       n8nio/n8n:latest                                                 Up 6 days
-firefly_iii_importer      fireflyiii/data-importer:latest                                  Up 6 days (healthy)
-firefly_iii_core          fireflyiii/core:latest                                           Up 6 days (healthy)
-jellyseerr                ghcr.io/fallenbagel/jellyseerr:latest                            Up 6 days
-stirling-pdf              stirlingtools/stirling-pdf:latest                                Up 6 days
-sonarr                    lscr.io/linuxserver/sonarr:latest                                Up 6 days
-unpackerr                 ghcr.io/unpackerr/unpackerr:latest                               Up 6 days
-homepage                  ghcr.io/gethomepage/homepage:latest                              Up 6 days (healthy)
-portal-api                nginx:alpine                                                     Up 6 days
-caddy                     caddy:latest                                                     Up 6 days
-big-bear-nextcloud-ls     linuxserver/nextcloud:32.0.1                                     Up 6 days
-immich_server             ghcr.io/immich-app/immich-server:v2                              Up 6 days (healthy)
-immich_postgres           ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0   Up 6 days (healthy)
-immich_machine_learning   ghcr.io/immich-app/immich-machine-learning:v2                    Up 6 days (healthy)
-immich_redis              valkey/valkey:8                                                  Up 6 days (healthy)
-sabnzbd                   lscr.io/linuxserver/sabnzbd:latest                               Up 6 days
-prowlarr                  lscr.io/linuxserver/prowlarr:latest                              Up 6 days
-collabora-collabora-1     collabora/code:latest                                            Up 6 days
-unbound-unbound-1         mvance/unbound:latest                                            Up 6 days (healthy)
-radarr                    lscr.io/linuxserver/radarr:latest                                Up 6 days
-qbittorrent               lscr.io/linuxserver/qbittorrent:latest                           Up 6 days
-firefly_iii_cron          alpine                                                           Up 6 days
-firefly_iii_db            mariadb:lts                                                      Up 6 days
+pihole-pihole-1           pihole/pihole:latest                                             Up 8 days (healthy)
+ghostfolio                ghostfolio/ghostfolio:2.251.0                                    Up 6 days (healthy)
+gf-postgres               postgres:15-alpine                                               Up 8 days (healthy)
+gf-redis                  redis:alpine                                                     Up 8 days (healthy)
+mariadb                   linuxserver/mariadb:11.4.5                                       Up 8 days
+syncthing                 syncthing/syncthing:latest                                       Up 8 days (healthy)
+jellyfin                  lscr.io/linuxserver/jellyfin:latest                              Up 8 days
+n8n                       n8nio/n8n:latest                                                 Up 8 days
+firefly_iii_importer      fireflyiii/data-importer:latest                                  Up 8 days (healthy)
+firefly_iii_core          fireflyiii/core:latest                                           Up 8 days (healthy)
+jellyseerr                ghcr.io/fallenbagel/jellyseerr:latest                            Up 8 days
+stirling-pdf              stirlingtools/stirling-pdf:latest                                Up 8 days
+sonarr                    lscr.io/linuxserver/sonarr:latest                                Up 8 days
+unpackerr                 ghcr.io/unpackerr/unpackerr:latest                               Up 8 days
+homepage                  ghcr.io/gethomepage/homepage:latest                              Up 8 days (healthy)
+portal-api                nginx:alpine                                                     Up 8 days
+caddy                     caddy:latest                                                     Up 8 days
+big-bear-nextcloud-ls     linuxserver/nextcloud:32.0.1                                     Up 8 days
+immich_server             ghcr.io/immich-app/immich-server:v2                              Up 8 days (healthy)
+immich_postgres           ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0   Up 8 days (healthy)
+immich_machine_learning   ghcr.io/immich-app/immich-machine-learning:v2                    Up 8 days (healthy)
+immich_redis              valkey/valkey:8                                                  Up 8 days (healthy)
+sabnzbd                   lscr.io/linuxserver/sabnzbd:latest                               Up 8 days
+prowlarr                  lscr.io/linuxserver/prowlarr:latest                              Up 8 days
+collabora-collabora-1     collabora/code:latest                                            Up 8 days
+unbound-unbound-1         mvance/unbound:latest                                            Up 8 days (healthy)
+radarr                    lscr.io/linuxserver/radarr:latest                                Up 8 days
+qbittorrent               lscr.io/linuxserver/qbittorrent:latest                           Up 8 days
+firefly_iii_cron          alpine                                                           Up 8 days
+firefly_iii_db            mariadb:lts                                                      Up 8 days
 
 Docker Compose (v2) — stacks:
 NAME                    STATUS              CONFIG FILES
