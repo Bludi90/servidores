@@ -1,4 +1,4 @@
-# Estado de main1 — 2026-04-15_1600
+# Estado de main1 — 2026-04-15_1700
 
 ## Índice
 
@@ -54,15 +54,15 @@ Linux main1 6.12.73+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.73-1 (2026-02
 Debian GNU/Linux 13 (trixie)
 
 Uptime:
-up 7 weeks, 2 days, 19 hours, 21 minutes
+up 7 weeks, 2 days, 20 hours, 21 minutes
 ```
 
 ## CPU y RAM
 ```
 CPUs: 16
                total        used        free      shared  buff/cache   available
-Mem:            14Gi        11Gi       1.1Gi        61Mi       3.2Gi       3.7Gi
-Swap:           15Gi       6.4Gi       8.8Gi
+Mem:            14Gi       9.7Gi       735Mi        51Mi       4.9Gi       5.3Gi
+Swap:           15Gi       6.5Gi       8.8Gi
 ```
 
 ## Redes (IPv4 depuradas)
@@ -230,61 +230,61 @@ interface: wg0
 peer: DigK2nE3jYKSgMniMbR5lxZ/zxIM2j3W/XollOGAj2w=
   endpoint: 95.127.60.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 14 seconds ago
-  transfer: 4.44 MiB received, 8.68 MiB sent
+  latest handshake: 9 seconds ago
+  transfer: 4.46 MiB received, 8.72 MiB sent
 
 peer: BfTojNzP/nhwC0gEjl4xhFoSlFYxU32DO9+3Yb7yuD8=
   endpoint: 85.51.246.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 31 minutes, 29 seconds ago
+  latest handshake: 1 hour, 31 minutes, 28 seconds ago
   transfer: 47.80 MiB received, 2.93 GiB sent
 
 peer: h1faNjOF62M7uDHY7Q0PkE97kfHd52IkLVkzwTu2qkw=
   endpoint: 88.29.172.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 53 minutes, 34 seconds ago
+  latest handshake: 1 hour, 53 minutes, 33 seconds ago
   transfer: 1.29 GiB received, 60.26 MiB sent
 
 peer: 0S8e6faG5RzPgD6j54ZB0NQ9NeXaGsJRT+85KBiQzBI=
   endpoint: 188.167.250.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 6 hours, 34 minutes, 22 seconds ago
+  latest handshake: 7 hours, 34 minutes, 21 seconds ago
   transfer: 109.43 MiB received, 5.68 GiB sent
 
 peer: 1aqdDAaLV5DZJHriYmn8qZM767T53yEENQaOJXHzRQw=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 16 hours, 45 minutes, 54 seconds ago
+  latest handshake: 17 hours, 45 minutes, 53 seconds ago
   transfer: 3.81 MiB received, 5.61 MiB sent
 
 peer: KEZGd3+6dRKm70ttQMmxbWqKFvGBOyvRUXjIluc/TzI=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 20 hours, 28 minutes, 3 seconds ago
+  latest handshake: 21 hours, 28 minutes, 2 seconds ago
   transfer: 5.19 GiB received, 2.34 GiB sent
 
 peer: zlCDqPzHSrq4T4ytXqycK5hX9B0BGs8lCVI3iAB8vmY=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 day, 18 hours, 41 minutes, 54 seconds ago
+  latest handshake: 1 day, 19 hours, 41 minutes, 53 seconds ago
   transfer: 71.36 MiB received, 11.56 GiB sent
 
 peer: UHQMYQTUJuZmar72fA6a0OXuQRFebkAhYBoBfT0dvGI=
   endpoint: 79.159.51.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 3 days, 16 hours, 39 minutes, 51 seconds ago
+  latest handshake: 3 days, 17 hours, 39 minutes, 50 seconds ago
   transfer: 694.88 KiB received, 7.77 MiB sent
 
 peer: 7IwcRslG8kfUELjQ/is/+38oViwRaWCM4sH35uS5Zho=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 3 days, 22 hours, 2 seconds ago
+  latest handshake: 3 days, 23 hours, 1 second ago
   transfer: 7.72 MiB received, 25.16 MiB sent
 
 peer: XthUZfEkAeNFVoYNyJrcU2QMt1I+0bETU5FwHdLjU2U=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 6 days, 2 hours, 55 minutes, 45 seconds ago
+  latest handshake: 6 days, 3 hours, 55 minutes, 44 seconds ago
   transfer: 188.08 KiB received, 87.95 KiB sent
 
 peer: bRmKj5NN4N4FWxBG8Mwm/IFriKvV0ncXUta1WIvgOnA=
@@ -335,10 +335,10 @@ Pi-hole: Up 7 days (healthy)
 Unbound: Up 8 days (healthy)
 
 Prueba DNS via Pi-hole (10.8.0.1):
-216.58.205.35
+172.217.171.35
 
 Prueba DNS via Unbound (172.18.0.3):
-216.58.204.163
+172.217.20.227
 
 Upstream efectivo de Pi-hole:
 [ unbound-unbound-1#53 ]
@@ -371,7 +371,7 @@ Réplica backup1 (resumen log):
 Contenedores en ejecución:
 NAMES                     IMAGE                                                            STATUS
 pihole-pihole-1           pihole/pihole:latest                                             Up 7 days (healthy)
-ghostfolio                ghostfolio/ghostfolio:2.251.0                                    Up 5 days (healthy)
+ghostfolio                ghostfolio/ghostfolio:2.251.0                                    Up 6 days (healthy)
 gf-postgres               postgres:15-alpine                                               Up 8 days (healthy)
 gf-redis                  redis:alpine                                                     Up 8 days (healthy)
 mariadb                   linuxserver/mariadb:11.4.5                                       Up 8 days
