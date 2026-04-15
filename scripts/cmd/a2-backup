@@ -1,0 +1,331 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+CONFIG_DIR="/etc/a2-backup"
+CONFIG_FILE="$CONFIG_DIR/config.env"
+SECRETS_FILE="$CONFIG_DIR/secrets.env"
+MANIFEST_FILE="$CONFIG_DIR/profile.manifest"
+LOG_FILE="/var/log/a2-backup.log"
+STATE_DIR="/var/lib/a2-backup/state"
+DEFAULT_PROFILE="a2-minimo"
+
+usage() {
+  cat <<'USAGE'
+Uso:
+  a2-backup <comando>
+
+Comandos disponibles:
+  init           Wizard interactivo inicial
+  show-config    Muestra configuración efectiva (secretos enmascarados)
+  list-profile   Muestra el perfil activo o el perfil por defecto
+  check          Valida configuración básica, rutas y herramientas
+  dry-run        Simula el flujo A2 sin ejecutar copias reales
+  help           Muestra esta ayuda
+
+Ejemplos:
+  a2-backup init
+  a2-backup show-config
+  a2-backup list-profile
+  a2-backup check
+  a2-backup dry-run
+USAGE
+}
+
+log() {
+  local msg="$*"
+  printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$msg"
+}
+
+require_root() {
+  if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
+    echo "Este comando debe ejecutarse como root." >&2
+    exit 1
+  fi
+}
+
+ensure_dirs() {
+  mkdir -p "$CONFIG_DIR" "$STATE_DIR"
+  chmod 700 "$CONFIG_DIR" "$STATE_DIR"
+}
+
+mask_line() {
+  local line="$1"
+  case "$line" in
+    *=*)
+      local key="${line%%=*}"
+      local value="${line#*=}"
+      if [[ "$key" == *SECRET* || "$key" == *PASSWORD* || "$key" == *TOKEN* || "$key" == *KEY* ]]; then
+        printf '%s=***\n' "$key"
+      else
+        printf '%s=%s\n' "$key" "$value"
+      fi
+      ;;
+    *)
+      printf '%s\n' "$line"
+      ;;
+  esac
+}
+
+load_config() {
+  [[ -f "$CONFIG_FILE" ]] || return 1
+  # shellcheck disable=SC1090
+  source "$CONFIG_FILE"
+  if [[ -f "$SECRETS_FILE" ]]; then
+    # shellcheck disable=SC1090
+    source "$SECRETS_FILE"
+  fi
+  return 0
+}
+
+write_manifest() {
+  cat > "$MANIFEST_FILE" <<'EOF'
+# Perfil fijo A2 mínimo
+/srv/storage/users/*/C_critico
+/srv/storage/users/*/I_importante
+/srv/storage/media/C_critico
+/srv/storage/media/I_importante
+# Metadatos mínimos de servicios
+NEXTCLOUD_CONFIG=1
+NEXTCLOUD_DB=1
+IMMICH_DB=1
+JELLYFIN_CONFIG=1
+# Fuera por defecto
+N_NORMAL=0
+P_PRESCINDIBLE=0
+EOF
+  chmod 600 "$MANIFEST_FILE"
+}
+
+prompt_default() {
+  local label="$1"
+  local default_value="$2"
+  local value
+  read -r -p "$label [$default_value]: " value
+  if [[ -z "$value" ]]; then
+    printf '%s' "$default_value"
+  else
+    printf '%s' "$value"
+  fi
+}
+
+prompt_required() {
+  local label="$1"
+  local value=""
+  while [[ -z "$value" ]]; do
+    read -r -p "$label: " value
+  done
+  printf '%s' "$value"
+}
+
+write_config() {
+  cat > "$CONFIG_FILE" <<EOF
+A2_PROFILE=${A2_PROFILE}
+A2_BACKEND=${A2_BACKEND}
+A2_SNAPSHOT_PREFIX=${A2_SNAPSHOT_PREFIX}
+A2_STAGING_DIR=${A2_STAGING_DIR}
+A2_RUN_SCHEDULE=${A2_RUN_SCHEDULE}
+A2_DUMP_NEXTCLOUD_DB=${A2_DUMP_NEXTCLOUD_DB}
+A2_DUMP_IMMICH_DB=${A2_DUMP_IMMICH_DB}
+A2_DUMP_RETENTION_DAYS=${A2_DUMP_RETENTION_DAYS}
+A2_USB_MOUNTPOINT=${A2_USB_MOUNTPOINT:-}
+A2_USB_BASEDIR=${A2_USB_BASEDIR:-}
+A2_REMOTE_HOST=${A2_REMOTE_HOST:-}
+A2_REMOTE_USER=${A2_REMOTE_USER:-}
+A2_REMOTE_SSH_PORT=${A2_REMOTE_SSH_PORT:-}
+A2_REMOTE_BASEDIR=${A2_REMOTE_BASEDIR:-}
+A2_REMOTE_METHOD=${A2_REMOTE_METHOD:-}
+A2_CLOUD_REPO=${A2_CLOUD_REPO:-}
+A2_CLOUD_METHOD=${A2_CLOUD_METHOD:-}
+EOF
+  chmod 600 "$CONFIG_FILE"
+
+  if [[ -n "${A2_CLOUD_SECRET_FILE:-}" ]]; then
+    cat > "$SECRETS_FILE" <<EOF
+A2_CLOUD_SECRET_FILE=${A2_CLOUD_SECRET_FILE}
+EOF
+    chmod 600 "$SECRETS_FILE"
+  elif [[ -f "$SECRETS_FILE" ]]; then
+    rm -f "$SECRETS_FILE"
+  fi
+}
+
+cmd_init() {
+  require_root
+  ensure_dirs
+
+  echo "Wizard inicial de a2-backup"
+  echo
+
+  A2_PROFILE="$DEFAULT_PROFILE"
+  A2_BACKEND="$(prompt_default 'Backend (usb_local|lan_remote|cloud|multi)' 'usb_local')"
+  A2_SNAPSHOT_PREFIX="$(prompt_default 'Prefijo snapshots' 'a2')"
+  A2_STAGING_DIR="$(prompt_default 'Directorio temporal de staging' '/var/tmp/a2-backup')"
+  A2_RUN_SCHEDULE="$(prompt_default 'Frecuencia mínima externa' 'daily')"
+  A2_DUMP_NEXTCLOUD_DB="$(prompt_default 'Incluir dump Nextcloud DB (1/0)' '1')"
+  A2_DUMP_IMMICH_DB="$(prompt_default 'Incluir dump Immich DB (1/0)' '1')"
+  A2_DUMP_RETENTION_DAYS="$(prompt_default 'Retención local de dumps (días)' '7')"
+
+  unset A2_USB_MOUNTPOINT A2_USB_BASEDIR
+  unset A2_REMOTE_HOST A2_REMOTE_USER A2_REMOTE_SSH_PORT A2_REMOTE_BASEDIR A2_REMOTE_METHOD
+  unset A2_CLOUD_REPO A2_CLOUD_SECRET_FILE A2_CLOUD_METHOD
+
+  case "$A2_BACKEND" in
+    usb_local)
+      A2_USB_MOUNTPOINT="$(prompt_required 'Mountpoint local del HDD/USB')"
+      A2_USB_BASEDIR="$(prompt_default 'Ruta base dentro del destino' 'a2-minimo')"
+      ;;
+    lan_remote)
+      A2_REMOTE_HOST="$(prompt_required 'Host/IP remota')"
+      A2_REMOTE_USER="$(prompt_required 'Usuario SSH remoto')"
+      A2_REMOTE_SSH_PORT="$(prompt_default 'Puerto SSH remoto' '22')"
+      A2_REMOTE_BASEDIR="$(prompt_required 'Ruta base remota')"
+      A2_REMOTE_METHOD="$(prompt_default 'Método remoto (rsync|restic)' 'rsync')"
+      ;;
+    cloud)
+      A2_CLOUD_REPO="$(prompt_required 'Repositorio/URL cloud')"
+      A2_CLOUD_METHOD="restic"
+      A2_CLOUD_SECRET_FILE="$(prompt_required 'Ruta local al secreto/credencial')"
+      ;;
+    multi)
+      echo "Backend multi: por ahora se configura manualmente tras el init." >&2
+      ;;
+    *)
+      echo "Backend no soportado: $A2_BACKEND" >&2
+      exit 2
+      ;;
+  esac
+
+  write_manifest
+  write_config
+
+  echo
+  echo "Configuración guardada en:"
+  echo "  $CONFIG_FILE"
+  [[ -f "$SECRETS_FILE" ]] && echo "  $SECRETS_FILE"
+  echo "  $MANIFEST_FILE"
+}
+
+cmd_show_config() {
+  load_config || { echo "No existe configuración en $CONFIG_FILE" >&2; exit 1; }
+  echo "=== CONFIG ==="
+  while IFS= read -r line; do mask_line "$line"; done < "$CONFIG_FILE"
+  if [[ -f "$SECRETS_FILE" ]]; then
+    echo
+    echo "=== SECRETS ==="
+    while IFS= read -r line; do mask_line "$line"; done < "$SECRETS_FILE"
+  fi
+}
+
+cmd_list_profile() {
+  if [[ -f "$MANIFEST_FILE" ]]; then
+    cat "$MANIFEST_FILE"
+  else
+    write_manifest
+    cat "$MANIFEST_FILE"
+  fi
+}
+
+have_cmd() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+cmd_check() {
+  load_config || { echo "No existe configuración. Ejecuta: a2-backup init" >&2; exit 1; }
+
+  echo "== Config =="
+  echo "OK profile=$A2_PROFILE"
+  echo "OK backend=$A2_BACKEND"
+
+  echo "== Herramientas =="
+  have_cmd zfs && echo "OK zfs" || echo "WARN zfs no encontrado"
+  have_cmd rsync && echo "OK rsync" || echo "WARN rsync no encontrado"
+  have_cmd restic && echo "OK restic" || echo "WARN restic no encontrado"
+  have_cmd ssh && echo "OK ssh" || echo "WARN ssh no encontrado"
+  have_cmd mysqldump && echo "OK mysqldump" || echo "WARN mysqldump no encontrado"
+  have_cmd pg_dump && echo "OK pg_dump" || echo "WARN pg_dump no encontrado"
+
+  echo "== Rutas perfil =="
+  for p in /srv/storage/users /srv/storage/media; do
+    if [[ -e "$p" ]]; then
+      echo "OK $p"
+    else
+      echo "WARN falta $p"
+    fi
+  done
+
+  echo "== Backend =="
+  case "$A2_BACKEND" in
+    usb_local)
+      [[ -n "${A2_USB_MOUNTPOINT:-}" ]] && echo "OK usb_mountpoint=$A2_USB_MOUNTPOINT" || echo "FAIL falta A2_USB_MOUNTPOINT"
+      [[ -d "${A2_USB_MOUNTPOINT:-/nonexistent}" ]] && echo "OK mountpoint existe" || echo "WARN mountpoint no existe ahora"
+      ;;
+    lan_remote)
+      [[ -n "${A2_REMOTE_HOST:-}" ]] && echo "OK remote_host=$A2_REMOTE_HOST" || echo "FAIL falta A2_REMOTE_HOST"
+      [[ -n "${A2_REMOTE_USER:-}" ]] && echo "OK remote_user=$A2_REMOTE_USER" || echo "FAIL falta A2_REMOTE_USER"
+      [[ -n "${A2_REMOTE_BASEDIR:-}" ]] && echo "OK remote_basedir=$A2_REMOTE_BASEDIR" || echo "FAIL falta A2_REMOTE_BASEDIR"
+      ;;
+    cloud)
+      [[ -n "${A2_CLOUD_REPO:-}" ]] && echo "OK cloud_repo=$A2_CLOUD_REPO" || echo "FAIL falta A2_CLOUD_REPO"
+      [[ -f "${A2_CLOUD_SECRET_FILE:-/nonexistent}" ]] && echo "OK cloud_secret_file" || echo "WARN secret file no accesible"
+      ;;
+    multi)
+      echo "WARN backend multi todavía sin comprobaciones automáticas"
+      ;;
+  esac
+
+  echo "== Estado =="
+  echo "OK check completado"
+}
+
+cmd_dry_run() {
+  load_config || { echo "No existe configuración. Ejecuta: a2-backup init" >&2; exit 1; }
+  echo "a2-backup dry-run"
+  echo "PROFILE=$A2_PROFILE"
+  echo "BACKEND=$A2_BACKEND"
+  echo "SNAPSHOT_PREFIX=$A2_SNAPSHOT_PREFIX"
+  echo "STAGING_DIR=$A2_STAGING_DIR"
+  echo "RUN_SCHEDULE=$A2_RUN_SCHEDULE"
+  echo
+  echo "=== PERFIL ==="
+  cmd_list_profile
+  echo
+  echo "=== PLAN ==="
+  echo "1. Validar configuración y herramientas"
+  echo "2. Preparar snapshots locales coherentes"
+  echo "3. Generar dumps DB según flags configurados"
+  echo "4. Construir staging en $A2_STAGING_DIR"
+  case "$A2_BACKEND" in
+    usb_local)
+      echo "5. Copiar a destino USB/local: ${A2_USB_MOUNTPOINT:-?}/${A2_USB_BASEDIR:-?}"
+      ;;
+    lan_remote)
+      echo "5. Copiar a destino remoto: ${A2_REMOTE_USER:-?}@${A2_REMOTE_HOST:-?}:${A2_REMOTE_BASEDIR:-?}"
+      echo "   Método: ${A2_REMOTE_METHOD:-?}"
+      ;;
+    cloud)
+      echo "5. Copiar a repositorio cloud: ${A2_CLOUD_REPO:-?}"
+      echo "   Método: ${A2_CLOUD_METHOD:-restic}"
+      ;;
+    multi)
+      echo "5. Copiar a múltiples destinos según configuración futura"
+      ;;
+  esac
+  echo "6. Registrar resultado en $LOG_FILE y $STATE_DIR"
+  echo
+  echo "Dry-run completado."
+}
+
+main() {
+  local cmd="${1:-help}"
+  case "$cmd" in
+    init) shift; cmd_init "$@" ;;
+    show-config) shift; cmd_show_config "$@" ;;
+    list-profile) shift; cmd_list_profile "$@" ;;
+    check) shift; cmd_check "$@" ;;
+    dry-run) shift; cmd_dry_run "$@" ;;
+    help|-h|--help) usage ;;
+    *) echo "Comando no reconocido: $cmd" >&2; usage >&2; exit 2 ;;
+  esac
+}
+
+main "$@"
