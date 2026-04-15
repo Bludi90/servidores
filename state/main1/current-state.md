@@ -1,4 +1,4 @@
-# Estado de main1 — 2026-04-15_1300
+# Estado de main1 — 2026-04-15_1400
 
 ## Índice
 
@@ -54,14 +54,14 @@ Linux main1 6.12.73+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.73-1 (2026-02
 Debian GNU/Linux 13 (trixie)
 
 Uptime:
-up 7 weeks, 2 days, 16 hours, 21 minutes
+up 7 weeks, 2 days, 17 hours, 21 minutes
 ```
 
 ## CPU y RAM
 ```
 CPUs: 16
                total        used        free      shared  buff/cache   available
-Mem:            14Gi        10Gi       2.7Gi        61Mi       2.1Gi       4.2Gi
+Mem:            14Gi       9.2Gi       1.6Gi        63Mi       4.8Gi       5.7Gi
 Swap:           15Gi       6.4Gi       8.9Gi
 ```
 
@@ -227,64 +227,64 @@ interface: wg0
   private key: (hidden)
   listening port: 51820
 
-peer: h1faNjOF62M7uDHY7Q0PkE97kfHd52IkLVkzwTu2qkw=
-  endpoint: 88.29.172.x:xxxx
-  allowed ips: 10.8.0.x/32
-  latest handshake: 1 minute, 46 seconds ago
-  transfer: 1.29 GiB received, 60.09 MiB sent
-
 peer: DigK2nE3jYKSgMniMbR5lxZ/zxIM2j3W/XollOGAj2w=
   endpoint: 95.127.60.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 11 minutes, 2 seconds ago
-  transfer: 4.40 MiB received, 8.61 MiB sent
+  latest handshake: 1 minute, 21 seconds ago
+  transfer: 4.42 MiB received, 8.64 MiB sent
+
+peer: h1faNjOF62M7uDHY7Q0PkE97kfHd52IkLVkzwTu2qkw=
+  endpoint: 88.29.172.x:xxxx
+  allowed ips: 10.8.0.x/32
+  latest handshake: 1 minute, 45 seconds ago
+  transfer: 1.29 GiB received, 60.14 MiB sent
 
 peer: BfTojNzP/nhwC0gEjl4xhFoSlFYxU32DO9+3Yb7yuD8=
   endpoint: 176.83.14.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 3 hours, 4 minutes, 25 seconds ago
+  latest handshake: 4 hours, 4 minutes, 26 seconds ago
   transfer: 47.78 MiB received, 2.93 GiB sent
 
 peer: 0S8e6faG5RzPgD6j54ZB0NQ9NeXaGsJRT+85KBiQzBI=
   endpoint: 188.167.250.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 3 hours, 34 minutes, 21 seconds ago
+  latest handshake: 4 hours, 34 minutes, 22 seconds ago
   transfer: 109.43 MiB received, 5.68 GiB sent
 
 peer: 1aqdDAaLV5DZJHriYmn8qZM767T53yEENQaOJXHzRQw=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 13 hours, 45 minutes, 53 seconds ago
+  latest handshake: 14 hours, 45 minutes, 54 seconds ago
   transfer: 3.81 MiB received, 5.61 MiB sent
 
 peer: KEZGd3+6dRKm70ttQMmxbWqKFvGBOyvRUXjIluc/TzI=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 17 hours, 28 minutes, 2 seconds ago
+  latest handshake: 18 hours, 28 minutes, 3 seconds ago
   transfer: 5.19 GiB received, 2.34 GiB sent
 
 peer: zlCDqPzHSrq4T4ytXqycK5hX9B0BGs8lCVI3iAB8vmY=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 day, 15 hours, 41 minutes, 53 seconds ago
+  latest handshake: 1 day, 16 hours, 41 minutes, 54 seconds ago
   transfer: 71.36 MiB received, 11.56 GiB sent
 
 peer: UHQMYQTUJuZmar72fA6a0OXuQRFebkAhYBoBfT0dvGI=
   endpoint: 79.159.51.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 3 days, 13 hours, 39 minutes, 50 seconds ago
+  latest handshake: 3 days, 14 hours, 39 minutes, 51 seconds ago
   transfer: 694.88 KiB received, 7.77 MiB sent
 
 peer: 7IwcRslG8kfUELjQ/is/+38oViwRaWCM4sH35uS5Zho=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 3 days, 19 hours, 1 second ago
+  latest handshake: 3 days, 20 hours, 2 seconds ago
   transfer: 7.72 MiB received, 25.16 MiB sent
 
 peer: XthUZfEkAeNFVoYNyJrcU2QMt1I+0bETU5FwHdLjU2U=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 5 days, 23 hours, 55 minutes, 44 seconds ago
+  latest handshake: 6 days, 55 minutes, 45 seconds ago
   transfer: 188.08 KiB received, 87.95 KiB sent
 
 peer: bRmKj5NN4N4FWxBG8Mwm/IFriKvV0ncXUta1WIvgOnA=
@@ -335,10 +335,10 @@ Pi-hole: Up 7 days (healthy)
 Unbound: Up 7 days (healthy)
 
 Prueba DNS via Pi-hole (10.8.0.1):
-142.251.140.227
+172.217.20.227
 
 Prueba DNS via Unbound (172.18.0.3):
-216.58.204.195
+216.58.204.163
 
 Upstream efectivo de Pi-hole:
 [ unbound-unbound-1#53 ]
@@ -372,34 +372,34 @@ Contenedores en ejecución:
 NAMES                     IMAGE                                                            STATUS
 pihole-pihole-1           pihole/pihole:latest                                             Up 7 days (healthy)
 ghostfolio                ghostfolio/ghostfolio:2.251.0                                    Up 5 days (healthy)
-gf-postgres               postgres:15-alpine                                               Up 7 days (healthy)
-gf-redis                  redis:alpine                                                     Up 7 days (healthy)
-mariadb                   linuxserver/mariadb:11.4.5                                       Up 7 days
-syncthing                 syncthing/syncthing:latest                                       Up 7 days (healthy)
-jellyfin                  lscr.io/linuxserver/jellyfin:latest                              Up 7 days
-n8n                       n8nio/n8n:latest                                                 Up 7 days
-firefly_iii_importer      fireflyiii/data-importer:latest                                  Up 7 days (healthy)
-firefly_iii_core          fireflyiii/core:latest                                           Up 7 days (healthy)
-jellyseerr                ghcr.io/fallenbagel/jellyseerr:latest                            Up 7 days
-stirling-pdf              stirlingtools/stirling-pdf:latest                                Up 7 days
-sonarr                    lscr.io/linuxserver/sonarr:latest                                Up 7 days
-unpackerr                 ghcr.io/unpackerr/unpackerr:latest                               Up 7 days
-homepage                  ghcr.io/gethomepage/homepage:latest                              Up 7 days (healthy)
-portal-api                nginx:alpine                                                     Up 7 days
-caddy                     caddy:latest                                                     Up 7 days
-big-bear-nextcloud-ls     linuxserver/nextcloud:32.0.1                                     Up 7 days
-immich_server             ghcr.io/immich-app/immich-server:v2                              Up 7 days (healthy)
-immich_postgres           ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0   Up 7 days (healthy)
-immich_machine_learning   ghcr.io/immich-app/immich-machine-learning:v2                    Up 7 days (healthy)
-immich_redis              valkey/valkey:8                                                  Up 7 days (healthy)
-sabnzbd                   lscr.io/linuxserver/sabnzbd:latest                               Up 7 days
-prowlarr                  lscr.io/linuxserver/prowlarr:latest                              Up 7 days
-collabora-collabora-1     collabora/code:latest                                            Up 7 days
+gf-postgres               postgres:15-alpine                                               Up 8 days (healthy)
+gf-redis                  redis:alpine                                                     Up 8 days (healthy)
+mariadb                   linuxserver/mariadb:11.4.5                                       Up 8 days
+syncthing                 syncthing/syncthing:latest                                       Up 8 days (healthy)
+jellyfin                  lscr.io/linuxserver/jellyfin:latest                              Up 8 days
+n8n                       n8nio/n8n:latest                                                 Up 8 days
+firefly_iii_importer      fireflyiii/data-importer:latest                                  Up 8 days (healthy)
+firefly_iii_core          fireflyiii/core:latest                                           Up 8 days (healthy)
+jellyseerr                ghcr.io/fallenbagel/jellyseerr:latest                            Up 8 days
+stirling-pdf              stirlingtools/stirling-pdf:latest                                Up 8 days
+sonarr                    lscr.io/linuxserver/sonarr:latest                                Up 8 days
+unpackerr                 ghcr.io/unpackerr/unpackerr:latest                               Up 8 days
+homepage                  ghcr.io/gethomepage/homepage:latest                              Up 8 days (healthy)
+portal-api                nginx:alpine                                                     Up 8 days
+caddy                     caddy:latest                                                     Up 8 days
+big-bear-nextcloud-ls     linuxserver/nextcloud:32.0.1                                     Up 8 days
+immich_server             ghcr.io/immich-app/immich-server:v2                              Up 8 days (healthy)
+immich_postgres           ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0   Up 8 days (healthy)
+immich_machine_learning   ghcr.io/immich-app/immich-machine-learning:v2                    Up 8 days (healthy)
+immich_redis              valkey/valkey:8                                                  Up 8 days (healthy)
+sabnzbd                   lscr.io/linuxserver/sabnzbd:latest                               Up 8 days
+prowlarr                  lscr.io/linuxserver/prowlarr:latest                              Up 8 days
+collabora-collabora-1     collabora/code:latest                                            Up 8 days
 unbound-unbound-1         mvance/unbound:latest                                            Up 7 days (healthy)
-radarr                    lscr.io/linuxserver/radarr:latest                                Up 7 days
-qbittorrent               lscr.io/linuxserver/qbittorrent:latest                           Up 7 days
-firefly_iii_cron          alpine                                                           Up 7 days
-firefly_iii_db            mariadb:lts                                                      Up 7 days
+radarr                    lscr.io/linuxserver/radarr:latest                                Up 8 days
+qbittorrent               lscr.io/linuxserver/qbittorrent:latest                           Up 8 days
+firefly_iii_cron          alpine                                                           Up 8 days
+firefly_iii_db            mariadb:lts                                                      Up 8 days
 
 Docker Compose (v2) — stacks:
 NAME                    STATUS              CONFIG FILES
