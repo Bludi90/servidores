@@ -1,4 +1,4 @@
-# Estado de main1 — 2026-04-15_2300
+# Estado de main1 — 2026-04-16_0000
 
 ## Índice
 
@@ -54,14 +54,14 @@ Linux main1 6.12.73+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.73-1 (2026-02
 Debian GNU/Linux 13 (trixie)
 
 Uptime:
-up 7 weeks, 3 days, 2 hours, 21 minutes
+up 7 weeks, 3 days, 3 hours, 21 minutes
 ```
 
 ## CPU y RAM
 ```
 CPUs: 16
                total        used        free      shared  buff/cache   available
-Mem:            14Gi       9.5Gi       920Mi        71Mi       5.2Gi       5.4Gi
+Mem:            14Gi        11Gi       338Mi        75Mi       3.7Gi       3.6Gi
 Swap:           15Gi        12Gi       2.8Gi
 ```
 
@@ -227,64 +227,64 @@ interface: wg0
   private key: (hidden)
   listening port: 51820
 
+peer: BfTojNzP/nhwC0gEjl4xhFoSlFYxU32DO9+3Yb7yuD8=
+  endpoint: 89.7.40.x:xxxx
+  allowed ips: 10.8.0.x/32
+  latest handshake: 6 seconds ago
+  transfer: 47.90 MiB received, 2.93 GiB sent
+
 peer: KEZGd3+6dRKm70ttQMmxbWqKFvGBOyvRUXjIluc/TzI=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 17 seconds ago
-  transfer: 5.19 GiB received, 2.40 GiB sent
-
-peer: DigK2nE3jYKSgMniMbR5lxZ/zxIM2j3W/XollOGAj2w=
-  endpoint: 95.127.60.x:xxxx
-  allowed ips: 10.8.0.x/32
-  latest handshake: 1 minute, 11 seconds ago
-  transfer: 4.55 MiB received, 8.88 MiB sent
+  latest handshake: 14 seconds ago
+  transfer: 5.19 GiB received, 2.41 GiB sent
 
 peer: h1faNjOF62M7uDHY7Q0PkE97kfHd52IkLVkzwTu2qkw=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 3 minutes, 1 second ago
-  transfer: 1.62 GiB received, 78.11 MiB sent
+  latest handshake: 1 minute, 54 seconds ago
+  transfer: 1.62 GiB received, 78.26 MiB sent
 
-peer: BfTojNzP/nhwC0gEjl4xhFoSlFYxU32DO9+3Yb7yuD8=
-  endpoint: 89.7.40.x:xxxx
+peer: DigK2nE3jYKSgMniMbR5lxZ/zxIM2j3W/XollOGAj2w=
+  endpoint: 188.167.250.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 4 minutes, 31 seconds ago
-  transfer: 47.87 MiB received, 2.93 GiB sent
+  latest handshake: 2 minutes, 20 seconds ago
+  transfer: 4.57 MiB received, 8.90 MiB sent
 
 peer: 0S8e6faG5RzPgD6j54ZB0NQ9NeXaGsJRT+85KBiQzBI=
   endpoint: 188.167.250.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 13 hours, 34 minutes, 22 seconds ago
+  latest handshake: 14 hours, 34 minutes, 21 seconds ago
   transfer: 109.43 MiB received, 5.68 GiB sent
 
 peer: 1aqdDAaLV5DZJHriYmn8qZM767T53yEENQaOJXHzRQw=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 23 hours, 45 minutes, 54 seconds ago
+  latest handshake: 1 day, 45 minutes, 53 seconds ago
   transfer: 3.81 MiB received, 5.61 MiB sent
 
 peer: zlCDqPzHSrq4T4ytXqycK5hX9B0BGs8lCVI3iAB8vmY=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 2 days, 1 hour, 41 minutes, 54 seconds ago
+  latest handshake: 2 days, 2 hours, 41 minutes, 53 seconds ago
   transfer: 71.36 MiB received, 11.56 GiB sent
 
 peer: UHQMYQTUJuZmar72fA6a0OXuQRFebkAhYBoBfT0dvGI=
   endpoint: 79.159.51.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 3 days, 23 hours, 39 minutes, 51 seconds ago
+  latest handshake: 4 days, 39 minutes, 50 seconds ago
   transfer: 694.88 KiB received, 7.77 MiB sent
 
 peer: 7IwcRslG8kfUELjQ/is/+38oViwRaWCM4sH35uS5Zho=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 4 days, 5 hours, 2 seconds ago
+  latest handshake: 4 days, 6 hours, 1 second ago
   transfer: 7.72 MiB received, 25.16 MiB sent
 
 peer: XthUZfEkAeNFVoYNyJrcU2QMt1I+0bETU5FwHdLjU2U=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 6 days, 9 hours, 55 minutes, 45 seconds ago
+  latest handshake: 6 days, 10 hours, 55 minutes, 44 seconds ago
   transfer: 188.08 KiB received, 87.95 KiB sent
 
 peer: bRmKj5NN4N4FWxBG8Mwm/IFriKvV0ncXUta1WIvgOnA=
@@ -335,10 +335,10 @@ Pi-hole: Up 8 days (healthy)
 Unbound: Up 8 days (healthy)
 
 Prueba DNS via Pi-hole (10.8.0.1):
-64.233.167.94
+216.58.205.227
 
 Prueba DNS via Unbound (172.18.0.3):
-74.125.71.94
+216.58.204.195
 
 Upstream efectivo de Pi-hole:
 [ unbound-unbound-1#53 ]
