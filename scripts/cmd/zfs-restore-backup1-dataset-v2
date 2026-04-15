@@ -1,0 +1,156 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+usage() {
+  cat <<'USAGE'
+Uso:
+  zfs-restore-backup1-dataset-v2 --ssh-target HOST --dataset DATASET --tag TAG --dest DESTINO [--dry-run] [--remote-tar-dir DIR] [--stream]
+
+Ejemplos:
+  zfs-restore-backup1-dataset-v2 \
+    --ssh-target backup1 \
+    --dataset nextcloud/data \
+    --tag replica-20260410-033003 \
+    --dest /srv/storage/tmp/dr-restore \
+    --stream
+
+  zfs-restore-backup1-dataset-v2 \
+    --ssh-target backup1 \
+    --dataset nextcloud/data \
+    --tag replica-20260410-033003 \
+    --dest /srv/storage/tmp/dr-restore \
+    --remote-tar-dir /srv/replica
+USAGE
+}
+
+SSH_TARGET=""
+DATASET=""
+TAG=""
+DEST=""
+DRY_RUN=0
+STREAM=0
+REMOTE_TAR_DIR="/tmp"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --ssh-target)      SSH_TARGET="${2:-}"; shift 2 ;;
+    --dataset)         DATASET="${2:-}"; shift 2 ;;
+    --tag)             TAG="${2:-}"; shift 2 ;;
+    --dest)            DEST="${2:-}"; shift 2 ;;
+    --remote-tar-dir)  REMOTE_TAR_DIR="${2:-}"; shift 2 ;;
+    --stream)          STREAM=1; shift ;;
+    --dry-run)         DRY_RUN=1; shift ;;
+    -h|--help)         usage; exit 0 ;;
+    *) echo "Argumento no reconocido: $1" >&2; usage >&2; exit 2 ;;
+  esac
+done
+
+[[ -n "$SSH_TARGET" ]] || { echo "Falta --ssh-target" >&2; exit 2; }
+[[ -n "$DATASET"    ]] || { echo "Falta --dataset" >&2; exit 2; }
+[[ -n "$TAG"        ]] || { echo "Falta --tag" >&2; exit 2; }
+[[ -n "$DEST"       ]] || { echo "Falta --dest" >&2; exit 2; }
+
+[[ "$DATASET" != /* ]] || { echo "--dataset no debe empezar por /" >&2; exit 2; }
+[[ "$DEST" != "/"  ]] || { echo "--dest no puede ser /" >&2; exit 2; }
+[[ "$REMOTE_TAR_DIR" == /* ]] || { echo "--remote-tar-dir debe ser absoluto" >&2; exit 2; }
+
+DEST="${DEST%/}"
+REMOTE_TAR_DIR="${REMOTE_TAR_DIR%/}"
+[[ -n "$DEST" ]] || { echo "--dest no puede quedar vacío" >&2; exit 2; }
+[[ -n "$REMOTE_TAR_DIR" ]] || { echo "--remote-tar-dir no puede quedar vacío" >&2; exit 2; }
+
+STAMP="$(date +%Y%m%d-%H%M%S)"
+SAFE_DATASET="${DATASET//\//-}"
+
+REMOTE_DATASET="backup/replicas/main1/tank/${DATASET}"
+REMOTE_SNAPSHOT="${REMOTE_DATASET}@${TAG}"
+REMOTE_CLONE="backup/restore-tests/${SAFE_DATASET}-${STAMP}"
+REMOTE_MOUNT="/mnt/restore-test-${SAFE_DATASET}-${STAMP}"
+REMOTE_TAR="${REMOTE_TAR_DIR}/zfs-restore-${SAFE_DATASET}-dataset-${STAMP}.tar"
+LOCAL_TAR="${DEST}/zfs-restore-${SAFE_DATASET}-dataset-${STAMP}.tar"
+LOCAL_TARGET_DIR="${DEST}/${SAFE_DATASET}"
+
+REMOTE_READY=0
+
+cleanup_remote() {
+  if (( REMOTE_READY == 1 )); then
+    echo
+    echo "[cleanup] Intentando limpiar temporales remotos..."
+    ssh "$SSH_TARGET" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper cleanup '${REMOTE_CLONE}' '${REMOTE_TAR}'" || true
+  fi
+}
+
+trap cleanup_remote EXIT
+
+echo "zfs-restore-backup1-dataset-v2 (plan)"
+echo "DRY_RUN=$DRY_RUN"
+echo "STREAM=$STREAM"
+echo "SSH_TARGET=$SSH_TARGET"
+echo "REMOTE_DATASET=$REMOTE_DATASET"
+echo "REMOTE_SNAPSHOT=$REMOTE_SNAPSHOT"
+echo "REMOTE_CLONE=$REMOTE_CLONE"
+echo "REMOTE_MOUNT=$REMOTE_MOUNT"
+echo "REMOTE_TAR=$REMOTE_TAR"
+echo "LOCAL_TAR=$LOCAL_TAR"
+echo "LOCAL_TARGET_DIR=$LOCAL_TARGET_DIR"
+
+echo
+echo "[check] Comprobando snapshot remoto..."
+ssh "$SSH_TARGET" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper snapshot-exists '$REMOTE_SNAPSHOT'"
+
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  exit 0
+fi
+
+echo
+echo "[run] Creando clone remoto..."
+ssh "$SSH_TARGET" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper clone-mount '${REMOTE_SNAPSHOT}' '${REMOTE_CLONE}' '${REMOTE_MOUNT}'"
+REMOTE_READY=1
+
+echo
+echo "[run] Recreando directorio destino local..."
+if [[ -e "$LOCAL_TARGET_DIR" ]]; then
+  if rm -rf -- "$LOCAL_TARGET_DIR" 2>/dev/null; then
+    :
+  else
+    sudo -n rm -rf -- "$LOCAL_TARGET_DIR"
+  fi
+fi
+mkdir -p "$LOCAL_TARGET_DIR"
+
+if (( STREAM == 1 )); then
+  echo
+  echo "[run] Extrayendo dataset por streaming..."
+  ssh "$SSH_TARGET" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper tar-dataset-stdout '${REMOTE_MOUNT}'" \
+    | tar -C "$LOCAL_TARGET_DIR" -xf -
+  find "$LOCAL_TARGET_DIR" -maxdepth 2 | sed -n '1,60p'
+else
+  echo
+  echo "[run] Creando tar remoto del dataset completo..."
+  ssh "$SSH_TARGET" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper tar-dataset '${REMOTE_MOUNT}' '${REMOTE_TAR}'"
+
+  echo
+  echo "[run] Copiando tar a destino local..."
+  mkdir -p "$DEST"
+  scp "${SSH_TARGET}:${REMOTE_TAR}" "$LOCAL_TAR"
+  ls -lh "$LOCAL_TAR"
+
+  echo
+  echo "[run] Extrayendo tar en destino local..."
+  tar -C "$LOCAL_TARGET_DIR" -xf "$LOCAL_TAR"
+  find "$LOCAL_TARGET_DIR" -maxdepth 2 | sed -n '1,60p'
+
+  echo
+  echo "[run] Limpiando tar local..."
+  rm -f "$LOCAL_TAR"
+fi
+
+echo
+echo "[run] Limpiando temporales remotos..."
+ssh "$SSH_TARGET" "sudo -n /usr/local/sbin/backup1-zfs-restore-helper cleanup '${REMOTE_CLONE}' '${REMOTE_TAR}'"
+REMOTE_READY=0
+trap - EXIT
+
+echo
+echo "Restore dataset completado."
+echo "LOCAL_TARGET_DIR=$LOCAL_TARGET_DIR"
