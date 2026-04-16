@@ -1,4 +1,4 @@
-# Estado de main1 — 2026-04-16_0300
+# Estado de main1 — 2026-04-16_0400
 
 ## Índice
 
@@ -54,15 +54,15 @@ Linux main1 6.12.73+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.73-1 (2026-02
 Debian GNU/Linux 13 (trixie)
 
 Uptime:
-up 7 weeks, 3 days, 6 hours, 21 minutes
+up 7 weeks, 3 days, 7 hours, 21 minutes
 ```
 
 ## CPU y RAM
 ```
 CPUs: 16
                total        used        free      shared  buff/cache   available
-Mem:            14Gi       9.4Gi       2.9Gi       305Mi       3.5Gi       5.6Gi
-Swap:           15Gi        11Gi       3.8Gi
+Mem:            14Gi        10Gi       1.2Gi       336Mi       4.0Gi       4.3Gi
+Swap:           15Gi        11Gi       4.1Gi
 ```
 
 ## Redes (IPv4 depuradas)
@@ -93,7 +93,7 @@ wg0              UNKNOWN        10.8.0.x/24
 df -hT:
 Filesystem Type Size Used Avail Use% Mounted on
 udev devtmpfs 7.5G 0 7.5G 0% /dev
-tmpfs tmpfs 1.5G 7.6M 1.5G 1% /run
+tmpfs tmpfs 1.5G 7.7M 1.5G 1% /run
 /dev/nvme0n1p2 ext4 900G 56G 799G 7% /
 tmpfs tmpfs 7.5G 4.0K 7.5G 1% /dev/shm
 efivarfs efivarfs 128K 55K 69K 45% /sys/firmware/efi/efivars
@@ -230,61 +230,61 @@ interface: wg0
 peer: DigK2nE3jYKSgMniMbR5lxZ/zxIM2j3W/XollOGAj2w=
   endpoint: 188.167.250.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 2 seconds ago
-  transfer: 4.65 MiB received, 9.02 MiB sent
+  latest handshake: 16 seconds ago
+  transfer: 4.67 MiB received, 9.05 MiB sent
 
 peer: h1faNjOF62M7uDHY7Q0PkE97kfHd52IkLVkzwTu2qkw=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 minute, 5 seconds ago
-  transfer: 1.62 GiB received, 78.56 MiB sent
+  latest handshake: 53 seconds ago
+  transfer: 1.62 GiB received, 78.71 MiB sent
 
 peer: BfTojNzP/nhwC0gEjl4xhFoSlFYxU32DO9+3Yb7yuD8=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 minute, 34 seconds ago
-  transfer: 47.97 MiB received, 2.93 GiB sent
+  latest handshake: 1 minute, 50 seconds ago
+  transfer: 47.99 MiB received, 2.93 GiB sent
 
 peer: KEZGd3+6dRKm70ttQMmxbWqKFvGBOyvRUXjIluc/TzI=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 2 hours, 24 minutes, 14 seconds ago
+  latest handshake: 3 hours, 24 minutes, 13 seconds ago
   transfer: 5.20 GiB received, 2.41 GiB sent
 
 peer: 0S8e6faG5RzPgD6j54ZB0NQ9NeXaGsJRT+85KBiQzBI=
   endpoint: 188.167.250.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 17 hours, 34 minutes, 22 seconds ago
+  latest handshake: 18 hours, 34 minutes, 21 seconds ago
   transfer: 109.43 MiB received, 5.68 GiB sent
 
 peer: 1aqdDAaLV5DZJHriYmn8qZM767T53yEENQaOJXHzRQw=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 day, 3 hours, 45 minutes, 54 seconds ago
+  latest handshake: 1 day, 4 hours, 45 minutes, 53 seconds ago
   transfer: 3.81 MiB received, 5.61 MiB sent
 
 peer: zlCDqPzHSrq4T4ytXqycK5hX9B0BGs8lCVI3iAB8vmY=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 2 days, 5 hours, 41 minutes, 54 seconds ago
+  latest handshake: 2 days, 6 hours, 41 minutes, 53 seconds ago
   transfer: 71.36 MiB received, 11.56 GiB sent
 
 peer: UHQMYQTUJuZmar72fA6a0OXuQRFebkAhYBoBfT0dvGI=
   endpoint: 79.159.51.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 4 days, 3 hours, 39 minutes, 51 seconds ago
+  latest handshake: 4 days, 4 hours, 39 minutes, 50 seconds ago
   transfer: 694.88 KiB received, 7.77 MiB sent
 
 peer: 7IwcRslG8kfUELjQ/is/+38oViwRaWCM4sH35uS5Zho=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 4 days, 9 hours, 2 seconds ago
+  latest handshake: 4 days, 10 hours, 1 second ago
   transfer: 7.72 MiB received, 25.16 MiB sent
 
 peer: XthUZfEkAeNFVoYNyJrcU2QMt1I+0bETU5FwHdLjU2U=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 6 days, 13 hours, 55 minutes, 45 seconds ago
+  latest handshake: 6 days, 14 hours, 55 minutes, 44 seconds ago
   transfer: 188.08 KiB received, 87.95 KiB sent
 
 peer: bRmKj5NN4N4FWxBG8Mwm/IFriKvV0ncXUta1WIvgOnA=
@@ -335,10 +335,10 @@ Pi-hole: Up 8 days (healthy)
 Unbound: Up 8 days (healthy)
 
 Prueba DNS via Pi-hole (10.8.0.1):
-216.58.204.163
+172.217.171.35
 
 Prueba DNS via Unbound (172.18.0.3):
-142.251.142.131
+172.217.171.35
 
 Upstream efectivo de Pi-hole:
 [ unbound-unbound-1#53 ]
@@ -347,23 +347,23 @@ Upstream efectivo de Pi-hole:
 ## Snapshots ZFS y réplica
 ```
 Últimos snapshots locales de tank:
-tank@replica-20260411-033127
 tank@replica-20260412-033003
 tank@replica-20260413-033145
 tank@replica-20260414-033002
 tank@replica-20260415-033120
+tank@replica-20260416-033002
 
 Réplica backup1 (resumen log):
-[2026-04-15 03:31:49] OK    retention: poda histórica completada
-[2026-04-15 03:31:49] INFO  state: generando snapshot markdown de backup1
-[2026-04-15 03:31:50] OK    state: snapshot generado
-[2026-04-15 03:31:50] INFO  main: el host fue encendido por este wrapper; se apagará al final
-[2026-04-15 03:31:50] INFO  shutdown: ordenando apagado remoto
-[2026-04-15 03:31:50] INFO  shutdown: esperando caída completa hasta 180s
-[2026-04-15 03:31:56] OK    shutdown: host apagado
-[2026-04-15 03:31:56] INFO  shutdown: margen post-apagado 30s
-[2026-04-15 03:32:26] INFO  shutdown: fin del ciclo
-[2026-04-15 03:32:26] INFO  main: flujo completado correctamente
+[2026-04-16 03:30:02] OK    check: poweroff remoto no interactivo validado
+[2026-04-16 03:30:02] INFO  check: comprobaciones online OK
+[2026-04-16 03:30:02] INFO  repl: lanzando réplica real
+[2026-04-16 03:35:12] OK    repl: réplica finalizada
+[2026-04-16 03:35:12] INFO  retention: aplicando política 7d/4w/6m en backup/replicas/main1/tank
+[2026-04-16 03:35:13] OK    retention: poda histórica completada
+[2026-04-16 03:35:13] INFO  state: generando snapshot markdown de backup1
+[2026-04-16 03:35:55] OK    state: snapshot generado
+[2026-04-16 03:35:55] INFO  main: el host ya estaba encendido al inicio; se deja encendido
+[2026-04-16 03:35:55] INFO  main: flujo completado correctamente
 ```
 
 ## Docker
