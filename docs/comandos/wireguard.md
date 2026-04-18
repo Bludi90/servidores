@@ -131,7 +131,7 @@ _Disponible: Sí (`/usr/local/sbin/wg-repair`)_
 ## migrate-clients
 
 _Disponible: Sí (`/usr/local/sbin/wg-migrate-clients`)_
-    wireguard miragte-clients
+    wireguard migrate-clients
     Binario real: wg-migrate-clients
 
    **Objetivo:**
