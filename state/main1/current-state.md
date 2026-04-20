@@ -1,4 +1,4 @@
-# Estado de main1 — 2026-04-20_0300
+# Estado de main1 — 2026-04-20_0400
 
 ## Índice
 
@@ -54,15 +54,15 @@ Linux main1 6.12.73+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.73-1 (2026-02
 Debian GNU/Linux 13 (trixie)
 
 Uptime:
-up 8 weeks, 6 hours, 21 minutes
+up 8 weeks, 7 hours, 21 minutes
 ```
 
 ## CPU y RAM
 ```
 CPUs: 16
                total        used        free      shared  buff/cache   available
-Mem:            14Gi        10Gi       1.8Gi       133Mi       3.0Gi       4.1Gi
-Swap:           15Gi        11Gi       3.5Gi
+Mem:            14Gi        10Gi       1.2Gi       146Mi       3.6Gi       4.0Gi
+Swap:           15Gi        11Gi       3.4Gi
 ```
 
 ## Redes (IPv4 depuradas)
@@ -230,73 +230,73 @@ interface: wg0
 peer: BfTojNzP/nhwC0gEjl4xhFoSlFYxU32DO9+3Yb7yuD8=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 minute, 2 seconds ago
-  transfer: 50.21 MiB received, 2.93 GiB sent
+  latest handshake: 1 minute, 16 seconds ago
+  transfer: 50.23 MiB received, 2.93 GiB sent
 
 peer: DigK2nE3jYKSgMniMbR5lxZ/zxIM2j3W/XollOGAj2w=
   endpoint: 95.127.41.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 minute, 49 seconds ago
-  transfer: 6.73 MiB received, 11.74 MiB sent
-
-peer: h1faNjOF62M7uDHY7Q0PkE97kfHd52IkLVkzwTu2qkw=
-  endpoint: 89.7.40.x:xxxx
-  allowed ips: 10.8.0.x/32
-  latest handshake: 2 minutes, 31 seconds ago
-  transfer: 1.95 GiB received, 91.87 MiB sent
+  latest handshake: 1 minute, 32 seconds ago
+  transfer: 6.75 MiB received, 11.79 MiB sent
 
 peer: ONtQXfZCujd/QhtlCW3cUFt6GXYkZhOs/mvO9Rc5ERU=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 hour, 7 minutes, 53 seconds ago
+  latest handshake: 38 minutes, 23 seconds ago
   transfer: 8.54 MiB received, 517.80 MiB sent
+
+peer: h1faNjOF62M7uDHY7Q0PkE97kfHd52IkLVkzwTu2qkw=
+  endpoint: 89.7.40.x:xxxx
+  allowed ips: 10.8.0.x/32
+  latest handshake: 49 minutes, 29 seconds ago
+  transfer: 1.95 GiB received, 91.87 MiB sent
 
 peer: KEZGd3+6dRKm70ttQMmxbWqKFvGBOyvRUXjIluc/TzI=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 4 hours, 10 minutes, 50 seconds ago
+  latest handshake: 5 hours, 10 minutes, 51 seconds ago
   transfer: 5.21 GiB received, 2.43 GiB sent
 
 peer: 7IwcRslG8kfUELjQ/is/+38oViwRaWCM4sH35uS5Zho=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 4 hours, 19 minutes, 28 seconds ago
+  latest handshake: 5 hours, 19 minutes, 29 seconds ago
   transfer: 10.33 MiB received, 47.88 MiB sent
 
 peer: zlCDqPzHSrq4T4ytXqycK5hX9B0BGs8lCVI3iAB8vmY=
   endpoint: 89.7.40.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 4 hours, 23 minutes, 3 seconds ago
+  latest handshake: 5 hours, 23 minutes, 4 seconds ago
   transfer: 105.40 MiB received, 12.72 GiB sent
 
 peer: 1aqdDAaLV5DZJHriYmn8qZM767T53yEENQaOJXHzRQw=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 1 day, 12 hours, 38 minutes, 8 seconds ago
+  latest handshake: 1 day, 13 hours, 38 minutes, 9 seconds ago
   transfer: 5.07 MiB received, 7.37 MiB sent
 
 peer: lrWZ8HNftgJQtJ1pEYFoLP7awmJe1z/d/lrRJ07vaBo=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 3 days, 3 hours, 4 minutes, 55 seconds ago
+  latest handshake: 3 days, 4 hours, 4 minutes, 56 seconds ago
   transfer: 716.52 KiB received, 18.59 MiB sent
 
 peer: 0S8e6faG5RzPgD6j54ZB0NQ9NeXaGsJRT+85KBiQzBI=
   endpoint: 188.167.250.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 4 days, 17 hours, 34 minutes, 21 seconds ago
+  latest handshake: 4 days, 18 hours, 34 minutes, 22 seconds ago
   transfer: 109.43 MiB received, 5.68 GiB sent
 
 peer: UHQMYQTUJuZmar72fA6a0OXuQRFebkAhYBoBfT0dvGI=
   endpoint: 79.159.51.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 8 days, 3 hours, 39 minutes, 50 seconds ago
+  latest handshake: 8 days, 4 hours, 39 minutes, 51 seconds ago
   transfer: 694.88 KiB received, 7.78 MiB sent
 
 peer: XthUZfEkAeNFVoYNyJrcU2QMt1I+0bETU5FwHdLjU2U=
   endpoint: 88.20.73.x:xxxx
   allowed ips: 10.8.0.x/32
-  latest handshake: 10 days, 13 hours, 55 minutes, 44 seconds ago
+  latest handshake: 10 days, 14 hours, 55 minutes, 45 seconds ago
   transfer: 188.08 KiB received, 93.73 KiB sent
 
 peer: bRmKj5NN4N4FWxBG8Mwm/IFriKvV0ncXUta1WIvgOnA=
@@ -341,10 +341,10 @@ Pi-hole: Up 12 days (healthy)
 Unbound: Up 12 days (healthy)
 
 Prueba DNS via Pi-hole (10.8.0.1):
-172.217.171.35
+172.217.20.227
 
 Prueba DNS via Unbound (172.18.0.3):
-216.58.205.67
+192.178.25.99
 
 Upstream efectivo de Pi-hole:
 [ unbound-unbound-1#53 ]
@@ -353,23 +353,23 @@ Upstream efectivo de Pi-hole:
 ## Snapshots ZFS y réplica
 ```
 Últimos snapshots locales de tank:
-tank@replica-20260415-033120
 tank@replica-20260416-033002
 tank@replica-20260417-033105
 tank@replica-20260418-033112
 tank@replica-20260419-033115
+tank@replica-20260420-033002
 
 Réplica backup1 (resumen log):
-[2026-04-19 03:31:31] WARN  retention: falló zfs-retention-prune; se conserva la réplica y se continúa
-[2026-04-19 03:31:31] INFO  state: generando snapshot markdown de backup1
-[2026-04-19 03:31:31] OK    state: snapshot generado
-[2026-04-19 03:31:31] INFO  main: el host fue encendido por este wrapper; se apagará al final
-[2026-04-19 03:31:31] INFO  shutdown: ordenando apagado remoto
-[2026-04-19 03:31:32] INFO  shutdown: esperando caída completa hasta 180s
-[2026-04-19 03:31:38] OK    shutdown: host apagado
-[2026-04-19 03:31:38] INFO  shutdown: margen post-apagado 30s
-[2026-04-19 03:32:08] INFO  shutdown: fin del ciclo
-[2026-04-19 03:32:08] INFO  main: flujo completado correctamente
+[2026-04-20 03:30:02] OK    check: poweroff remoto no interactivo validado
+[2026-04-20 03:30:02] INFO  check: comprobaciones online OK
+[2026-04-20 03:30:02] INFO  repl: lanzando réplica real
+[2026-04-20 03:32:24] OK    repl: réplica finalizada
+[2026-04-20 03:32:24] INFO  retention: aplicando política 7d/4w/6m en backup/replicas/main1/tank
+[2026-04-20 03:32:25] WARN  retention: falló zfs-retention-prune; se conserva la réplica y se continúa
+[2026-04-20 03:32:25] INFO  state: generando snapshot markdown de backup1
+[2026-04-20 03:33:06] OK    state: snapshot generado
+[2026-04-20 03:33:06] INFO  main: el host ya estaba encendido al inicio; se deja encendido
+[2026-04-20 03:33:06] INFO  main: flujo completado correctamente
 ```
 
 ## Docker
